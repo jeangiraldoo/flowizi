@@ -21,7 +21,7 @@ subparser_list.set_defaults(func = commands.list_)
 
 subparser_remove = subparsers.add_parser("remove", help = "remove the selected link from the system")
 subparser_remove.add_argument("-p", action = "store_true", help = "removes a meeting link from the list", default = False)
-subparser_remove.add_argument("software_name", nargs = "?", default = "false")
+subparser_remove.add_argument("name", nargs = "?", default = "false")
 subparser_remove.set_defaults(func = lambda args: commands.remove(args, subparser_remove))
 
 subparser_join_meeting = subparsers.add_parser("join", help = "join the specified meeting")

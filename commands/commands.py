@@ -21,14 +21,14 @@ def join(args, parser):
 
 def remove(args, parser):
     """Remove a link from the configuration file"""
-    if(args.p and args.software_name == "false"):
+    if(args.p and args.name == "false"):
         parser.error("The path and the software name were not specified")
-    elif(args.p and args.software_name == "false"):
+    elif(args.p and args.name == "false"):
         parser.error("The software name was not specified")
-    found = lazyMeetings.exists_meeting_list(args.software_name)
+    found = lazyMeetings.exists_meeting_list(args.name)
     if(not(found)):
         parser.error("There's no meeting with that name")
-    lazyMeetings.remove_meeting(args.software_name)
+    lazyMeetings.remove_meeting(args.name)
 
 def show_system_info(args):
     print(f"Operating system: {lazyMeetings.os_name}\nUser: {lazyMeetings.user}")
