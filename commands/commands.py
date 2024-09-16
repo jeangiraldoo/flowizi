@@ -1,8 +1,9 @@
 import os
 import platform
-from config import config_manager
+import meetings
+from config import setup
 from urllib.parse import urlparse
-from app_data import lazyMeetings
+from app_data.lazymeetings import lazyMeetings
 
 def handle_arguments(args):
     """Process optional flags used when running lazyMeetings"""
@@ -11,29 +12,26 @@ def handle_arguments(args):
 
 def remove(args, parser):
     """Remove a link from the configuration file"""
-
     if(args.p and args.software_name == "false"):
         parser.error("The path and the software name were not specified")
     elif(args.p and args.software_name == "false"):
         parser.error("The software name was not specified")
+    found = False
 
-    lazyMeetings.parser.read(lazyMeetings.config_path)
-    if(not(args.software_name in lazyMeetings.parser["Meetings"])):
-        parser.error("There's no app in the paths with that name")
-    else:
-        config_manager.remove_path_value(args.software_name)
+    for i in lazyMeetings.meeting_list:
+        if(i.name == args.software_name):
+            lazyMeetings.remove_meeting(args.software_name)
+            found = True
+            break
+    if(not(found)):
+        parser.error("There's no meeting with that name")
 
 def show_system_info(args):
     print(f"Operating system: {lazyMeetings.os_name}\nUser: {lazyMeetings.user}")
 
 def list_(args):
-    lazyMeetings.parser.read(lazyMeetings.config_path)
-    if(len(lazyMeetings.parser["Meetings"]) == 0):
-        print("There's no links in the configuration file. \nUse the 'add' command with the '-p' flag to add one")
-    else:
-        print("List of meetings:")
-        for key in lazyMeetings.parser["Meetings"]:
-            print(f"{key} -> {lazyMeetings.parser['Meetings'][key]}")
+    for i in lazyMeetings.meeting_list:
+        print(f"{i.name} -> {i.link}")
 
 def add(args, parser):
     """Add a software_name/path pair to the "Meetings" setting in the configuration file"""
@@ -42,17 +40,17 @@ def add(args, parser):
     if(args.p and args.link == "false"):
         parser.error("The path was not provided")
 
-    parsed_link = urlparse(args.link)
     # This checks that the URL has both a scheme (e.g., http or https) and a network location (e.g., example.com)
+    parsed_link = urlparse(args.link)
     if(not(all([parsed_link.scheme, parsed_link.netloc]))):
         parser.error("The link does not follow a proper link format")
         
-    #Validates if the name or link is already in the config file
-    lazyMeetings.parser.read(lazyMeetings.config_path)
-    if(args.name in lazyMeetings.parser["Meetings"]):
-        parser.error("The app name has been added in the past")
-    else:
-        for key in lazyMeetings.parser["Meetings"]:
-            if(lazyMeetings.parser["Meetings"][key] == args.path_name):
-                parser.error("The path name has been added in the past")
-    config_manager.add_path_value(args.name, args.link)
+    #Validates if the name or link is already in the json file
+    for i in lazyMeetings.meeting_list:
+        if(i.name == args.name):
+            parser.error("The meeting name has been added in the past")
+        elif(i.link == args.link):
+            parser.error("The link has been added in the past")
+
+    lazyMeetings.add_meeting(meetings.meeting(args.name, args.link))
+    print(f"The {args.name} meeting has been added!")

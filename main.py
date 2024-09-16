@@ -1,8 +1,5 @@
 from argparse import ArgumentParser
 from commands import commands
-from config import config_manager
-
-config_manager.create_config()
 
 parser = ArgumentParser(prog = "Lazy Meetings", description = "Automates the process of joining regular meetings")
 parser.add_argument("-v", action = "store_true", help = "show the app version", default = False)
@@ -33,4 +30,3 @@ if hasattr(args, "func"):
     args.func(args)
 else:
     commands.handle_arguments(args)
-
