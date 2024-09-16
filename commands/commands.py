@@ -34,8 +34,12 @@ def show_system_info(args):
     print(f"Operating system: {lazyMeetings.os_name}\nUser: {lazyMeetings.user}")
 
 def list_(args):
-    for i in lazyMeetings.meeting_list:
-        print(f"{i.name} -> {i.link}")
+    if(len(lazyMeetings.meeting_list) == 0):
+        print("There's no meetings. You can add one by using the add command with the -p flag, followed by the meeting name and link")
+    else:
+        print("Meeting list:")
+        for i in lazyMeetings.meeting_list:
+            print(f"{i.name} -> {i.link}")
 
 def add(args, parser):
     """Add a software_name/path pair to the "Meetings" setting in the configuration file"""
