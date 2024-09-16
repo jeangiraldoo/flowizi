@@ -10,21 +10,25 @@ def handle_arguments(args):
     if(args.v):
         print(f"Lazy Meetings {lazyMeetings.version}")
 
+def join(args, parser):
+    if(args.name == "false"):
+        parser.error("The meeting name was not specified")
+
+    found = lazyMeetings.exists_meeting_list(args.name)
+    if(not(found)):
+        parser.error("There's no meeting with that name")
+    lazyMeetings.join_meeting(args.name)
+
 def remove(args, parser):
     """Remove a link from the configuration file"""
     if(args.p and args.software_name == "false"):
         parser.error("The path and the software name were not specified")
     elif(args.p and args.software_name == "false"):
         parser.error("The software name was not specified")
-    found = False
-
-    for i in lazyMeetings.meeting_list:
-        if(i.name == args.software_name):
-            lazyMeetings.remove_meeting(args.software_name)
-            found = True
-            break
+    found = lazyMeetings.exists_meeting_list(args.software_name)
     if(not(found)):
         parser.error("There's no meeting with that name")
+    lazyMeetings.remove_meeting(args.software_name)
 
 def show_system_info(args):
     print(f"Operating system: {lazyMeetings.os_name}\nUser: {lazyMeetings.user}")

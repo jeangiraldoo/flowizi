@@ -1,5 +1,6 @@
 import os
 import platform
+import webbrowser
 import json
 import meetings
 from config import setup
@@ -19,6 +20,12 @@ class lazyMeetings:
         self.config_path = f"{self.config_directory}/{self.config_name}"
         setup.create_config(self.config_directory, self.config_path)
         self.load_meetings()
+
+    def exists_meeting_list(self, meeting_name):
+        for i in self.meeting_list:
+            if(i.name == meeting_name):
+                return True
+        return False
 
     def add_meeting(self, meeting):
         data = {"name":meeting.name, "link":meeting.link}
@@ -49,6 +56,12 @@ class lazyMeetings:
             name = i["name"]
             link = i["link"]
             self.meeting_list.append(meetings.meeting(name, link))
+
+    def join_meeting(self, meeting_name):
+        for i in self.meeting_list:
+            if(i.name == meeting_name):
+                webbrowser.open(i.link)
+                break
 
 lazyMeetings = lazyMeetings()
 

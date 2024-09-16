@@ -24,6 +24,10 @@ subparser_remove.add_argument("-p", action = "store_true", help = "removes a mee
 subparser_remove.add_argument("software_name", nargs = "?", default = "false")
 subparser_remove.set_defaults(func = lambda args: commands.remove(args, subparser_remove))
 
+subparser_join_meeting = subparsers.add_parser("join", help = "join the specified meeting")
+subparser_join_meeting.add_argument("name", nargs = "?", default = "false")
+subparser_join_meeting.set_defaults(func = lambda args: commands.join(args, subparser_join_meeting))
+
 args = parser.parse_args() 
 
 if hasattr(args, "func"):
