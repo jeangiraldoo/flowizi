@@ -8,7 +8,7 @@ from app_data.lazymeetings import lazyMeetings
 def handle_arguments(args):
     """Process optional flags used when running lazyMeetings"""
     if(args.v):
-        print(f"EasyConfig {lazyMeetings.version}")
+        print(f"Lazy Meetings {lazyMeetings.version}")
 
 def remove(args, parser):
     """Remove a link from the configuration file"""
