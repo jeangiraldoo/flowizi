@@ -7,7 +7,7 @@ from config import setup
 
 
 class lazyMeetings:
-    version = "0.0.0"
+    version = "0.1.0-alpha"
     config_name = "data.json"
     meeting_list: list[meetings] = []
 
