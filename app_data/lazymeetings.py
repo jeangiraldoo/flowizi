@@ -5,6 +5,7 @@ import json
 import meetings
 from config import setup
 
+
 class lazyMeetings:
     version = "0.0.0"
     config_name = "data.json"
@@ -15,7 +16,7 @@ class lazyMeetings:
         self.os_name = operative_system 
         self.user = os.getlogin()
 
-        if(operative_system == "Windows"):
+        if operative_system == "Windows":
             self.config_directory = f"C:/Users/{self.user}/AppData/Local/lazyMeetings"
         self.config_path = f"{self.config_directory}/{self.config_name}"
         setup.create_config(self.config_directory, self.config_path)
@@ -23,7 +24,7 @@ class lazyMeetings:
 
     def exists_meeting_list(self, meeting_name):
         for i in self.meeting_list:
-            if(i.name == meeting_name):
+            if i.name == meeting_name:
                 return True
         return False
 
@@ -40,7 +41,7 @@ class lazyMeetings:
         with open(self.config_path, "r") as file:
             data = json.load(file)
         for i in data:
-            if(i["name"] != meeting_name):
+            if i["name"] != meeting_name:
                 new_values.append(i)
 
         with open(self.config_path, "w") as file:
@@ -59,7 +60,7 @@ class lazyMeetings:
 
     def join_meeting(self, meeting_name):
         for i in self.meeting_list:
-            if(i.name == meeting_name):
+            if i.name == meeting_name:
                 webbrowser.open(i.link)
                 break
 
