@@ -2,7 +2,7 @@ import os
 import platform
 import webbrowser
 import json
-import meetings
+from app_core import meetings
 from config import setup
 
 

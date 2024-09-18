@@ -1,9 +1,9 @@
 import os
 import platform
-import meetings
 from config import setup
 from urllib.parse import urlparse
-from app_data.lazymeetings import lazyMeetings
+from app_core.lazymeetings import lazyMeetings
+from app_core import meetings
 
 def handle_arguments(args):
     """Process optional flags used when running lazyMeetings"""
