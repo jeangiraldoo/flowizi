@@ -19,7 +19,7 @@ class lazyMeetings:
         if operative_system == "Windows":
             self.config_directory = f"C:/Users/{self.user}/AppData/Local/lazyMeetings"
         self.config_path = f"{self.config_directory}/{self.config_name}"
-        setup.create_config(self.config_directory, self.config_path)
+        setup.create_json(self.config_directory, self.config_path)
         self.load_meetings()
 
     def exists_meeting_list(self, meeting_name):
