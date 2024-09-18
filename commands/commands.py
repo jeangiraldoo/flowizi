@@ -21,9 +21,9 @@ def join(args, parser):
 
 def remove(args, parser):
     """Remove a link from the configuration file"""
-    if(args.p and args.name == "false"):
+    if(args.name == "false"):
         parser.error("The path and the software name were not specified")
-    elif(args.p and args.name == "false"):
+    elif(args.name == "false"):
         parser.error("The software name was not specified")
     found = lazyMeetings.exists_meeting_list(args.name)
     if(not(found)):
@@ -43,9 +43,9 @@ def list_(args):
 
 def add(args, parser):
     """Add a software_name/path pair to the "Meetings" setting in the configuration file"""
-    if(args.p and args.name == "false"):
+    if(args.name == "false"):
         parser.error("The name of the software was not provided")
-    if(args.p and args.link == "false"):
+    if(args.link == "false"):
         parser.error("The path was not provided")
 
     # This checks that the URL has both a scheme (e.g., http or https) and a network location (e.g., example.com)
