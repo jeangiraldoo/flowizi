@@ -1,6 +1,6 @@
 import os
 import platform
-from config import setup
+from bootstrap import setup
 from urllib.parse import urlparse
 from app_core.lazymeetings import lazyMeetings
 from app_core import meetings

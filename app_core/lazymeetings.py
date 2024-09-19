@@ -3,7 +3,7 @@ import platform
 import webbrowser
 import json
 from app_core import meetings
-from config import setup
+from bootstrap import setup
 
 
 class lazyMeetings:
