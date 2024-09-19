@@ -14,6 +14,10 @@ subparser_add.add_argument("name", type = str, default = "false")
 subparser_add.add_argument("link", type = str, default = "false")
 subparser_add.set_defaults(func = lambda args: commands.add(args, subparser_add))
 
+subparser_meeting = subparsers.add_parser("meeting", help = "modify meeting information")
+subparser_meeting.add_argument("-time", nargs = 2, type = str, default = "false")
+subparser_meeting.set_defaults(func = lambda args: commands.meeting(args, subparser_meeting))
+
 subparser_list = subparsers.add_parser("list", help = "show all the meetings added")
 subparser_list.set_defaults(func = commands.list_)
 

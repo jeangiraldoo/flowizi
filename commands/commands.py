@@ -11,6 +11,10 @@ def handle_arguments(args):
         print(f"Lazy Meetings {lazyMeetings.version}")
 
 
+def meeting(args, parser):
+    if args.time != "false":
+        lazyMeetings.update_meeting(args.time[0], "time", args.time[1])
+
 def join(args, parser):
     if args.name == "false":
         parser.error("The meeting name was not specified")
@@ -43,7 +47,7 @@ def list_(args):
     else:
         print("Meeting list:")
         for i in lazyMeetings.meeting_list:
-            print(f"{i.name} -> {i.link}")
+            print(f"|{i.time}| {i.name} -> {i.link}")
 
 
 def add(args, parser):
@@ -65,5 +69,5 @@ def add(args, parser):
         elif i.link == args.link:
             parser.error("The link has been added in the past")
 
-    lazyMeetings.add_meeting(meetings.meeting(args.name, args.link))
+    lazyMeetings.add_meeting(meetings.meeting(args.name, args.link, "empty"))
     print(f"The {args.name} meeting has been added!")
