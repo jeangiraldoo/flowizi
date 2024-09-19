@@ -16,5 +16,5 @@ def create_json(directory, json_path):
     if not(verify_path_exists(directory)):
         os.makedirs(directory) 
     if not(verify_path_exists(json_path)):
-        with open(path, "w") as file:
+        with open(json_path, "w") as file:
             file.write("[]")
