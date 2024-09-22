@@ -7,7 +7,7 @@ from bootstrap import setup
 
 
 class flowizi:
-    version = "0.1.0-alpha"
+    version = "0.2.0-alpha"
     config_name = "data.json"
     meeting_list: list[meetings] = []
 
