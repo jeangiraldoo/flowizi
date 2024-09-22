@@ -1,5 +1,6 @@
-class meeting:
-    name = ""
+from app_core.element import Element
+
+class meeting(Element):
     link = ""
     time = ""
 
