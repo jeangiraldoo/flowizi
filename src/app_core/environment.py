@@ -1,8 +1,12 @@
 class Environment():
-    __init__(self, name):
+    def __init__(self, name):
         self.name = name
         self.applications = []
         self.meetings = []
+
+    def add_element(self, element_type, element):
+        env_list = getattr(self, element_type)
+        env_list.append(element)
 
     def element_exists(self, element_type, element_name):
         env_list = getattr(self, element_type)

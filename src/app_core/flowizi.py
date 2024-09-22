@@ -2,14 +2,15 @@ import os
 import platform
 import webbrowser
 import json
-from app_core import meetings
-from bootstrap import setup
+from src.app_core import environment
+from src.app_core.meetings import meeting
+from src.bootstrap import setup
 
 
 class flowizi:
     version = "0.1.0-alpha"
     config_name = "data.json"
-    meeting_list: list[meetings] = []
+    environment_list = []
 
     def __init__(self):
         operative_system = platform.system()
@@ -20,28 +21,28 @@ class flowizi:
             self.config_directory = f"C:/Users/{self.user}/AppData/Local/flowizi"
         self.config_path = f"{self.config_directory}/{self.config_name}"
         setup.create_json(self.config_directory, self.config_path)
-        self.load_meetings()
+        self.load_environments()
 
-    def exists_meeting_list(self, meeting_name):
+    def exists_environment_list(self, meeting_name):
         for i in self.meeting_list:
             if i.name == meeting_name:
                 return True
         return False
 
-    def add_meeting(self, meeting):
-        data = {"name":meeting.name, "link":meeting.link, "time":meeting.time}
+    def add_environment(self, environment):
+        data = {"name":environment.name, "applications":environment.applications, "meetings":environment.meetings}
         with open(self.config_path, "r") as file:
-            meeting_data = json.load(file)
-        meeting_data.append(data)
+            environment_data = json.load(file)
+        environment_data.append(data)
         with open(self.config_path, 'w') as file:
-            json.dump(meeting_data, file, indent=4)
+            json.dump(environment_data, file, indent=4)
 
-    def remove_meeting(self, meeting_name):
+    def remove_environment(self, environment_name):
         new_values = []
         with open(self.config_path, "r") as file:
             data = json.load(file)
         for i in data:
-            if i["name"] != meeting_name:
+            if i["name"] != environment_name:
                 new_values.append(i)
 
         with open(self.config_path, "w") as file:
@@ -49,7 +50,7 @@ class flowizi:
 
         print(f"Meeting {meeting_name} removed successfully!")
 
-    def update_meeting(self, meeting_name, attribute, value):
+    def update_environment(self, meeting_name, attribute, value):
         with open(self.config_path, "r") as file:
             data = json.load(file)
         for i in data:
@@ -93,16 +94,20 @@ class flowizi:
             
         return True
 
-    def load_meetings(self):
+    def load_environments(self):
         data = ""
         with open(self.config_path, 'r') as file:
             data = json.load(file)
         for i in data:
             name = i["name"]
-            link = i["link"]
-            time = i["time"]
-            new_meeting = meetings.meeting(name, link, time)
-            self.meeting_list.append(new_meeting)
+            meetings = i["meetings"]
+            if(len(meetings) > 0):
+                for i in meetings:
+                    new_meeting = meeting(i["name"], i["link"])
+                    self.meetings.append(new_meeting)
+
+            new_environment = environment.Environment(name)
+            self.environment_list.append(new_environment)
 
     def join_meeting(self, meeting_name):
         for i in self.meeting_list:

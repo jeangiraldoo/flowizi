@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from commands import commands
+from src.commands import commands
 
 parser = ArgumentParser(prog = "Lazy Meetings", description = "Automates the process of joining regular meetings")
 parser.add_argument("-v", action = "store_true", help = "show the app version", default = False)
@@ -11,7 +11,6 @@ subparser_system.set_defaults(func = commands.show_system_info)
 
 subparser_add = subparsers.add_parser("add", help = "add a meeting link to the configuration file")
 subparser_add.add_argument("name", type = str, default = "false")
-subparser_add.add_argument("link", type = str, default = "false")
 subparser_add.set_defaults(func = lambda args: commands.add(args, subparser_add))
 
 subparser_meeting = subparsers.add_parser("meeting", help = "modify meeting information")

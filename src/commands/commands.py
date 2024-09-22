@@ -1,9 +1,9 @@
 import os
 import platform
-from bootstrap import setup
+from src.bootstrap import setup
 from urllib.parse import urlparse
-from app_core.flowizi import flowizi
-from app_core import meetings
+from src.app_core.flowizi import flowizi
+from src.app_core.environment import Environment
 
 def handle_arguments(args):
     """Process optional flags used when running flowizi"""
@@ -41,32 +41,24 @@ def show_system_info(args):
 
 
 def list_(args):
-    if len(flowizi.meeting_list) == 0:
+    if len(flowizi.environment_list) == 0:
         print("There's no meetings. You can add one by using the add command with the -p flag, followed by the meeting name and link")
     else:
-        print("Meeting list:")
-        for i in flowizi.meeting_list:
-            print(f"|{i.time}| {i.name} -> {i.link}")
+        print("Environment list:")
+        for i in flowizi.environment_list:
+            print(f"{i.name}")
 
 
 def add(args, parser):
     """Add a software_name/path pair to the "Meetings" setting in the configuration file"""
     if args.name == "false":
         parser.error("The name of the software was not provided")
-    if args.link == "false":
-        parser.error("The path was not provided")
 
-    # This checks that the URL has both a scheme (e.g., http or https) and a network location (e.g., example.com)
-    parsed_link = urlparse(args.link)
-    if not(all([parsed_link.scheme, parsed_link.netloc])):
-        parser.error("The link does not follow a proper link format")
-        
-    #Validates if the name or link is already in the json file
-    for i in flowizi.meeting_list:
-        if i.name == args.name:
+    #Validates if the name is already in the json file
+    for environment in flowizi.environment_list:
+        if environment.name == args.name:
             parser.error("The meeting name has been added in the past")
-        elif i.link == args.link:
-            parser.error("The link has been added in the past")
 
-    flowizi.add_meeting(meetings.meeting(args.name, args.link, "empty"))
-    print(f"The {args.name} meeting has been added!")
+    environment = Environment(args.name)
+    flowizi.add_environment(environment)
+    print(f"The {args.name} environment has been added!")
