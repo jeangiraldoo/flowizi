@@ -1,6 +1,6 @@
-# LazyMeetings
+# Flowizi
 
-LazyMeetings is a CLI app that simplifies your workflow when you join a meeting
+Flowizi is a CLI app that simplifies your workflow when you join a meeting
 
 ### Key features
 

@@ -6,7 +6,7 @@ from app_core import meetings
 from bootstrap import setup
 
 
-class lazyMeetings:
+class flowizi:
     version = "0.1.0-alpha"
     config_name = "data.json"
     meeting_list: list[meetings] = []
@@ -17,7 +17,7 @@ class lazyMeetings:
         self.user = os.getlogin()
 
         if operative_system == "Windows":
-            self.config_directory = f"C:/Users/{self.user}/AppData/Local/lazyMeetings"
+            self.config_directory = f"C:/Users/{self.user}/AppData/Local/flowizi"
         self.config_path = f"{self.config_directory}/{self.config_name}"
         setup.create_json(self.config_directory, self.config_path)
         self.load_meetings()
@@ -110,5 +110,5 @@ class lazyMeetings:
                 webbrowser.open(i.link)
                 break
 
-lazyMeetings = lazyMeetings()
+flowizi = flowizi()
 

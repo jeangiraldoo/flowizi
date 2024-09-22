@@ -2,27 +2,26 @@ import os
 import platform
 from bootstrap import setup
 from urllib.parse import urlparse
-from app_core.lazymeetings import lazyMeetings
+from app_core.flowizi import flowizi
 from app_core import meetings
 
 def handle_arguments(args):
-    """Process optional flags used when running lazyMeetings"""
+    """Process optional flags used when running flowizi"""
     if args.v:
-        print(f"Lazy Meetings {lazyMeetings.version}")
-
+        print(f"Flowizi {flowizi.version}")
 
 def meeting(args, parser):
     if args.time != "false":
-        lazyMeetings.update_meeting(args.time[0], "time", args.time[1])
+        flowizi.update_meeting(args.time[0], "time", args.time[1])
 
 def join(args, parser):
     if args.name == "false":
         parser.error("The meeting name was not specified")
 
-    found = lazyMeetings.exists_meeting_list(args.name)
+    found = flowizi.exists_meeting_list(args.name)
     if not(found):
         parser.error("There's no meeting with that name")
-    lazyMeetings.join_meeting(args.name)
+    flowizi.join_meeting(args.name)
 
 
 def remove(args, parser):
@@ -31,22 +30,22 @@ def remove(args, parser):
         parser.error("The path and the software name were not specified")
     elif args.name == "false":
         parser.error("The software name was not specified")
-    found = lazyMeetings.exists_meeting_list(args.name)
+    found = flowizi.exists_meeting_list(args.name)
     if not(found):
         parser.error("There's no meeting with that name")
-    lazyMeetings.remove_meeting(args.name)
+    flowizi.remove_meeting(args.name)
 
 
 def show_system_info(args):
-    print(f"Operating system: {lazyMeetings.os_name}\nUser: {lazyMeetings.user}")
+    print(f"Operating system: {flowizi.os_name}\nUser: {flowizi.user}")
 
 
 def list_(args):
-    if len(lazyMeetings.meeting_list) == 0:
+    if len(flowizi.meeting_list) == 0:
         print("There's no meetings. You can add one by using the add command with the -p flag, followed by the meeting name and link")
     else:
         print("Meeting list:")
-        for i in lazyMeetings.meeting_list:
+        for i in flowizi.meeting_list:
             print(f"|{i.time}| {i.name} -> {i.link}")
 
 
@@ -63,11 +62,11 @@ def add(args, parser):
         parser.error("The link does not follow a proper link format")
         
     #Validates if the name or link is already in the json file
-    for i in lazyMeetings.meeting_list:
+    for i in flowizi.meeting_list:
         if i.name == args.name:
             parser.error("The meeting name has been added in the past")
         elif i.link == args.link:
             parser.error("The link has been added in the past")
 
-    lazyMeetings.add_meeting(meetings.meeting(args.name, args.link, "empty"))
+    flowizi.add_meeting(meetings.meeting(args.name, args.link, "empty"))
     print(f"The {args.name} meeting has been added!")
