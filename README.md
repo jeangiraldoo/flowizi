@@ -4,7 +4,7 @@ Flowizi is a CLI app that automates the process of opening all the tools you nee
 
 ### Key features
 
-- Automatically open any websites, meetings, files or apps that are part of your workflow with a single command
+- Automatically open all websites, meetings, files or apps that are part of your workflow with a single command
 - Add and join meetings without having to open a browser manually
 - Start recording the screen after joining a meeting and storing the video locally
 
