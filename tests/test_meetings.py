@@ -1,5 +1,5 @@
 import pytest
-from app_core import meetings
+from src.app_core import meetings
 
 @pytest.mark.parametrize("time, expected", [
     ("20:40", True),

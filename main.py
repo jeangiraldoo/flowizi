@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from commands import commands
+from src.commands import commands
 
 parser = ArgumentParser(prog = "Lazy Meetings", description = "Automates the process of joining regular meetings")
 parser.add_argument("-v", action = "store_true", help = "show the app version", default = False)
@@ -11,7 +11,7 @@ subparser_system.set_defaults(func = commands.show_system_info)
 
 subparser_add = subparsers.add_parser("add", help = "add a meeting link to the configuration file")
 subparser_add.add_argument("name", type = str, default = "false")
-subparser_add.add_argument("link", type = str, default = "false")
+subparser_add.add_argument("-m", "-meeting", nargs = 2, metavar = ("meeting_name", "link"), default = "false")
 subparser_add.set_defaults(func = lambda args: commands.add(args, subparser_add))
 
 subparser_meeting = subparsers.add_parser("meeting", help = "modify meeting information")
@@ -25,9 +25,9 @@ subparser_remove = subparsers.add_parser("remove", help = "remove the selected l
 subparser_remove.add_argument("name", default = "false")
 subparser_remove.set_defaults(func = lambda args: commands.remove(args, subparser_remove))
 
-subparser_join_meeting = subparsers.add_parser("join", help = "join the specified meeting")
-subparser_join_meeting.add_argument("name", nargs = "?", default = "false")
-subparser_join_meeting.set_defaults(func = lambda args: commands.join(args, subparser_join_meeting))
+subparser_start_meeting = subparsers.add_parser("start", help = "start the specified environment")
+subparser_start_meeting.add_argument("name", default = "false")
+subparser_start_meeting.set_defaults(func = lambda args: commands.start(args, subparser_start_meeting))
 
 args = parser.parse_args() 
 
