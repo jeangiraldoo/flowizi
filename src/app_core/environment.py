@@ -25,3 +25,7 @@ class Environment():
     def list_all_elements(self):
         list_elements("applications")
         list_elements("meetings")
+
+    def start(self):
+        for meeting in self.meetings:
+            meeting.join_meeting()

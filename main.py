@@ -25,9 +25,9 @@ subparser_remove = subparsers.add_parser("remove", help = "remove the selected l
 subparser_remove.add_argument("name", default = "false")
 subparser_remove.set_defaults(func = lambda args: commands.remove(args, subparser_remove))
 
-subparser_join_meeting = subparsers.add_parser("join", help = "join the specified meeting")
-subparser_join_meeting.add_argument("name", nargs = "?", default = "false")
-subparser_join_meeting.set_defaults(func = lambda args: commands.join(args, subparser_join_meeting))
+subparser_start_meeting = subparsers.add_parser("start", help = "start the specified environment")
+subparser_start_meeting.add_argument("name", default = "false")
+subparser_start_meeting.set_defaults(func = lambda args: commands.start(args, subparser_start_meeting))
 
 args = parser.parse_args() 
 

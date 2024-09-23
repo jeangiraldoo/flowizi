@@ -1,4 +1,5 @@
 from src.app_core.element import Element
+import webbrowser
 
 class Meeting(Element):
 

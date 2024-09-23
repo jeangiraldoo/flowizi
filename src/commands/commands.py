@@ -12,14 +12,12 @@ def handle_arguments(args):
         print(f"Flowizi {flowizi.version}")
 
 
-def join(args, parser):
-    if args.name == "false":
-        parser.error("The Meeting name was not specified")
-
-    found = flowizi.exists_meeting_list(args.name)
-    if not(found):
-        parser.error("There's no Meeting with that name")
-    flowizi.join_meeting(args.name)
+def start(args, parser):
+    name_exists = any(environment.name == args.name for environment in flowizi.environment_list)
+    if not name_exists:
+        parser.error("The environment specified does not exist")
+    for environment in flowizi.environment_list:
+        environment.start()
 
 
 def remove(args, parser):
