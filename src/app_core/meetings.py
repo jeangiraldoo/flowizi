@@ -12,8 +12,5 @@ class Meeting(Element):
     def get_link(self):
         return link
 
-    def join_meeting(self, meeting_name):
-        for i in self.meeting_list:
-            if i.name == meeting_name:
-                webbrowser.open(i.link)
-                break    
+    def join_meeting(self):
+        webbrowser.open(self.link)
