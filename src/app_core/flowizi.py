@@ -3,7 +3,7 @@ import platform
 import webbrowser
 import json
 from src.app_core import environment
-from src.app_core.meetings import meeting
+from src.app_core.meetings import Meeting
 from src.bootstrap import setup
 
 
@@ -23,9 +23,12 @@ class flowizi:
         setup.create_json(self.config_directory, self.config_path)
         self.load_environments()
 
+    def obj_to_dict(self, obj):
+        return {"name":obj.name, "link":obj.link} 
+
     def exists_environment_list(self, meeting_name):
-        for i in self.meeting_list:
-            if i.name == meeting_name:
+        for environment in self.environment_list:
+            if environment.name == meeting_name:
                 return True
         return False
 
@@ -41,21 +44,21 @@ class flowizi:
         new_values = []
         with open(self.config_path, "r") as file:
             data = json.load(file)
-        for i in data:
-            if i["name"] != environment_name:
-                new_values.append(i)
+        for environment in data:
+            if environment["name"] != environment_name:
+                new_values.append(environment)
 
         with open(self.config_path, "w") as file:
             json.dump(new_values, file, indent = 4)
 
-        print(f"Meeting {meeting_name} removed successfully!")
+        print(f"Environment {environment_name} removed successfully!")
 
-    def update_environment(self, meeting_name, attribute, value):
+    def add_environment_element(self, environment_name, attribute, attribute_object):
         with open(self.config_path, "r") as file:
             data = json.load(file)
-        for i in data:
-            if i["name"] == meeting_name and attribute == "time" and self.validate_time(value):
-                i[attribute] = value
+        for environment in data:
+            if environment["name"] == environment_name:
+                environment[attribute].append(self.obj_to_dict(attribute_object))
 
         with open(self.config_path, "w") as file:
             json.dump(data, file, indent = 4)
@@ -101,14 +104,13 @@ class flowizi:
         for i in data:
             name = i["name"]
             meetings = i["meetings"]
-            if(len(meetings) > 0):
-                for i in meetings:
-                    new_meeting = meeting(i["name"], i["link"])
-                    self.meetings.append(new_meeting)
-
             new_environment = environment.Environment(name)
-            self.environment_list.append(new_environment)
+            for dictionary in meetings:
+                new_meeting = Meeting(dictionary["name"], dictionary["link"])
+                new_environment.meetings.append(new_meeting)
 
+            self.environment_list.append(new_environment)
+                    
     def join_meeting(self, meeting_name):
         for i in self.meeting_list:
             if i.name == meeting_name:

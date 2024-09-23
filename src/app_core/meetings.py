@@ -1,13 +1,10 @@
 from src.app_core.element import Element
 
-class meeting(Element):
-    link = ""
-    time = ""
+class Meeting(Element):
 
     def __init__(self, name, link):
         self.name = name
         self.link = link
-        self.time = time
 
     def get_name(self):
         return name
@@ -15,3 +12,8 @@ class meeting(Element):
     def get_link(self):
         return link
 
+    def join_meeting(self, meeting_name):
+        for i in self.meeting_list:
+            if i.name == meeting_name:
+                webbrowser.open(i.link)
+                break    
