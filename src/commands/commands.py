@@ -17,7 +17,9 @@ def start(args, parser):
     if not name_exists:
         parser.error("The environment specified does not exist")
     for environment in flowizi.environment_list:
-        environment.start()
+        if environment.name == args.name:
+            environment.start()
+            break
 
 
 def remove(args, parser):
