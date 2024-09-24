@@ -28,4 +28,4 @@ class Environment():
 
     def start(self):
         for meeting in self.meetings:
-            meeting.join_meeting()
+            meeting.start()

@@ -1,8 +1,7 @@
-from src.app_core.element import Element
+from src.app_core.online_element import OnlineElement
 import webbrowser
 
-class Meeting(Element):
-
+class Meeting(OnlineElement):
     def __init__(self, name, link):
         self.name = name
         self.link = link
@@ -12,6 +11,3 @@ class Meeting(Element):
 
     def get_link(self):
         return link
-
-    def join_meeting(self):
-        webbrowser.open(self.link)
