@@ -116,11 +116,5 @@ class flowizi:
 
             self.environment_list.append(new_environment)
                     
-    def join_meeting(self, meeting_name):
-        for i in self.meeting_list:
-            if i.name == meeting_name:
-                webbrowser.open(i.link)
-                break
-
 flowizi = flowizi()
 
