@@ -3,6 +3,7 @@ class Environment():
         self.name = name
         self.applications = []
         self.meetings = []
+        self.websites = []
 
     def add_element(self, element_type, element):
         env_list = getattr(self, element_type)
@@ -29,3 +30,5 @@ class Environment():
     def start(self):
         for meeting in self.meetings:
             meeting.start()
+        for website in self.websites:
+            website.start()
