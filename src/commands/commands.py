@@ -58,6 +58,10 @@ def add(args, parser):
         name_exists = any(environment.name == args.name for environment in flowizi.environment_list)
         if not name_exists:
             parser.error("The environment specified does not exist")
+
+        parsed_link = urlparse(meeting_link)
+        if not(all([parsed_link.scheme, parsed_link.netloc])):
+            parser.error("The link does not follow a proper link format")
         for environment in flowizi.environment_list:
             if environment.name == args.name and len(environment.meetings) > 0:
                     meeting_exists = any(Meeting.name == meeting_name for Meeting in environment.meetings)
@@ -71,6 +75,11 @@ def add(args, parser):
         name_exists = any(environment.name == args.name for environment in flowizi.environment_list)
         if not name_exists:
             parser.error("The environment specified does not exist")
+
+        parsed_link = urlparse(website_link)
+        if not(all([parsed_link.scheme, parsed_link.netloc])):
+            parser.error("The link does not follow a proper link format")
+
         for environment in flowizi.environment_list:
             if environment.name == args.name and len(environment.meetings) > 0:
                 website_exists = any(website.name == website_name for website in environment.websites)
