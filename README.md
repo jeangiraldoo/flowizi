@@ -18,7 +18,7 @@ The .exe file behaves like a script. You need to move it to the directory where 
 
 Flowizi revolves around environments and elements. An environment is like a container, it is a representation of your workflow. Let's say that you are working on a project, every time you work on that project you need to open a specific file, a website and maybe a text editor; the concept of the project would be the environment, the file, website and text editor would be elements of that environment.
 
-Type `flowizi.exe list`. This command will show you what environments you have created. Since it is the first time yyou use Flowizi you will not have any environment.
+Type `flowizi.exe list`. This command will show you what environments you have created. Since it is the first time you use Flowizi, you will not have an environment.
 
 Let's create an environment. Type `flowizi.exe add name`, replace "name" with the name you want for the environment.
 
@@ -28,4 +28,6 @@ If you want to remove an entire environment, you can use the remove command. Typ
 
 Removing elements from an environment (without removing the environment itself) is just as easy, you just have to use the remove command with either the -w or -m flag, following the same structure you used when you added those elements in the first place, but with the remove command instead of the add command. Type `flowizi.exe remove -w name environment` to remove a website. `flowizi.exe remove -m name environment` removes a meeting.
 
-Finally, the system command will show the current user you are logged in as and the name of your operating system.
+The system command will show the current user you are logged in as and the name of your operating system.
+
+Finally, you can open everything contained in a container with the start command: `flowizi.exe start environment` 
