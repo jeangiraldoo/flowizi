@@ -9,7 +9,7 @@ from src.app_core.website import Website
 from src.bootstrap import setup
 
 
-class flowizi:
+class Flowizi:
     version = "0.1.0-alpha"
     config_name = "data.json"
     environment_list = []
@@ -168,5 +168,5 @@ class flowizi:
 
             self.environment_list.append(new_environment)
                     
-flowizi = flowizi()
+flowizi = Flowizi()
 
