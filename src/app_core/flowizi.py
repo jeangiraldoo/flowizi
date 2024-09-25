@@ -2,6 +2,7 @@ import os
 import platform
 import webbrowser
 import json
+from urllib.parse import urlparse
 from src.app_core import environment
 from src.app_core.meetings import Meeting
 from src.app_core.website import Website
@@ -23,6 +24,12 @@ class flowizi:
         self.config_path = f"{self.config_directory}/{self.config_name}"
         setup.create_json(self.config_directory, self.config_path)
         self.load_environments()
+
+    def verify_URL(self, url):
+        parsed_url = urlparse(url)
+        if not(all([parsed_url.scheme, parsed_url.netloc])):
+            return False
+        return True
 
     def obj_to_dict(self, obj):
         return {"name":obj.name, "link":obj.link} 
