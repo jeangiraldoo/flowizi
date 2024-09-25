@@ -3,8 +3,8 @@ import platform
 import webbrowser
 import json
 from urllib.parse import urlparse
-from src.app_core import environment
-from src.app_core.meetings import Meeting
+from src.app_core.environment import Environment
+from src.app_core.meeting import Meeting
 from src.app_core.website import Website
 from src.bootstrap import setup
 
@@ -25,16 +25,17 @@ class flowizi:
         setup.create_json(self.config_directory, self.config_path)
         self.load_environments()
 
-    def verify_URL(self, url):
+    def verify_URL(self, url: str) -> bool:
         parsed_url = urlparse(url)
         if not(all([parsed_url.scheme, parsed_url.netloc])):
             return False
         return True
 
     def obj_to_dict(self, obj):
+        print(obj.name)
         return {"name":obj.name, "link":obj.link} 
 
-    def exists_environment_list(self, meeting_name):
+    def exists_environment_list(self, meeting_name: str) -> bool:
         for environment in self.environment_list:
             if environment.name == meeting_name:
                 return True
@@ -48,7 +49,7 @@ class flowizi:
         with open(self.config_path, 'w') as file:
             json.dump(environment_data, file, indent=4)
 
-    def remove_environment(self, environment_name):
+    def remove_environment(self, environment_name: str):
         new_values = []
         with open(self.config_path, "r") as file:
             data = json.load(file)
@@ -61,7 +62,7 @@ class flowizi:
 
         print(f"Environment {environment_name} removed successfully!")
 
-    def add_environment_element(self, environment_name, attribute, attribute_object):
+    def add_environment_element(self, environment_name: str, attribute: str, attribute_object):
         with open(self.config_path, "r") as file:
             data = json.load(file)
         for environment in data:
@@ -113,7 +114,7 @@ class flowizi:
             name = i["name"]
             meetings = i["meetings"]
             websites = i["websites"]
-            new_environment = environment.Environment(name)
+            new_environment = Environment(name)
             for dictionary in meetings:
                 new_meeting = Meeting(dictionary["name"], dictionary["link"])
                 new_environment.meetings.append(new_meeting)

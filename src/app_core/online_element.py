@@ -2,7 +2,7 @@ import webbrowser
 from src.app_core.element import Element
 
 class OnlineElement(Element):
-    def __init__(self, link, name):
+    def __init__(self, name: str, link: str):
         super().__init__(name)
         self.link = link
 

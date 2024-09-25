@@ -3,7 +3,7 @@ import platform
 from src.bootstrap import setup
 from urllib.parse import urlparse
 from src.app_core.flowizi import flowizi
-from src.app_core.meetings import Meeting
+from src.app_core.meeting import Meeting
 from src.app_core.website import Website
 from src.app_core.environment import Environment
 
@@ -79,7 +79,9 @@ def add(args, parser):
             if environment.name == args.name and len(environment.meetings) > 0 and website_exists:
                 parser.error("This website already exists")
 
+        print(website_name)
         new_website = Website(website_name, website_link)
+        print(new_website.name)
         flowizi.add_environment_element(args.name, "websites", new_website)
         print(f"The {website_name} website was added to the {args.name} environment")
     else:
