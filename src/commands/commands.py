@@ -25,15 +25,24 @@ def start(args, parser):
 
 def remove(args, parser):
     """Remove a link from the configuration file"""
-    if args.name == "false":
-        parser.error("The path and the software name were not specified")
-    elif args.name == "false":
-        parser.error("The software name was not specified")
     found = flowizi.exists_environment_list(args.name)
     if not(found):
         parser.error("There's no environment with that name")
-    flowizi.remove_environment(args.name)
 
+    if args.m != "false" or args.w != "false":
+        if args.m == "false":
+            attribute = "websites"
+            value = args.w
+        else: 
+            attribute = "meetings"
+            value = args.m
+
+        exists = flowizi.exists_environment_element(args.name, attribute, value)
+        if not exists:
+            parser.error("The element specfified does not exist")
+        flowizi.remove_environment_element(args.name, attribute, value) 
+    else:
+        flowizi.remove_environment(args.name)
 
 def show_system_info(args):
     print(f"Operating system: {flowizi.os_name}\nUser: {flowizi.user}")

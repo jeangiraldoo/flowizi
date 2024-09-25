@@ -26,6 +26,7 @@ class flowizi:
         self.load_environments()
 
     def verify_URL(self, url: str) -> bool:
+        "Checks if a URL is valid"
         parsed_url = urlparse(url)
         if not(all([parsed_url.scheme, parsed_url.netloc])):
             return False
@@ -34,13 +35,34 @@ class flowizi:
     def obj_to_dict(self, obj):
         return {"name":obj.name, "link":obj.link} 
 
-    def exists_environment_list(self, meeting_name: str) -> bool:
+    def exists_environment_list(self, environment_name: str) -> bool:
+        """Checks if there's an environment with the specified name"""
         for environment in self.environment_list:
-            if environment.name == meeting_name:
+            if environment.name == environment_name:
                 return True
         return False
 
+    def exists_environment_element(self, environment_name: str, attribute: str, element_name: str) -> bool:
+        """Checks if there's an element with a specified name in a specific environment"""
+        pos = self.get_environment_pos(environment_name)
+
+        with open(self.config_path, "r") as file:
+            data = json.load(file)
+
+        environment = data[pos]
+        for env in environment[attribute]:
+            if env["name"] == element_name:
+                return True
+        return False
+
+    def get_environment_pos(self, environment_name: str) -> int:
+        """Get the index of a serialized environment in the JSON file"""
+        for index, environment in enumerate(self.environment_list):
+            if environment.name == environment_name:
+                return index
+
     def add_environment(self, environment):
+        """Serializes an Environment instance and writes it to the JSON file""" 
         data = {"name":environment.name, "applications":environment.applications, "meetings":environment.meetings, "websites":environment.websites}
         with open(self.config_path, "r") as file:
             environment_data = json.load(file)
@@ -49,6 +71,7 @@ class flowizi:
             json.dump(environment_data, file, indent=4)
 
     def remove_environment(self, environment_name: str):
+        """Removes a seralized Environment instance from the JSON file"""
         new_values = []
         with open(self.config_path, "r") as file:
             data = json.load(file)
@@ -62,6 +85,7 @@ class flowizi:
         print(f"Environment {environment_name} removed successfully!")
 
     def add_environment_element(self, environment_name: str, attribute: str, attribute_object):
+        """Adds an element to a specific environment"""
         with open(self.config_path, "r") as file:
             data = json.load(file)
         for environment in data:
@@ -70,6 +94,27 @@ class flowizi:
 
         with open(self.config_path, "w") as file:
             json.dump(data, file, indent = 4)
+
+    def remove_environment_element(self, environment_name: str, attribute: str, element_name):
+        """Removes an serialized Element instance from a serialized Environment instance from the JSON file"""
+        with open(self.config_path, "r") as file:
+            data = json.load(file)
+        new_values = []
+        print(attribute)
+        pos = self.get_environment_pos(environment_name)
+        environment = data[pos]
+
+        for hashmap in environment[attribute]:
+            if hashmap["name"] != element_name:
+                new_values.append(hashmap)
+
+        environment[attribute] = new_values
+        data[pos] = environment
+
+        with open(self.config_path, "w") as file:
+            json.dump(data, file, indent = 4)
+
+        print(f"The element was removed from the {environment_name} environment")
 
     def validate_time(self, time):
         if time.find(":") == -1:
