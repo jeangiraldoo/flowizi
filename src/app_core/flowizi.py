@@ -32,7 +32,6 @@ class flowizi:
         return True
 
     def obj_to_dict(self, obj):
-        print(obj.name)
         return {"name":obj.name, "link":obj.link} 
 
     def exists_environment_list(self, meeting_name: str) -> bool:
