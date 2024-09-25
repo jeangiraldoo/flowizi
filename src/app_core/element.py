@@ -1,4 +1,5 @@
 from abc import ABC
 
 class Element(ABC):
-    name = ""
+    def __init__(self, name):
+        self.name = name
