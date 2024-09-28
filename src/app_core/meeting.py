@@ -1,9 +1,11 @@
 from src.app_core.online_element import OnlineElement
+from datetime import datetime
 import webbrowser
+import pyaudio
+import subprocess
+import os
 
 class Meeting(OnlineElement):
-    pass
-
     def get_name(self):
         return name
 
