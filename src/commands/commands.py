@@ -3,7 +3,6 @@ import platform
 from src.bootstrap import setup
 from urllib.parse import urlparse
 from src.app_core.flowizi import flowizi
-from src.app_core.meeting import Meeting
 from src.app_core.website import Website
 from src.app_core.environment import Environment
 
@@ -29,13 +28,9 @@ def remove(args, parser):
     if not(found):
         parser.error("There's no environment with that name")
 
-    if args.m != "false" or args.w != "false":
-        if args.m == "false":
-            attribute = "websites"
-            value = args.w
-        else: 
-            attribute = "meetings"
-            value = args.m
+    if args.w != "false":
+        attribute = "websites"
+        value = args.w
 
         exists = flowizi.exists_environment_element(args.name, attribute, value)
         if not exists:
@@ -58,24 +53,7 @@ def list_(args):
 
 
 def add(args, parser):
-    """Add a software_name/path pair to the "Meetings" setting in the configuration file"""
-    if args.m != "false":
-        meeting_name, meeting_link = args.m
-        name_exists = any(environment.name == args.name for environment in flowizi.environment_list)
-        if not name_exists:
-            parser.error("The environment specified does not exist")
-        if not flowizi.verify_URL(meeting_link):
-            parser.error("The link does not follow a proper link format")
-            
-        for environment in flowizi.environment_list:
-            meeting_exists = any(Meeting.name == meeting_name for Meeting in environment.meetings)
-            if environment.name == args.name and len(environment.meetings) > 0 and meeting_exists:
-                parser.error("The Meeting specified already exists")
-
-        new_meeting = Meeting(meeting_name, meeting_link)
-        flowizi.add_environment_element(args.name, "meetings", new_meeting)
-        print(f"The {meeting_name} meeting was added to the {args.name} environment")
-    elif args.w != "false":
+    if args.w != "false":
         website_name, website_link = args.w
         name_exists = any(environment.name == args.name for environment in flowizi.environment_list)
         if not name_exists:
@@ -85,7 +63,7 @@ def add(args, parser):
 
         for environment in flowizi.environment_list:
             website_exists = any(website.name == website_name for website in environment.websites)
-            if environment.name == args.name and len(environment.meetings) > 0 and website_exists:
+            if environment.name == args.name and len(environment.websites) > 0 and website_exists:
                 parser.error("This website already exists")
 
         new_website = Website(website_name, website_link)

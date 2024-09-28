@@ -4,7 +4,6 @@ import webbrowser
 import json
 from urllib.parse import urlparse
 from src.app_core.environment import Environment
-from src.app_core.meeting import Meeting
 from src.app_core.website import Website
 from src.bootstrap import setup
 
@@ -33,7 +32,7 @@ class Flowizi:
         return True
 
     def obj_to_dict(self, obj):
-        return {"name":obj.name, "link":obj.link} 
+        return {"name":obj.name, "url":obj.url} 
 
     def exists_environment_list(self, environment_name: str) -> bool:
         """Checks if there's an environment with the specified name"""
@@ -63,7 +62,7 @@ class Flowizi:
 
     def add_environment(self, environment):
         """Serializes an Environment instance and writes it to the JSON file""" 
-        data = {"name":environment.name, "applications":environment.applications, "meetings":environment.meetings, "websites":environment.websites}
+        data = {"name":environment.name, "applications":environment.applications, "websites":environment.websites}
         with open(self.config_path, "r") as file:
             environment_data = json.load(file)
         environment_data.append(data)
@@ -100,7 +99,6 @@ class Flowizi:
         with open(self.config_path, "r") as file:
             data = json.load(file)
         new_values = []
-        print(attribute)
         pos = self.get_environment_pos(environment_name)
         environment = data[pos]
 
@@ -156,14 +154,10 @@ class Flowizi:
             data = json.load(file)
         for i in data:
             name = i["name"]
-            meetings = i["meetings"]
             websites = i["websites"]
             new_environment = Environment(name)
-            for dictionary in meetings:
-                new_meeting = Meeting(dictionary["name"], dictionary["link"])
-                new_environment.meetings.append(new_meeting)
             for dictionary in websites:
-                new_website = Website(dictionary["name"], dictionary["link"])
+                new_website = Website(dictionary["name"], dictionary["url"])
                 new_environment.websites.append(new_website)
 
             self.environment_list.append(new_environment)

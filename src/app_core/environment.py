@@ -5,7 +5,6 @@ class Environment():
     def __init__(self, name):
         self.name = name
         self.applications = []
-        self.meetings = []
         self.websites = []
 
     def add_element(self, element_type, element):
@@ -28,13 +27,9 @@ class Environment():
 
     def list_all_elements(self):
         list_elements("applications")
-        list_elements("meetings")
 
     def start(self):
         self.record()
-        for meeting in self.meetings:
-            meeting.start()
-            meeting.record()
         for website in self.websites:
             website.start()
 
