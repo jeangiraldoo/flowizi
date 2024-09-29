@@ -12,6 +12,22 @@ def handle_arguments(args):
         print(f"Flowizi {flowizi.version}")
 
 
+def record(args, subparser):
+    print(args)
+    found = flowizi.exists_environment_list(args.name)
+    if not(found):
+        parser.error("There's no environment with that name")
+    if args.t:
+        record_state = flowizi.verify_environment_recording(True, args.name)
+        if not record_state:
+            print(f"The {args.name} environment is already set to record the screen")
+        flowizi.update_environment_record(True, args.name)
+    elif args.f:
+        record_state = flowizi.verify_environment_recording(False, args.name)
+        if not record_state:
+            print(f"The {args.name} environment is already set not to record the screen")
+        flowizi.update_environment_record(False, args.name)
+
 def start(args, parser):
     name_exists = any(environment.name == args.name for environment in flowizi.environment_list)
     if not name_exists:

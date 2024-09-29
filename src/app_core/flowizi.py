@@ -24,6 +24,15 @@ class Flowizi:
         setup.create_json(self.config_directory, self.config_path)
         self.load_environments()
 
+    def verify_environment_recording(self, option: bool, environment_name) -> bool:
+        """Checks if the 'record' attribute in a given environment has the same boolean value as
+        the value the user wants to set. Returns True if the value in the attribute is different"""
+        pos = self.get_environment_pos(environment_name) 
+        environment = self.environment_list[pos]
+        if environment.record != option:
+            return True
+        return False
+
     def verify_URL(self, url: str) -> bool:
         "Checks if a URL is valid"
         parsed_url = urlparse(url)
@@ -62,7 +71,7 @@ class Flowizi:
 
     def add_environment(self, environment):
         """Serializes an Environment instance and writes it to the JSON file""" 
-        data = {"name":environment.name, "applications":environment.applications, "websites":environment.websites}
+        data = {"name":environment.name, "record":environment.record, "applications":environment.applications, "websites":environment.websites}
         with open(self.config_path, "r") as file:
             environment_data = json.load(file)
         environment_data.append(data)
@@ -114,6 +123,18 @@ class Flowizi:
 
         print(f"The element was removed from the {environment_name} environment")
 
+    def update_environment_record(self, option: bool, environment_name):
+        """Modifies the 'record' attribute in a given environment"""
+        with open(self.config_path, "r") as file:
+            data = json.load(file)
+        pos = self.get_environment_pos(environment_name)
+        environment = data[pos]
+        environment["record"] = option
+        data[pos] = environment
+
+        with open(self.config_path, "w") as file:
+            json.dump(data, file, indent = 4)
+
     def validate_time(self, time):
         if time.find(":") == -1:
             print("Minutes should be separated from seconds by a ':'")
@@ -154,12 +175,15 @@ class Flowizi:
             data = json.load(file)
         for i in data:
             name = i["name"]
+            record: bool = i["record"]
             websites = i["websites"]
             new_environment = Environment(name)
             for dictionary in websites:
                 new_website = Website(dictionary["name"], dictionary["url"])
                 new_environment.websites.append(new_website)
 
+            if record != False:
+                new_environment.set_record(True)
             self.environment_list.append(new_environment)
                     
 flowizi = Flowizi()

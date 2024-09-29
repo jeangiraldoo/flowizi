@@ -1,11 +1,17 @@
 import pyaudio
 import os
+import subprocess
 from datetime import datetime
+
 class Environment():
     def __init__(self, name):
         self.name = name
+        self.record = False
         self.applications = []
         self.websites = []
+
+    def set_record(self, option: bool):
+        self.record = option
 
     def add_element(self, element_type, element):
         env_list = getattr(self, element_type)
@@ -29,13 +35,14 @@ class Environment():
         list_elements("applications")
 
     def start(self):
-        self.record()
+        if self.record:
+            self.start_recording()
         for website in self.websites:
             website.start()
 
     def get_ffmpeg_path(self) -> str:
         package_dir = os.path.dirname(os.path.abspath(__file__))
-        ffmpeg_path = os.path.join(package_dir, '..', "..", 'bin', 'ffmpeg.exe')
+        ffmpeg_path = os.path.join(package_dir, '..', "..", 'bin', 'ffmpeg_windows.exe')
         return ffmpeg_path
 
     def get_microphone_list(self):
@@ -48,12 +55,13 @@ class Environment():
                 microphones.append(device_info["name"])
         return microphones
 
-    def record(self):
+    def start_recording(self):
         microphone_list = self.get_microphone_list()
         print(type(microphone_list[1]))
         current_datetime = datetime.now()
         formatted_datetime = current_datetime.strftime("%Y-%m-%d %H-%M-%S")
         ffmpeg_path = self.get_ffmpeg_path()
+        print(ffmpeg_path)
         microphone_name = microphone_list[1] + "udio)"
         fixed_name = microphone_name.encode('utf-8').decode('utf-8')
         print(fixed_name)
@@ -66,4 +74,4 @@ class Environment():
         try:
             self.recording_process = subprocess.run(command)
         except:
-            print("Recording stopped")
+            print("The recording was stopped")

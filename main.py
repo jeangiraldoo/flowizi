@@ -26,6 +26,13 @@ subparser_start_meeting = subparsers.add_parser("start", help = "start the speci
 subparser_start_meeting.add_argument("name", default = "false")
 subparser_start_meeting.set_defaults(func = lambda args: commands.start(args, subparser_start_meeting))
 
+subparser_record = subparsers.add_parser("record", help = "decide if you want to record the screen when an environment is started or not to do so")
+subparser_record.add_argument("name", default = "false")
+record_group = subparser_record.add_mutually_exclusive_group(required = True)
+record_group.add_argument("-t", action = "store_true")
+record_group.add_argument("-f", action = "store_true")
+subparser_record.set_defaults(func = lambda args: commands.record(args, subparser_record))
+
 args = parser.parse_args() 
 
 if hasattr(args, "func"):
