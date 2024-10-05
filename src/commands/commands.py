@@ -13,7 +13,6 @@ def handle_arguments(args):
 
 
 def record(args, subparser):
-    print(args)
     found = flowizi.exists_environment_list(args.name)
     if not(found):
         parser.error("There's no environment with that name")
