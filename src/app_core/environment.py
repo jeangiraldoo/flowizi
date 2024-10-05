@@ -84,11 +84,11 @@ class Environment():
         ffmpeg_path = self.get_ffmpeg_path()
 
         current_datetime = datetime.now()
-        formatted_datetime = current_datetime.strftime("%Y-%m-%d %H-%M-%S")
+        formatted_datetime = current_datetime.strftime("%d-%m-%Y %H_%M_%S")
 
-        video_output_name = f"{self.name}_video_{formatted_datetime}.mp4"
-        audio_output_name = f"{self.name}_audio_{formatted_datetime}.mp3"
-        merge_output_name = f"{self.name} {formatted_datetime}.mp4"
+        video_output_name = f"video_{formatted_datetime}.mp4"
+        audio_output_name = f"audio_{formatted_datetime}.mp3"
+        merge_output_name = f"{formatted_datetime}.mp4"
 
         if not os.path.isdir(flowizi_recording_dir):
             os.makedirs(flowizi_recording_dir)
