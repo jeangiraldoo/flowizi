@@ -76,21 +76,30 @@ class Environment():
         return audio_devices
 
     def start_recording(self):
-        current_datetime = datetime.now()
-        formatted_datetime = current_datetime.strftime("%Y-%m-%d %H-%M-%S")
-        video_output_name = f"{self.name}_video_{formatted_datetime}.mp4"
-        audio_output_name = f"{self.name}_audio_{formatted_datetime}.mp3"
-
-        stereo = self.get_stereo_mix()
+        flowizi_recording_dir = "C:/Users/jeanp/Videos/flowizi"
+        environment_recording_dir = f"{flowizi_recording_dir}/{self.name}"
         main_microphone = self.get_main_microphone()
+        stereo = self.get_stereo_mix()
         ffmpeg_devices = self.get_ffmpeg_devices()
         ffmpeg_path = self.get_ffmpeg_path()
 
+        current_datetime = datetime.now()
+        formatted_datetime = current_datetime.strftime("%Y-%m-%d %H-%M-%S")
+
+        video_output_name = f"{self.name}_video_{formatted_datetime}.mp4"
+        audio_output_name = f"{self.name}_audio_{formatted_datetime}.mp3"
+        merge_output_name = f"{self.name} {formatted_datetime}.mp4"
+
+        if not os.path.isdir(flowizi_recording_dir):
+            os.makedirs(flowizi_recording_dir)
+        if not os.path.isdir(environment_recording_dir):
+            os.makedirs(environment_recording_dir)
+
         video_command = [
             ffmpeg_path, "-f", "gdigrab", "-framerate", "60",
-            "-i", "desktop",
-            "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
-            "-loglevel", "quiet", video_output_name
+            "-i", "desktop", "-c:v", "libx264", "-preset", "ultrafast",
+            "-pix_fmt", "yuv420p", "-loglevel", "quiet",
+            f"{environment_recording_dir}/{video_output_name}"
         ]
 
         if len(ffmpeg_devices) > 0:
@@ -106,16 +115,15 @@ class Environment():
             video_command.insert(10, f"audio={record_microphone}")
 
         system_audio_command = [
-            ffmpeg_path, "-f", "dshow",
-            "-i", f"audio={stereo}", "-c:a",
-            "libmp3lame", "-b:a", "192k",
-            "-y", "-loglevel", "quiet", audio_output_name
+            ffmpeg_path, "-f", "dshow", "-i", f"audio={stereo}", "-c:a",
+            "libmp3lame", "-b:a", "192k", "-y", "-loglevel", "quiet",
+            f"{environment_recording_dir}/{audio_output_name}"
         ]
 
         merge_command = [
             ffmpeg_path,
-            "-i", video_output_name,
-            "-i", audio_output_name,
+            "-i", f"{environment_recording_dir}/{video_output_name}",
+            "-i", f"{environment_recording_dir}/{audio_output_name}",
             "-filter_complex",              # Define the filter graph
             "[0:a]volume=3[v0];[1:a]volume=2.5[a1];[v0][a1]amix=inputs=2:duration=longest[a];",  # Mix audio with adjusted volumes
             "-map", "0:v",                  # Map video stream from the first input
@@ -125,7 +133,7 @@ class Environment():
             "-b:a", "192k",                 # Set audio bitrate (optional)
             "-loglevel", "quiet",
             "-strict", "experimental",      # Use experimental AAC encoder if needed
-            f"{self.name} {formatted_datetime}.mp4"
+            f"{environment_recording_dir}/{merge_output_name}"
         ]
 
         if stereo == "false":
@@ -149,5 +157,5 @@ class Environment():
                 print("The recording was stopped")
                 while merge_process.poll() == None:
                     continue
-                os.remove(video_output_name)
-                os.remove(audio_output_name)
+                os.remove(f"{environment_recording_dir}/{video_output_name}")
+                os.remove(f"{environment_recording_dir}/{audio_output_name}")
