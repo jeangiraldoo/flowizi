@@ -1,47 +1,110 @@
 # Flowizi
 
-Flowizi is a CLI app that automates the process of opening all the tools you need for your workflow
+Flowizi is a CLI app designed to streamline your workflow. Simply select the apps, files, and websites that make up your work environment, and with one command, open them all simultaneously. You can create multiple environments with different configurations tailored to specific tasks. Plus, Flowizi includes optional screen recording via FFmpeg, automatically capturing your screen when an environment is launched.
 
-## Key features
+# Table of Contents
+1. [Features](#features)
+2. [Use case](#use-case)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Set up screen-recording](#screen-recording-feature)
+6. [Architecture](/docs/arquitecture.md)
 
-- Automatically open all websites, meetings, files or apps that are part of your workflow with a single command
-- Add and join meetings without having to open a browser manually
-- Start recording the screen after joining a meeting and storing the video locally
+## Features
+- Automatically open any websites, files or apps that are part of your workflow
+- Record the screen after starting an environment and store the video locally
+- Set every element to a specific area of the screen automatically when you start your work environment
+
+## Use case
+
+Imagine that you are a developer. Every day you join a meeting on Google Meets, open Intellij IDEA, Spotify, the website for the documentation you need for your project, etc. You can create an environment called "my-project", add the aforementioned things you open every day to it, then type `flowizi start my-project`, and everything will be opened up. From then on you just have to type that command when you want to boot up your work environment!
 
 ## Installation
 
 To download Flowizi, go to the [Releases](https://github.com/jeangiraldoo/flowizi/releases) section of this repository and download the .exe for the latest release (or the release you prefer) in the assets section. At the moment there's no release for MacOS or Linux, but stay tuned!
 
-The .exe file behaves like a script. You need to move it to the directory where you want it to reside. Once it's there, you can run it using the terminal.
+You have to run the installer and click on "install". That's it, it is that easy! Flowizi will be added to your PARH environment variable, hence you can access it from anywhere on your terminal. 
 
-## How to use it
+## Usage
 
-Flowizi revolves around environments and elements. An environment is like a container, it is a representation of your workflow. Let's say that you are working on a project, every time you work on that project you need to open a specific file, a website and maybe a text editor; the concept of the project would be the environment, the file, website and text editor would be elements of that environment.
+These are the available commands:
 
-### List environments: 
+## `flowizi list` 
 
-Type `flowizi.exe list`. This command will show you what environments you have created. Since it is the first time you use Flowizi, you will not have an environment.
+List all of the environments that have been created.
 
-### Create an environment:
+## `flowizi add`
 
-Let's create an environment. Type `flowizi.exe add name`, replace "name" with the name you want for the environment.
+Create an empty environment.
 
-### Add elements to a specific environment:
+Options: <environment_name>
 
-You can add elements to that environment by using a flag, -w is used for websites and -m for meetings. `flowizi.exe add -w name link env_name` will create a meeting with whatever name you set for "name", and will add it to the environment that has the same name you typed in the "env_name" argument. Adding meetings works exactly the same, just with the -m flag.
+Example: `flowizi add my-project`
 
-### Remove environments:
+## `flowizi add -w`
 
-If you want to remove an entire environment, you can use the remove command. Type `flowizi.exe remove environment`. "Environment" is the name of the environment you wish to remove.
+Add a website to an environmnet.
 
-### Remove elements from a specific environment:
+Options: <website_name> <website_url> <environment_name>
 
-Removing elements from an environment (without removing the environment itself) is just as easy, you just have to use the remove command with either the -w or -m flag, following the same structure you used when you added those elements in the first place, but with the remove command instead of the add command. Type `flowizi.exe remove -w name environment` to remove a website. `flowizi.exe remove -m name environment` removes a meeting.
+Example: `flowizi add -w spotify https://open.spotify.com/ my-project`
 
-### Show system-specific information:
+## `flowizi remove`
 
-The system command will show the current user you are logged in as and the name of your operating system.
+Remove an environment from the system.
 
-### Start an environment:
+Options: <environment_name>
 
-Finally, you can open everything contained in a container with the start command: `flowizi.exe start environment` 
+Example: `flowizi remove my-project`
+
+## `flowizi remove -w`
+
+Remove a website from an environmnet.
+
+Options: <website_name> <environment_name>
+
+Example: `flowizi remove -w spotify https://open.spotify.com/
+
+## `flowizi system`
+
+Print the current user you are logged in as and the name of your operating system.
+
+## `flowizi start`
+
+Start an environment and everything it contains (apps, files, websites, etc).
+
+Options: <environment_name>
+
+Example: `flowizi start my-project`
+
+## `flowizi record`
+
+Toogle screen recording on and off for a specific environment.
+
+Options: `-t`/`-f`
+
+Example: `flowizi record -t my-project`. This will enable automatic screen recording for the my-project environment. `flowizi record -f my-project` will disable the screen recording feature. 
+
+## Screen recording feature
+
+Flowizi uses FFmpeg for the screen recording, you can check the source code for it [here](https://github.com/FFmpeg/FFmpeg). Alongside FFmpeg, Flowizi uses the Stereo Mix audio setting for windows to record the system audio. Flowizi is able to detect your main microphone and use it when recording the screen even if the Stereo Mix setting is not enabled, but it is necessary if you want the system audio to be included in the recorded video. Here is how you can enable this setting:
+
+1. Go to the bottom-right corner of the screen and click on top of the sound icon with the right button. Then click on "Sound settings".
+
+![Screenshot of Windows desktop after right-clicking on the audio icon](/docs/img/stereo_mix1.png)
+
+2. Click on "More sound settings".
+
+![Screenshot of the sound settings available](/docs/img/stereo_mix2.png)
+
+3. Click on the Recording tab.
+
+![Screenshot of the available sound devices and their settings](/docs/img/stereo_mix3.png)
+
+4. Double click Stereo Mix
+
+![Screenshot of the Stereo Mix virtual device](/docs/img/stereo_mix4.png)
+
+5. Click on "Use this device (enable). Then click on "Apply". That's it! Now Flowizi can record system audio.
+
+![Screenshot of the Stereo Mix setting being enabled](/docs/img/stereo_mix5.png)

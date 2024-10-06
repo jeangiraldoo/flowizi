@@ -4,12 +4,11 @@ import webbrowser
 import json
 from urllib.parse import urlparse
 from src.app_core.environment import Environment
-from src.app_core.meeting import Meeting
 from src.app_core.website import Website
 from src.bootstrap import setup
 
 class Flowizi:
-    version = "0.4.0-alpha"
+    version = "1.4.0-alpha"
     config_name = "data.json"
     environment_list = []
 
@@ -24,6 +23,15 @@ class Flowizi:
         setup.create_json(self.config_directory, self.config_path)
         self.load_environments()
 
+    def verify_environment_recording(self, option: bool, environment_name) -> bool:
+        """Checks if the 'record' attribute in a given environment has the same boolean value as
+        the value the user wants to set. Returns True if the value in the attribute is different"""
+        pos = self.get_environment_pos(environment_name) 
+        environment = self.environment_list[pos]
+        if environment.record != option:
+            return True
+        return False
+
     def verify_URL(self, url: str) -> bool:
         "Checks if a URL is valid"
         parsed_url = urlparse(url)
@@ -32,7 +40,7 @@ class Flowizi:
         return True
 
     def obj_to_dict(self, obj):
-        return {"name":obj.name, "link":obj.link} 
+        return {"name":obj.name, "url":obj.url} 
 
     def exists_environment_list(self, environment_name: str) -> bool:
         """Checks if there's an environment with the specified name"""
@@ -62,7 +70,7 @@ class Flowizi:
 
     def add_environment(self, environment):
         """Serializes an Environment instance and writes it to the JSON file""" 
-        data = {"name":environment.name, "applications":environment.applications, "meetings":environment.meetings, "websites":environment.websites}
+        data = {"name":environment.name, "record":environment.record, "applications":environment.applications, "websites":environment.websites}
         with open(self.config_path, "r") as file:
             environment_data = json.load(file)
         environment_data.append(data)
@@ -99,7 +107,6 @@ class Flowizi:
         with open(self.config_path, "r") as file:
             data = json.load(file)
         new_values = []
-        print(attribute)
         pos = self.get_environment_pos(environment_name)
         environment = data[pos]
 
@@ -114,6 +121,18 @@ class Flowizi:
             json.dump(data, file, indent = 4)
 
         print(f"The element was removed from the {environment_name} environment")
+
+    def update_environment_record(self, option: bool, environment_name):
+        """Modifies the 'record' attribute in a given environment"""
+        with open(self.config_path, "r") as file:
+            data = json.load(file)
+        pos = self.get_environment_pos(environment_name)
+        environment = data[pos]
+        environment["record"] = option
+        data[pos] = environment
+
+        with open(self.config_path, "w") as file:
+            json.dump(data, file, indent = 4)
 
     def validate_time(self, time):
         if time.find(":") == -1:
@@ -155,16 +174,15 @@ class Flowizi:
             data = json.load(file)
         for i in data:
             name = i["name"]
-            meetings = i["meetings"]
+            record: bool = i["record"]
             websites = i["websites"]
             new_environment = Environment(name)
-            for dictionary in meetings:
-                new_meeting = Meeting(dictionary["name"], dictionary["link"])
-                new_environment.meetings.append(new_meeting)
             for dictionary in websites:
-                new_website = Website(dictionary["name"], dictionary["link"])
+                new_website = Website(dictionary["name"], dictionary["url"])
                 new_environment.websites.append(new_website)
 
+            if record != False:
+                new_environment.set_record(True)
             self.environment_list.append(new_environment)
                     
 flowizi = Flowizi()
