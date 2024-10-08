@@ -5,6 +5,7 @@ import json
 from urllib.parse import urlparse
 from src.app_core.environment import Environment
 from src.app_core.website import Website
+from src.app_core.file import File
 from src.bootstrap import setup
 
 
@@ -33,11 +34,15 @@ class Flowizi:
             return True
         return False
 
-    def verify_URL(self, url: str) -> bool:
+    def verify_URL(self, url: str, element_type: str) -> bool:
         "Checks if a URL is valid"
-        parsed_url = urlparse(url)
-        if not(all([parsed_url.scheme, parsed_url.netloc])):
-            return False
+        if element_type == "website":
+            parsed_url = urlparse(url)
+            if not(all([parsed_url.scheme, parsed_url.netloc])):
+                return False
+        elif element_type == "file":
+            if not os.path.exists(url):
+                return False
         return True
 
     def obj_to_dict(self, obj):
@@ -71,7 +76,7 @@ class Flowizi:
 
     def add_environment(self, environment):
         """Serializes an Environment instance and writes it to the JSON file""" 
-        data = {"name":environment.name, "record":environment.record, "applications":environment.applications, "websites":environment.websites}
+        data = {"name":environment.name, "record":environment.record, "files": environment.files, "applications":environment.applications, "websites":environment.websites}
         with open(self.config_path, "r") as file:
             environment_data = json.load(file)
         environment_data.append(data)
@@ -177,10 +182,15 @@ class Flowizi:
             name = i["name"]
             record: bool = i["record"]
             websites = i["websites"]
+            files = i["files"]
             new_environment = Environment(name)
             for dictionary in websites:
                 new_website = Website(dictionary["name"], dictionary["url"])
                 new_environment.websites.append(new_website)
+
+            for dictionary in files:
+                new_file = File(dictionary["name"], dictionary["url"])
+                new_environment.files.append(new_file)
 
             if record != False:
                 new_environment.set_record(True)

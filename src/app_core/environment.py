@@ -12,6 +12,7 @@ class Environment():
         self.record = False
         self.applications = []
         self.websites = []
+        self.files = []
 
     def set_record(self, option: bool):
         self.record = option
@@ -37,6 +38,8 @@ class Environment():
     def start(self):
         for website in self.websites:
             website.start()
+        for file in self.files:
+            file.start()
         self.start_recording()
 
     def get_stereo_mix(self):
