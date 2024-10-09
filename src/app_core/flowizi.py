@@ -140,40 +140,6 @@ class Flowizi:
         with open(self.config_path, "w") as file:
             json.dump(data, file, indent = 4)
 
-    def validate_time(self, time):
-        if time.find(":") == -1:
-            print("Minutes should be separated from seconds by a ':'")
-            return False
-        
-        time_split = time.split(":")
-        minutes = time_split[0]
-        seconds = time_split[1]
-                        
-        try:
-            int(minutes)
-        except ValueError:
-            print("Minutes should be numbers")
-            return False
-
-        try:
-            int(seconds)
-        except ValueError:
-            print("Seconds should be numbers")
-            return False
-
-        if len(minutes) > 2 or len(seconds) > 2:
-            print("Parts of the time should not be formed by more than 2 numbers")
-            return False
-
-        if int(minutes) < 0 or int(minutes) > 24:
-            print("Minutes should be between 0 and 24")
-            return False
-        if int(seconds) < 0 or int(seconds) > 59:
-            print("Seconds should be between 0 and 59")
-            return False
-            
-        return True
-
     def load_environments(self):
         data = ""
         with open(self.config_path, 'r') as file:
