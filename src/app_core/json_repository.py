@@ -66,12 +66,9 @@ class JSON_repository():
             if environment["name"] == environment_name:
                 return inx
 
-    def obj_to_dict(self, obj):
-        return {"name":obj.name, "url":obj.url}
-
-    def add_environment(self, environment):
+    def add_environment(self, environment_name):
         """Serializes an Environment instance and writes it to the JSON file""" 
-        data = {"name":environment.name, "record":environment.record, "files": environment.files, "applications":environment.applications, "websites":environment.websites}
+        data = {"name":environment_name, "record": False, "files": [], "applications": [], "websites": []}
         with open(self.path, "r") as file:
             environment_data = json.load(file)
         environment_data.append(data)
@@ -98,7 +95,7 @@ class JSON_repository():
             data = json.load(file)
         for environment in data:
             if environment["name"] == environment_name:
-                environment[attribute].append(self.obj_to_dict(attribute_object))
+                environment[attribute].append(attribute_object)
 
         with open(self.path, "w") as file:
             json.dump(data, file, indent = 4)

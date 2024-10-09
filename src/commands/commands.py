@@ -83,7 +83,7 @@ def add(args, parser):
             if environment.name == args.name and len(environment.websites) > 0 and website_exists:
                 parser.error("This website already exists")
 
-        new_website = Website(website_name, website_link)
+        new_website = {"name": website_name, "url": website_link}
         flowizi.json.add_environment_element(args.name, "websites", new_website)
         print(f"The {website_name} website was added to the {args.name} environment")
     elif args.f != "false":
@@ -99,7 +99,7 @@ def add(args, parser):
             file_exists = any(file.name == file_name for file in environment.files)
             if environment.name == args.name and len(environment.websites) > 0 and website_exists:
                 parser.error("This file already exists")
-        new_file = File(file_name, file_url)
+        new_file = {"name": file_name, "url": file_url}
         flowizi.json.add_environment_element(args.name, "files", new_file)
         print(f"The {file_name} in the {file_url} path was added to the {args.name} environment")
     else:
@@ -108,6 +108,5 @@ def add(args, parser):
         if used_name:
             parser.error("The environment name has been added in the past")
 
-        environment = Environment(args.name)
-        flowizi.json.add_environment(environment)
+        flowizi.json.add_environment(args.name)
         print(f"The {args.name} environment has been added!")
