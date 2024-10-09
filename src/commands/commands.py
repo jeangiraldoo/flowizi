@@ -1,11 +1,8 @@
-import os
-import platform
-from src.bootstrap import setup
-from urllib.parse import urlparse
 from src.app_core.flowizi import flowizi
 from src.app_core.website import Website
 from src.app_core.file import File
 from src.app_core.environment import Environment
+
 
 def handle_arguments(args):
     """Process optional flags used when running flowizi"""
@@ -13,20 +10,23 @@ def handle_arguments(args):
         print(f"Flowizi {flowizi.version}")
 
 
-def record(args, subparser):
-    found = flowizi.exists_environment_list(args.name)
+def record(args, parser):
+    found = flowizi.json.exists_environment(args.name)
     if not(found):
         parser.error("There's no environment with that name")
     if args.t:
-        record_state = flowizi.verify_environment_recording(True, args.name)
+        record_state = flowizi.json.verify_environment_recording(True, args.name)
         if not record_state:
             print(f"The {args.name} environment is already set to record the screen")
-        flowizi.update_environment_record(True, args.name)
+        else:
+            flowizi.json.update_environment_record(True, args.name)
     elif args.f:
-        record_state = flowizi.verify_environment_recording(False, args.name)
+        record_state = flowizi.json.verify_environment_recording(False, args.name)
         if not record_state:
             print(f"The {args.name} environment is already set not to record the screen")
-        flowizi.update_environment_record(False, args.name)
+        else:
+            flowizi.json.update_environment_record(False, args.name)
+
 
 def start(args, parser):
     name_exists = any(environment.name == args.name for environment in flowizi.environment_list)
@@ -40,7 +40,7 @@ def start(args, parser):
 
 def remove(args, parser):
     """Remove a link from the configuration file"""
-    found = flowizi.exists_environment_list(args.name)
+    found = flowizi.json.exists_environment(args.name)
     if not(found):
         parser.error("There's no environment with that name")
 
@@ -48,12 +48,13 @@ def remove(args, parser):
         attribute = "websites"
         value = args.w
 
-        exists = flowizi.exists_environment_element(args.name, attribute, value)
+        exists = flowizi.json.exists_environment_element(args.name, attribute, value)
         if not exists:
             parser.error("The element specfified does not exist")
-        flowizi.remove_environment_element(args.name, attribute, value) 
+        flowizi.json.remove_environment_element(args.name, attribute, value) 
     else:
-        flowizi.remove_environment(args.name)
+        flowizi.json.remove_environment(args.name)
+
 
 def show_system_info(args):
     print(f"Operating system: {flowizi.os_name}\nUser: {flowizi.user}")
@@ -83,7 +84,7 @@ def add(args, parser):
                 parser.error("This website already exists")
 
         new_website = Website(website_name, website_link)
-        flowizi.add_environment_element(args.name, "websites", new_website)
+        flowizi.json.add_environment_element(args.name, "websites", new_website)
         print(f"The {website_name} website was added to the {args.name} environment")
     elif args.f != "false":
         name_exists = any(environment.name == args.name for environment in flowizi.environment_list)
@@ -95,11 +96,11 @@ def add(args, parser):
         if not flowizi.verify_URL(file_url, "file"):
             parser.error("There's no file in your system associated with the path you typed")
         for environment in flowizi.environment_list:
-            file_exists = any(file.name == website_name for file in environment.files)
+            file_exists = any(file.name == file_name for file in environment.files)
             if environment.name == args.name and len(environment.websites) > 0 and website_exists:
                 parser.error("This file already exists")
         new_file = File(file_name, file_url)
-        flowizi.add_environment_element(args.name, "files", new_file)
+        flowizi.json.add_environment_element(args.name, "files", new_file)
         print(f"The {file_name} in the {file_url} path was added to the {args.name} environment")
     else:
         #Validates if the name is already in the json file
@@ -108,5 +109,5 @@ def add(args, parser):
             parser.error("The environment name has been added in the past")
 
         environment = Environment(args.name)
-        flowizi.add_environment(environment)
+        flowizi.json.add_environment(environment)
         print(f"The {args.name} environment has been added!")
