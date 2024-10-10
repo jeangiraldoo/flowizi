@@ -10,7 +10,7 @@ from src.app_core.json_repository import JSON_repository
 
 class Flowizi:
     def __init__(self):
-        version = "1.4.0-alpha"
+        self.version = "1.4.0-alpha"
         self.json = JSON_repository()
         self.environment_list = self.json.load()
         operative_system = platform.system()
