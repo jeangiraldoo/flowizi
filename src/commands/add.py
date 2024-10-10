@@ -2,10 +2,10 @@ from src.flowizi import flowizi
 
 
 def add(args, parser):
-    if args.w != "false":
+    if args.w:
         website_name, website_link = args.w
         add_website(parser, args.name, website_name, website_link)
-    elif args.f != "false":
+    elif args.f:
         file_url = args.f[0]
         file_name = file_url[file_url.rfind("/") + 1:]
         add_file(parser, args.name, file_name, file_url)

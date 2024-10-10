@@ -6,7 +6,7 @@ def remove(args, parser):
     if not flowizi.json.exists_environment(args.name):
         parser.error("There's no environment with that name")
 
-    if args.w != "false":
+    if args.w:
         remove_website(parser, args.name, args.w)
     else:
         remove_environment(args.name)

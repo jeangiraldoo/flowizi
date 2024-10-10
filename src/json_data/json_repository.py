@@ -1,5 +1,4 @@
 import json
-import platform
 import os
 from src.elements.file import File
 from src.elements.website import Website
@@ -12,14 +11,19 @@ class JSON_repository():
         self.name = "data.json"
         self.directory = json_dir
         self.path = json_path
+        self.verify_file_exists()
+        self.open_JSON()
 
-        if not(os.path.exists(self.directory)):
-            os.makedirs(self.directory) 
-        if not(os.path.exists(self.path)):
-            with open(self.path, "w") as file:
-                file.write("[]")
+    def open_JSON(self):
         with open(self.path, "r") as file:
             self.data = json.load(file)
+
+    def verify_file_exists(self):
+        if not os.path.exists(self.directory):
+            os.makedirs(self.directory)
+        if not os.path.exists(self.path):
+            with open(self.path, "w") as file:
+                file.write("[]")
 
     def write_JSON(self):
         with open(self.path, 'w') as file:
@@ -60,7 +64,7 @@ class JSON_repository():
                 return inx
 
     def add_environment(self, environment_name):
-        """Serializes an Environment instance and writes it to the JSON file""" 
+        """Serializes an Environment instance and writes it to the JSON file"""
         env_data = {"name":environment_name, "record": False, "files": [], "applications": [], "websites": []}
         self.data.append(env_data)
 
