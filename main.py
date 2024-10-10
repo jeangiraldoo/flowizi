@@ -17,7 +17,7 @@ subparser_system.set_defaults(func = system.show_system_info)
 
 subparser_add = subparsers.add_parser("add", help = "Add an element (environment, website, application or file)")
 subparser_add.add_argument("name")
-subparser_add.add_argument("-w", "--website", nargs = 2, metavar = ("website_name", "link"), dest = "w", default = False)
+subparser_add.add_argument("-w", "--website", nargs = 1, dest = "w", default = False)
 subparser_add.add_argument("-f", "--file", nargs = 1, dest = "f", default = False)
 subparser_add.set_defaults(func = lambda args: add.add(args, subparser_add))
 
