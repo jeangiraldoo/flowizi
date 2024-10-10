@@ -4,17 +4,14 @@ import os
 from src.app_core.file import File
 from src.app_core.website import Website
 from src.app_core.environment import Environment
+from src.system_detection.system_information import json_dir, json_path
 
 
 class JSON_repository():
     def __init__(self):
         self.name = "data.json"
-        os_name = platform.system()
-        user = os.getlogin()
-
-        if os_name == "Windows":
-            self.directory = f"C:/Users/{user}/AppData/Local/flowizi"
-        self.path = f"{self.directory}/{self.name}"
+        self.directory = json_dir
+        self.path = json_path
 
         if not(os.path.exists(self.directory)):
             os.makedirs(self.directory) 

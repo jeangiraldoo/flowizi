@@ -13,9 +13,6 @@ class Flowizi:
         self.version = "1.4.0-alpha"
         self.json = JSON_repository()
         self.environment_list = self.json.load()
-        operative_system = platform.system()
-        self.os_name = operative_system 
-        self.user = os.getlogin()
 
     def verify_URL(self, url: str, element_type: str) -> bool:
         "Checks if a URL is valid"

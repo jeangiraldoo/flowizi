@@ -4,6 +4,8 @@ from fuzzywuzzy import fuzz
 from datetime import datetime
 import subprocess
 import re
+from src.system_detection.system_information import record_dir
+from src.system_detection.system_information import system_sound_names
 
 
 class ScreenRecorder:
@@ -13,7 +15,8 @@ class ScreenRecorder:
         Returns 'false' if it isn't"""
         devices = sounddevice.query_devices()
         for device in devices:
-            if "Stereo Mix" in device["name"] or "Mezcla estéreo" in device["name"]:
+            if any(name in device["name"] for name in system_sound_names):
+                print(1)
                 for i in ScreenRecorder.get_ffmpeg_devices():
                     if fuzz.ratio(device["name"], i) > 70:
                         return i
@@ -49,7 +52,7 @@ class ScreenRecorder:
 
     @staticmethod
     def start_recording(name):
-        flowizi_recording_dir = "C:/Users/jeanp/Videos/flowizi"
+        flowizi_recording_dir = record_dir
         environment_recording_dir = f"{flowizi_recording_dir}/{name}"
         main_microphone = ScreenRecorder.get_main_microphone()
         stereo = ScreenRecorder.get_stereo_mix()
