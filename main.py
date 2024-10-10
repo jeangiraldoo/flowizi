@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-from src.app_core.flowizi import flowizi
+from src.flowizi import flowizi
 from src.commands import add
 from src.commands import remove
 from src.commands import list

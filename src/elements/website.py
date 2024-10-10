@@ -1,5 +1,6 @@
 import webbrowser
-from src.app_core.contained_element import ContainedElement
+from src.elements.contained_element import ContainedElement
+
 
 class Website(ContainedElement):
     def __init__(self, name, url):

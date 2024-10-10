@@ -1,4 +1,4 @@
-from src.app_core.contained_element import ContainedElement
+from src.elements.contained_element import ContainedElement
 import subprocess
 import os
 

@@ -1,9 +1,9 @@
 import json
 import platform
 import os
-from src.app_core.file import File
-from src.app_core.website import Website
-from src.app_core.environment import Environment
+from src.elements.file import File
+from src.elements.website import Website
+from src.elements.environment import Environment
 from src.system_detection.system_information import json_dir, json_path
 
 

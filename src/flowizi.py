@@ -1,11 +1,6 @@
 import os
-import platform
-import webbrowser
 from urllib.parse import urlparse
-from src.app_core.environment import Environment
-from src.app_core.website import Website
-from src.app_core.file import File
-from src.app_core.json_repository import JSON_repository
+from src.json_data.json_repository import JSON_repository
 
 
 class Flowizi:
@@ -24,5 +19,6 @@ class Flowizi:
             if not os.path.exists(url):
                 return False
         return True
+
 
 flowizi = Flowizi()
