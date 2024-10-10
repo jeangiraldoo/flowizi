@@ -1,5 +1,5 @@
 #define MyAppName "Flowizi"
-#define MyAppVersion "0.4.0-alpha"
+#define MyAppVersion "1.4.0-alpha"
 #define MyAppPublisher "Jean Giraldo"
 
 [Setup]
