@@ -7,4 +7,7 @@ def list_(args):
     else:
         print("Environment list:")
         for environment in flowizi.environment_list:
-            print(f"{environment.name}")
+            print(f"{environment.name} [websites: {len(environment.websites)},",
+                  f"files: {len(environment.files)},",
+                  f"apps: {len(environment.applications)},",
+                  f"record screen: {environment.record}]")
