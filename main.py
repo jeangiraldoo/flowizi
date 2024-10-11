@@ -28,6 +28,8 @@ subparser_list.set_defaults(func = list.list_)
 subparser_remove = subparsers.add_parser("remove", help = "remove the selected environment from the system")
 subparser_remove.add_argument("name")
 subparser_remove.add_argument("-w", "--website", type = str, dest = "w", default = False)
+subparser_remove.add_argument("-f", "--file", type = str, dest = "f", default = False)
+subparser_remove.add_argument("-a", "--application", type = str, dest = "a", default = False)
 subparser_remove.set_defaults(func = lambda args: remove.remove(args, subparser_remove))
 
 subparser_start_meeting = subparsers.add_parser("start", help = "start the specified environment")
