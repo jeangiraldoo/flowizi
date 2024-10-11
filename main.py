@@ -19,6 +19,7 @@ subparser_add = subparsers.add_parser("add", help = "Add an element (environment
 subparser_add.add_argument("name")
 subparser_add.add_argument("-w", "--website", nargs = 1, dest = "w", default = False)
 subparser_add.add_argument("-f", "--file", nargs = 1, dest = "f", default = False)
+subparser_add.add_argument("-a", "--application", dest = "a", action = "store_true")
 subparser_add.set_defaults(func = lambda args: add.add(args, subparser_add))
 
 subparser_list = subparsers.add_parser("list", help = "show all the environments added")

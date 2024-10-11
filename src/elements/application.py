@@ -1,5 +1,13 @@
-from app_core.element import Element
+import os
+from src.elements.contained_element import ContainedElement
 
-class Application(Element):
-    def __init__(self, exec_path: str):
-        self.exec_path == exec_path
+
+class Application(ContainedElement):
+    def __init__(self, name: str, url: str):
+        super().__init__(name, url)
+
+    def start(self):
+        try:
+            os.startfile(self.url)
+        except Exception as e:
+            print(f"Could not open {self.url}: {e}")

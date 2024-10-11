@@ -2,6 +2,7 @@ import json
 import os
 from src.elements.file import File
 from src.elements.website import Website
+from src.elements.application import Application
 from src.elements.environment import Environment
 from src.system_detection.system_information import json_dir, json_path
 
@@ -121,6 +122,7 @@ class JSON_repository():
             record: bool = i["record"]
             websites = i["websites"]
             files = i["files"]
+            applications = i["applications"]
             new_environment = Environment(name)
             for dictionary in websites:
                 new_website = Website(dictionary["name"], dictionary["url"])
@@ -129,6 +131,10 @@ class JSON_repository():
             for dictionary in files:
                 new_file = File(dictionary["name"], dictionary["url"])
                 new_environment.files.append(new_file)
+
+            for dictionary in applications:
+                new_app = Application(dictionary["name"], dictionary["url"])
+                new_environment.applications.append(new_app)
 
             if record != False:
                 new_environment.set_record(True)

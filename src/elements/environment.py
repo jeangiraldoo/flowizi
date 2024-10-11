@@ -17,5 +17,7 @@ class Environment():
             website.start()
         for file in self.files:
             file.start()
+        for app in self.applications:
+            app.start()
         if self.record:
             ScreenRecorder.start_recording(self.name)
