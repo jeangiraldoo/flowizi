@@ -23,7 +23,11 @@ subparser_add.add_argument("-a", "--application", dest = "a", action = "store_tr
 subparser_add.set_defaults(func = lambda args: add.add(args, subparser_add))
 
 subparser_list = subparsers.add_parser("list", help = "show all the environments added")
-subparser_list.set_defaults(func = list.list_)
+subparser_list.add_argument("-w", "--website", dest = "w", action = "store_true")
+subparser_list.add_argument("-f", "--file", dest = "f", action = "store_true")
+subparser_list.add_argument("-a", "--application", dest = "a", action = "store_true")
+subparser_list.add_argument("name", nargs = "?", default = False)
+subparser_list.set_defaults(func = lambda args: list.list_(subparser_list, args))
 
 subparser_remove = subparsers.add_parser("remove", help = "remove the selected environment from the system")
 subparser_remove.add_argument("name")
