@@ -9,6 +9,23 @@ from src.system_detection.system_information import system_sound_names
 
 
 class ScreenRecorder:
+    main_microphone = None
+    ffmpeg_devices = None
+    ffmpeg_path = None
+    stereo = None
+    formatted_datetime = datetime.now().strftime("%d-%m-%Y %H_%M_%S")
+
+    video_output_name = f"video_{formatted_datetime}.mp4"
+    audio_output_name = f"audio_{formatted_datetime}.mp3"
+    merge_output_name = f"{formatted_datetime}.mp4"
+
+    @staticmethod
+    def initialize():
+        ScreenRecorder.main_microphone = ScreenRecorder.get_main_microphone()
+        ScreenRecorder.ffmpeg_path = ScreenRecorder.get_ffmpeg_path()
+        ScreenRecorder.ffmpeg_devices = ScreenRecorder.get_ffmpeg_devices()
+        ScreenRecorder.stereo = ScreenRecorder.get_stereo_mix()
+
     @staticmethod
     def get_stereo_mix():
         """Returns the name of the stereo mix device if it is available.
@@ -16,8 +33,7 @@ class ScreenRecorder:
         devices = sounddevice.query_devices()
         for device in devices:
             if any(name in device["name"] for name in system_sound_names):
-                print(1)
-                for i in ScreenRecorder.get_ffmpeg_devices():
+                for i in ScreenRecorder.ffmpeg_devices:
                     if fuzz.ratio(device["name"], i) > 70:
                         return i
         return "false"
@@ -41,7 +57,7 @@ class ScreenRecorder:
         FFmpeg expectes to use one of these devices to record audio"""
 
         command = (
-            f"{ScreenRecorder.get_ffmpeg_path()} -list_devices true -f dshow -i dummy"
+            f"{ScreenRecorder.ffmpeg_path} -list_devices true -f dshow -i dummy"
         )
 
         command_process = subprocess.run(command, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True, encoding = "utf-8")
@@ -52,54 +68,71 @@ class ScreenRecorder:
 
     @staticmethod
     def start_recording(name):
-        flowizi_recording_dir = record_dir
-        environment_recording_dir = f"{flowizi_recording_dir}/{name}"
-        main_microphone = ScreenRecorder.get_main_microphone()
-        stereo = ScreenRecorder.get_stereo_mix()
-        ffmpeg_devices = ScreenRecorder.get_ffmpeg_devices()
-        ffmpeg_path = ScreenRecorder.get_ffmpeg_path()
+        ScreenRecorder.initialize()
+        env_rec_dir = f"{record_dir}/{name}"
 
-        current_datetime = datetime.now()
-        formatted_datetime = current_datetime.strftime("%d-%m-%Y %H_%M_%S")
+        os.makedirs(record_dir, exist_ok = True)
+        os.makedirs(env_rec_dir, exist_ok = True)
 
-        video_output_name = f"video_{formatted_datetime}.mp4"
-        audio_output_name = f"audio_{formatted_datetime}.mp3"
-        merge_output_name = f"{formatted_datetime}.mp4"
+        if ScreenRecorder.stereo == "false":
+            print((
+                "The Stereo mix setting is not enabled. The screen and "
+                "microphone audio will be recorded but the system audio "
+                "will not.\nRecording screen. Press Ctrl + c to stop recording"
+                ))
+            ScreenRecorder.record_video(env_rec_dir)
+        else:
+            audio_process = ScreenRecorder.record_audio(env_rec_dir)
+            ScreenRecorder.record_video(env_rec_dir)
+            audio_process.terminate()
+            merge_process = ScreenRecorder.merge_files(env_rec_dir)
+            while merge_process.poll() is None:
+                continue
+            os.remove(f"{env_rec_dir}/{ScreenRecorder.video_output_name}")
+            os.remove(f"{env_rec_dir}/{ScreenRecorder.audio_output_name}")
+            print(f"Processing finished! Your recording is available at: {env_rec_dir}")
 
-        if not os.path.isdir(flowizi_recording_dir):
-            os.makedirs(flowizi_recording_dir)
-        if not os.path.isdir(environment_recording_dir):
-            os.makedirs(environment_recording_dir)
-
-        video_command = [
-            ffmpeg_path, "-f", "gdigrab", "-framerate", "60",
+    @staticmethod
+    def record_video(dir):
+        command = [
+            ScreenRecorder.ffmpeg_path, "-f", "gdigrab", "-framerate", "60",
             "-i", "desktop", "-c:v", "libx264", "-preset", "ultrafast",
             "-pix_fmt", "yuv420p", "-loglevel", "quiet",
-            f"{environment_recording_dir}/{video_output_name}"
+            f"{dir}/{ScreenRecorder.video_output_name}"
         ]
 
-        if len(ffmpeg_devices) > 0:
+        if len(ScreenRecorder.ffmpeg_devices) > 0:
             record_microphone = ""
-            for device in ffmpeg_devices:
-                if fuzz.ratio(main_microphone, device) > 80:
+            for device in ScreenRecorder.ffmpeg_devices:
+                if fuzz.ratio(ScreenRecorder.main_microphone, device) > 80:
                     record_microphone = device
-                    break
+            command.insert(7, "-f")
+            command.insert(8, "dshow")
+            command.insert(9, "-i")
+            command.insert(10, f"audio={record_microphone}")
 
-            video_command.insert(7, "-f")
-            video_command.insert(8, "dshow")
-            video_command.insert(9, "-i")
-            video_command.insert(10, f"audio={record_microphone}")
+        print("Recording screen. Press ctrl + c to stop recording")
+        try:
+            subprocess.run(command)
+        except:
+            print("The recording was stopped")
 
-        system_audio_command = [
-            ffmpeg_path, "-f", "dshow", "-i", f"audio={stereo}", "-c:a",
+    @staticmethod
+    def record_audio(dir):
+        command = [
+            ScreenRecorder.ffmpeg_path, "-f", "dshow", "-i", f"audio={ScreenRecorder.stereo}", "-c:a",
             "libmp3lame", "-b:a", "192k", "-y", "-loglevel", "quiet",
-            f"{environment_recording_dir}/{audio_output_name}"
+            f"{dir}/{ScreenRecorder.audio_output_name}"
         ]
 
-        merge_command = [
-            ffmpeg_path,
-            "-i", f"{environment_recording_dir}/{video_output_name}",
-            "-i", f"{environment_recording_dir}/{audio_output_name}",
+        return subprocess.Popen(command)
+
+    @staticmethod
+    def merge_files(dir):
+        command = [
+            ScreenRecorder.ffmpeg_path,
+            "-i", f"{dir}/{ScreenRecorder.video_output_name}",
+            "-i", f"{dir}/{ScreenRecorder.audio_output_name}",
             "-filter_complex",              # Define the filter graph
             "[0:a]volume=3[v0];[1:a]volume=2.5[a1];[v0][a1]amix=inputs=2:duration=longest[a];",  # Mix audio with adjusted volumes
             "-map", "0:v",                  # Map video stream from the first input
@@ -109,29 +142,9 @@ class ScreenRecorder:
             "-b:a", "192k",                 # Set audio bitrate (optional)
             "-loglevel", "quiet",
             "-strict", "experimental",      # Use experimental AAC encoder if needed
-            f"{environment_recording_dir}/{merge_output_name}"
+            f"{dir}/{ScreenRecorder.merge_output_name}"
         ]
 
-        if stereo == "false":
-            print((
-                "The Stereo mix setting is not enabled. The screen and "
-                "microphone audio will be recorded but the system audio "
-                "will not.\nRecording screen. Press Ctrl + c to stop recording"
-                ))
-            try:
-                subprocess.run(video_command)
-            except:
-                print("The recording was stopped")
-        else:
-            print("Recording screen. Press ctrl + c to stop recording")
-            system_audio_process = subprocess.Popen(system_audio_command)
-            try:
-                subprocess.run(video_command)
-            except:
-                system_audio_process.terminate()
-                merge_process = subprocess.Popen(merge_command)
-                print("The recording was stopped")
-                while merge_process.poll() == None:
-                    continue
-                os.remove(f"{environment_recording_dir}/{video_output_name}")
-                os.remove(f"{environment_recording_dir}/{audio_output_name}")
+        print("Processing the recording...")
+
+        return subprocess.Popen(command)
