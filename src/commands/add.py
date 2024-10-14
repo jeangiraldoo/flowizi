@@ -1,17 +1,16 @@
 import os
 import winreg
 from src.flowizi import flowizi
+from src.element_utils import utils
 
 
 def add(args, parser):
     if args.w:
         website_url = args.w[0]
-        website_name = website_url[website_url.rfind("/") + 1:]
-        add_website(parser, args.name, website_name, website_url)
+        add_website(parser, args.name, website_url)
     elif args.f:
         file_url = args.f[0]
-        file_name = file_url[file_url.rfind("/") + 1:]
-        add_file(parser, args.name, file_name, file_url)
+        add_file(parser, args.name, file_url)
     elif args.a:
         add_application(parser, args.name)
     else:
@@ -26,13 +25,16 @@ def add_environment(parser, env_name):
     print(f"The {env_name} environment has been added!")
 
 
-def add_website(parser, env_name, name, url):
+def add_website(parser, env_name, url):
     if not flowizi.json.exists_environment(env_name):
         parser.error("The environment specified does not exist")
 
-    if not flowizi.verify_URL(url, "website"):
-        parser.error("The link does not follow a proper link format")
+    if not utils.verify_URL(url, "website"):
+        url = f"https://{url}"
+        if not utils.verify_URL(url, "website"):
+            parser.error("The link does not follow a proper link format")
 
+    name = url[url.rfind("/") + 1:]
     for environment in flowizi.environment_list:
         website_exists = any(website.name == name for website in environment.websites)
         if environment.name == env_name and len(environment.websites) > 0 and website_exists:
@@ -47,15 +49,18 @@ def create_website(name, url):
     return {"name": name, "url": url}
 
 
-def add_file(parser, env_name, name, url):
+def add_file(parser, env_name, url):
     if not flowizi.json.exists_environment(env_name):
         parser.error("The environment specified does not exist")
 
-    if not flowizi.verify_URL(url, "file"):
+    if not utils.verify_URL(url, "file"):
         parser.error(
             "There's no file in your system associated"
             " with the path you typed"
         )
+
+    url = url.replace("\\", "/")
+    name = url[url.rfind("/") + 1:]
 
     for environment in flowizi.environment_list:
         file_exists = any(file.name == name for file in environment.files)
