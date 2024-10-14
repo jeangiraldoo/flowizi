@@ -1,4 +1,4 @@
-from src.flowizi import flowizi
+from flowizi import flowizi
 
 
 def record(args, parser):

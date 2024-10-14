@@ -1,11 +1,11 @@
 from argparse import ArgumentParser
-from src.flowizi import flowizi
-from src.commands import add
-from src.commands import remove
-from src.commands import list
-from src.commands import system
-from src.commands import start
-from src.commands import record
+from flowizi import flowizi
+from commands import add
+from commands import remove
+from commands import list
+from commands import system
+from commands import start
+from commands import record
 
 parser = ArgumentParser(prog = "Flowizi", description = "Automates the process of starting up your workflow")
 parser.add_argument("-v", action = "store_true", help = "show the app version", default = False)

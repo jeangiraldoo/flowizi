@@ -1,4 +1,4 @@
-from src.elements.screen_recorder import ScreenRecorder
+from elements.element_features.screen_recorder import ScreenRecorder
 
 
 class Environment():

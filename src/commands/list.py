@@ -1,4 +1,4 @@
-from src.flowizi import flowizi
+from flowizi import flowizi
 
 
 def list_(parser, args):

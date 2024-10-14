@@ -1,7 +1,7 @@
 import os
 import winreg
-from src.flowizi import flowizi
-from src.element_utils import utils
+from flowizi import flowizi
+from elements.element_utils import utils
 
 
 def add(args, parser):
