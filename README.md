@@ -7,7 +7,7 @@ Flowizi is a CLI app designed to streamline your workflow. Simply select the app
 2. [Use case](#use-case)
 3. [Installation](#installation)
 4. [Usage](#usage)
-5. [Set up screen-recording](#screen-recording-feature)
+5. [Screen-recording](#screen-recording-feature)
 6. [Architecture](/docs/arquitecture.md)
 
 ## Features
@@ -31,49 +31,69 @@ These are the available commands:
 
 ## `flowizi list` 
 
-List all of the environments that have been created.
+List all of the elements that have been created.
+
+Options: 
+
+    1. `flowizi list`:
+
+    Lists all of the environments, alongside information about each one.
+    
+    2. `flowizi list <environment_name>`
+
+    Lists all of the elements in the specified environment.
+
+    Example: `flowizi list my-project`
+    
+    3. `flowizi list <flag> <environment_name>`
+
+    Lists all of elements of a given type (based on the flag) that are in the specified environment.
+
+    Flags: -w (website), -a (application), -f (file).
+
+    Example: `flowizi list -w my-project`
 
 ## `flowizi add`
 
-Create an empty environment.
+Adds an element to the system
 
-Options: <environment_name>
+Options:
 
-Example: `flowizi add my-project`
+    1. `flowizi add <environment_name>`
 
-## `flowizi add -w`
+    Create an empty environment.
 
-Add a website to an environmnet.
+    Example: `flowizi add my-project`
 
-Options: <website_name> <website_url> <environment_name>
-
-Example: `flowizi add -w spotify https://open.spotify.com/ my-project`
+    2. `flowizi add -w <website_url> <environment_name>`
+    
+    Adds a website to the specified environment. It is not required for the website_url argument to include the protocol (e.g https://), but it must have a valid Top Level Domain (e.g .com) at the end, and the domain name must not begin with a non-alphabetic character. A valid URL is: https://open.spotify.com or open.spotify.com
 
 ## `flowizi remove`
 
-Remove an environment from the system.
+Remove an element from the system.
 
-Options: <environment_name>
+Options:
 
-Example: `flowizi remove my-project`
+    1. `flowizi remove <environment_name>`
 
-## `flowizi remove -w`
+    Removes an enviroment from the system.
 
-Remove a website from an environmnet.
+    Example: `flowizi remove my-project`
 
-Options: <website_name> <environment_name>
+    2. `flowizi remove <flag> <environment_name>`
 
-Example: `flowizi remove -w spotify https://open.spotify.com/
+    Removes an element from an environmnet.
+
+    Example: `flowizi remove -w https://google.com my-project
 
 ## `flowizi system`
 
 Print the current user you are logged in as and the name of your operating system.
 
-## `flowizi start`
+## `flowizi start <environment_name>`
 
 Start an environment and everything it contains (apps, files, websites, etc).
-
-Options: <environment_name>
 
 Example: `flowizi start my-project`
 
