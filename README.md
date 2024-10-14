@@ -69,6 +69,16 @@ Options:
     
     Adds a website to the specified environment. It is not required for the website_url argument to include the protocol (e.g https://), but it must have a valid Top Level Domain (e.g .com) at the end, and the domain name must not begin with a non-alphabetic character. A valid URL is: https://open.spotify.com or open.spotify.com
 
+    3. `flowizi add -f <file_url> <environment_name>`
+    
+    Adds a file to the specified environment.
+
+    Example: `flowizi add -w C:/Users/user_name/Desktop/file.png my-project`
+
+    4. `flowizi add -a <environment_name>`
+    
+    Adds an application to the specified environment. Flowizi will show a list of the detected apps available in the system and will prompt the user to choose one.
+
 ## `flowizi remove`
 
 Remove an element from the system.
