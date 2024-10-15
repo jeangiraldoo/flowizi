@@ -1,3 +1,4 @@
+![logo](assets/logo.svg)
 # Flowizi
 
 Flowizi is a CLI app designed to streamline your workflow. Simply select the apps, files, and websites that make up your work environment, and with one command, open them all simultaneously. You can create multiple environments with different configurations tailored to specific tasks. Plus, Flowizi includes optional screen recording via FFmpeg, automatically capturing your screen when an environment is launched.
