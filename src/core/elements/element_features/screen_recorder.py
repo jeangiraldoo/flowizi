@@ -4,8 +4,7 @@ from fuzzywuzzy import fuzz
 from datetime import datetime
 import subprocess
 import re
-from system_detection.system_information import record_dir
-from system_detection.system_information import system_sound_names
+from core.system_detection.system_information import record_dir, system_sound_names
 
 
 class ScreenRecorder:

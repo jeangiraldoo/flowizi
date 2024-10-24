@@ -1,5 +1,5 @@
 import webbrowser
-from elements.contained_element import ContainedElement
+from core.elements.contained_element import ContainedElement
 
 
 class Website(ContainedElement):

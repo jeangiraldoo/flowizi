@@ -1,5 +1,5 @@
 import os
-from elements.contained_element import ContainedElement
+from core.elements.contained_element import ContainedElement
 
 
 class Application(ContainedElement):

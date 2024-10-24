@@ -1,10 +1,10 @@
 import json
 import os
-from elements.file import File
-from elements.website import Website
-from elements.application import Application
-from elements.environment import Environment
-from system_detection.system_information import json_dir, json_path
+from core.elements.file import File
+from core.elements.website import Website
+from core.elements.application import Application
+from core.elements.environment import Environment
+from core.system_detection.system_information import json_dir, json_path
 
 
 class JSON_repository():

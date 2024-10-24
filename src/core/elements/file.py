@@ -1,6 +1,6 @@
-from elements.contained_element import ContainedElement
 import subprocess
 import os
+from core.elements.contained_element import ContainedElement
 
 
 class File(ContainedElement):

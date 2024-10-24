@@ -1,6 +1,6 @@
 import os
 from urllib.parse import urlparse
-from json_data.json_repository import JSON_repository
+from core.json_data.json_repository import JSON_repository
 
 
 class Flowizi:

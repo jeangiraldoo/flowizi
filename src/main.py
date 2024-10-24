@@ -6,6 +6,7 @@ from commands import list
 from commands import system
 from commands import start
 from commands import record
+from gui.controller.main_controller import Controller
 
 parser = ArgumentParser(prog = "Flowizi", description = "Automates the process of starting up your workflow")
 parser.add_argument("-v", action = "store_true", help = "show the app version", default = False)
@@ -51,6 +52,8 @@ args = parser.parse_args()
 
 if hasattr(args, "func"):
     args.func(args)
-else:
-    if args.v:
-        print(f"Flowizi {flowizi.version}")
+elif args.v:
+    print(f"Flowizi {flowizi.version}")
+elif args.command is None:
+    controller = Controller()
+    controller.main()

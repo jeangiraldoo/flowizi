@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from elements.element import Element
+from core.elements.element import Element
 
 
 class ContainedElement(Element):
