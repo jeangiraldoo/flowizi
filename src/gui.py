@@ -1,7 +1,7 @@
 import sys
 import math
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel,
-                            QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QSizePolicy, QLayout)
+                            QWidget, QVBoxLayout, QSplitter, QHBoxLayout, QGridLayout, QSizePolicy, QLayout)
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from flowizi import flowizi
@@ -26,10 +26,16 @@ class MainWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         vbox = QVBoxLayout()
-        central_widget.setLayout(vbox)
-        toolbar = QHBoxLayout()
-        toolbar.setContentsMargins(0, 0, 0, 0)
-        vbox.addLayout(toolbar)
+        splitter = QSplitter(Qt.Horizontal)
+        right_widget = QWidget()
+        element_info_container = QVBoxLayout()
+        right_widget.setLayout(element_info_container)
+        test = QLabel("No environments selected")
+        test.setWordWrap(True)
+        test.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        test.setStyleSheet("background-color: #454541; font-size: 20px; color: white; padding: 20px;")
+        element_info_container.addWidget(test)
+
         start_button = QPushButton("Start")
         start_button.setMaximumWidth(100)
         start_button.setMaximumHeight(40)
@@ -50,6 +56,8 @@ class MainWindow(QMainWindow):
                                     QPushButton:hover{
                                         background-color: green;
                                     }""")
+        toolbar = QHBoxLayout()
+        toolbar.setContentsMargins(0, 0, 0, 0)
         toolbar.addWidget(start_button)
         toolbar.addWidget(create_button)
         toolbar.addStretch()
@@ -57,9 +65,7 @@ class MainWindow(QMainWindow):
         grid.setSpacing(30)
         grid_widget = QWidget()  # New widget for the grid
         grid_widget.setLayout(grid)  # Set the grid layout on this widget
-
-        # Optionally set a fixed size for the grid widget
-        grid_widget.setFixedSize(1000, 500)
+        right_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         for row in range(total_rows):
             for environment in range(number_elements_row):
                 label = QLabel(f"{flowizi.environment_list[current_environment].name}")
@@ -67,13 +73,13 @@ class MainWindow(QMainWindow):
                                     background-color: #454541;
                                     color: white;
                                     font-size: 20px;
+                                    height: 10px;
                                     border: 2px solid white;
                                     border-radius: 10px;
                                     }
                                     QLabel:hover{
                                     background-color: #4d4c49;
                                     }""")
-                #label.setMaximumSize(200, 200)
                 label.setAlignment(Qt.AlignCenter)
                 grid.addWidget(label, row, environment)
                 current_environment += 1
@@ -82,11 +88,12 @@ class MainWindow(QMainWindow):
                     break
             row_number += 1
             grid.setRowStretch(row, 1)
-        vbox.addWidget(grid_widget)
-        vbox.setAlignment(grid_widget, Qt.AlignCenter)
-        vbox.setStretch(1, 0)
-        vbox.setStretch(0, 0)
 
+        splitter.addWidget(grid_widget)
+        vbox.addLayout(toolbar)
+        vbox.addWidget(splitter)
+        splitter.addWidget(right_widget)
+        central_widget.setLayout(vbox)
 
 def main():
     app = QApplication(sys.argv)
