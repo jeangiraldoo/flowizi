@@ -17,12 +17,6 @@ class MainWindow(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        number_elements_row = 4
-        total_environments = len(flowizi.environment_list)
-        total_rows = math.ceil(total_environments/number_elements_row)
-        row_number = 0
-        current_environment = 0
-
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         vbox = QVBoxLayout()
@@ -61,11 +55,25 @@ class MainWindow(QMainWindow):
         toolbar.addWidget(start_button)
         toolbar.addWidget(create_button)
         toolbar.addStretch()
+
+        grid_widget = self.generate_environment_grid()
+        splitter.addWidget(grid_widget)
+        vbox.addLayout(toolbar)
+        vbox.addWidget(splitter)
+        splitter.addWidget(right_widget)
+        central_widget.setLayout(vbox)
+
+    def generate_environment_grid(self) -> QWidget:
+        number_elements_row = 4
+        total_environments = len(flowizi.environment_list)
+        total_rows = math.ceil(total_environments/number_elements_row)
+        row_number = 0
+        current_environment = 0
+
         grid = QGridLayout()
         grid.setSpacing(30)
         grid_widget = QWidget()  # New widget for the grid
         grid_widget.setLayout(grid)  # Set the grid layout on this widget
-        right_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         for row in range(total_rows):
             for environment in range(number_elements_row):
                 label = QLabel(f"{flowizi.environment_list[current_environment].name}")
@@ -88,12 +96,8 @@ class MainWindow(QMainWindow):
                     break
             row_number += 1
             grid.setRowStretch(row, 1)
+        return grid_widget
 
-        splitter.addWidget(grid_widget)
-        vbox.addLayout(toolbar)
-        vbox.addWidget(splitter)
-        splitter.addWidget(right_widget)
-        central_widget.setLayout(vbox)
 
 def main():
     app = QApplication(sys.argv)
