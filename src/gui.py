@@ -30,14 +30,29 @@ class MainWindow(QMainWindow):
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(0, 0, 0, 0)
         vbox.addLayout(toolbar)
+        start_button = QPushButton("Start")
+        start_button.setMaximumWidth(100)
+        start_button.setMaximumHeight(40)
         create_button = QPushButton("Create")
+        create_button.setMaximumWidth(100)
+        create_button.setMaximumHeight(40)
         create_button.setStyleSheet("""QPushButton{
                                         color: white;
+                                        font-size: 20px;
                                     }
                                     QPushButton:hover{
                                         background-color: green;
                                     }""")
+        start_button.setStyleSheet("""QPushButton{
+                                        color: white;
+                                        font-size: 20px;
+                                    }
+                                    QPushButton:hover{
+                                        background-color: green;
+                                    }""")
+        toolbar.addWidget(start_button)
         toolbar.addWidget(create_button)
+        toolbar.addStretch()
         grid = QGridLayout()
         grid.setSpacing(30)
         grid_widget = QWidget()  # New widget for the grid
