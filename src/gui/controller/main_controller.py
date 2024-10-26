@@ -10,6 +10,7 @@ class Controller:
         self.main_view = MainWindow()
         self.main_view.show()
         self.main_view.label_signal.connect(self.element_clicked)
+        self.main_view.start_button.clicked.connect(self.start_button_clicked)
 
         sys.exit(app.exec_())
 
@@ -26,3 +27,11 @@ class Controller:
                 clicked_label.widget().setStyleSheet(self.main_view.label_clicked_style)
             else:
                 self.main_view.grid.itemAt(i).widget().setStyleSheet(self.main_view.label_default_style)
+
+    def start_button_clicked(self):
+        for i in range(len(self.main_view.grid)):
+            label = self.main_view.grid.itemAt(i).widget()
+            label_style = label.styleSheet()
+
+            if self.main_view.label_clicked_style in label_style:
+                flowizi.environment_list[i].start()

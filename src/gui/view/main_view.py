@@ -11,7 +11,6 @@ class MainWindow(QMainWindow):
     label_signal = pyqtSignal(int)
     def __init__(self):
         super().__init__()
-        # self.label_signal.connect(self.handle_label_click)
         self.resize(1000, 600)
         self.setWindowTitle("Flowizi")
         self.setWindowIcon(QIcon("../assets/logo.svg"))
@@ -28,9 +27,9 @@ class MainWindow(QMainWindow):
         self.generate_element_sidebar()
         right_widget.setLayout(self.element_info_container)
         
-        start_button = QPushButton("Start")
-        start_button.setMaximumWidth(100)
-        start_button.setMaximumHeight(40)
+        self.start_button = QPushButton("Start")
+        self.start_button.setMaximumWidth(100)
+        self.start_button.setMaximumHeight(40)
         create_button = QPushButton("Create")
         create_button.setMaximumWidth(100)
         create_button.setMaximumHeight(40)
@@ -41,7 +40,7 @@ class MainWindow(QMainWindow):
                                     QPushButton:hover{
                                         background-color: #f19600;
                                     }""")
-        start_button.setStyleSheet("""QPushButton{
+        self.start_button.setStyleSheet("""QPushButton{
                                         color: white;
                                         font-size: 20px;
                                     }
@@ -50,7 +49,7 @@ class MainWindow(QMainWindow):
                                     }""")
         toolbar = QHBoxLayout()
         toolbar.setContentsMargins(0, 0, 0, 0)
-        toolbar.addWidget(start_button)
+        toolbar.addWidget(self.start_button)
         toolbar.addWidget(create_button)
         toolbar.addStretch()
 
@@ -146,15 +145,9 @@ class MainWindow(QMainWindow):
             self.label_signal.emit(pos)
         return event
 
-    #def handle_label_click(self, pos):
-        print(pos)
 
 def main():
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()
