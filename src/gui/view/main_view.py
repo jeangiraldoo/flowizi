@@ -9,6 +9,7 @@ from flowizi import flowizi
 
 class MainWindow(QMainWindow):
     label_signal = pyqtSignal(int)
+    label_double_click_signal = pyqtSignal(int)
     def __init__(self):
         super().__init__()
         self.resize(1000, 600)
@@ -20,8 +21,8 @@ class MainWindow(QMainWindow):
     def initUI(self):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        vbox = QVBoxLayout()
-        splitter = QSplitter(Qt.Horizontal)
+        self.vbox = QVBoxLayout()
+        self.splitter = QSplitter(Qt.Horizontal)
         right_widget = QWidget()
         right_widget.setStyleSheet("background-color: #454541;")
         self.generate_element_sidebar()
@@ -47,18 +48,18 @@ class MainWindow(QMainWindow):
                                     QPushButton:hover{
                                         background-color: #f19600;
                                     }""")
-        toolbar = QHBoxLayout()
-        toolbar.setContentsMargins(0, 0, 0, 0)
-        toolbar.addWidget(self.start_button)
-        toolbar.addWidget(create_button)
-        toolbar.addStretch()
+        self.toolbar = QHBoxLayout()
+        self.toolbar.setContentsMargins(0, 0, 0, 0)
+        self.toolbar.addWidget(self.start_button)
+        self.toolbar.addWidget(create_button)
+        self.toolbar.addStretch()
 
-        grid_widget = self.generate_environment_grid()
-        splitter.addWidget(grid_widget)
-        vbox.addLayout(toolbar)
-        vbox.addWidget(splitter)
-        splitter.addWidget(right_widget)
-        central_widget.setLayout(vbox)
+        grid_widget = self.generate_element_grid(flowizi.environment_list)
+        self.splitter.addWidget(grid_widget)
+        self.vbox.addLayout(self.toolbar)
+        self.vbox.addWidget(self.splitter)
+        self.splitter.addWidget(right_widget)
+        central_widget.setLayout(self.vbox)
 
     def generate_element_sidebar(self):
         style = "background-color: #454541; font-size: 18px; color: white; padding: 20px;"
@@ -93,13 +94,12 @@ class MainWindow(QMainWindow):
         self.element_info_container.addWidget(env_num_files)
 
 
-    def generate_environment_grid(self) -> QWidget:
+    def generate_element_grid(self, element_list) -> QWidget:
         number_elements_row = 4
-        total_environments = len(flowizi.environment_list)
+        total_environments = len(element_list)
         total_rows = math.ceil(total_environments/number_elements_row)
         row_number = 0
         current_environment = 0
-#f19600;
         self.label_default_style = """QLabel{
                                     background-color: #454541;
                                     color: white;
@@ -127,11 +127,14 @@ class MainWindow(QMainWindow):
         grid_widget.setLayout(self.grid)  # Set the grid layout on this widget
         for row in range(total_rows):
             for environment in range(number_elements_row):
-                label = QLabel(f"{flowizi.environment_list[current_environment].name}")
+                label = ClickableLabel()
+                label.setText(f"{element_list[current_environment].name}")
                 label.setStyleSheet(self.label_default_style)
                 label.setAlignment(Qt.AlignCenter)
                 self.grid.addWidget(label, row, environment)
-                label.mousePressEvent = self.create_label_event(self.grid.indexOf(label))
+                label.set_pos(self.grid.indexOf(label))
+                label.mousePressEvent = self.create_label_event(label.pos)
+                label.label_double_click_signal.connect(self.create_label_double_click_event)
                 current_environment += 1
 
                 if current_environment == total_environments:
@@ -145,6 +148,17 @@ class MainWindow(QMainWindow):
             self.label_signal.emit(pos)
         return event
 
+    def create_label_double_click_event(self, pos):
+        self.label_double_click_signal.emit(pos)
+
+class ClickableLabel(QLabel):
+    label_double_click_signal = pyqtSignal(int)
+
+    def set_pos(self, pos):
+        self.pos = pos
+
+    def mouseDoubleClickEvent(self, event):
+        self.label_double_click_signal.emit(self.pos)
 
 def main():
     app = QApplication(sys.argv)
