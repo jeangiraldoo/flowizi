@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QSizePolicy, QLabel, QPushButton, QTabWidget
+from PyQt5.QtWidgets import QApplication, QMessageBox, QVBoxLayout, QHBoxLayout, QDialog, QLineEdit, QSizePolicy, QLabel, QPushButton, QTabWidget
 from PyQt5.QtGui import QFont
 from gui.view.main_view import MainWindow
 from flowizi import flowizi
@@ -16,6 +16,7 @@ class Controller:
         self.main_view.label_signal.connect(self.element_clicked)
         self.main_view.label_double_click_signal.connect(self.element_double_clicked)
         self.main_view.start_button.clicked.connect(self.start_button_clicked)
+        self.main_view.create_button.clicked.connect(self.create_button_clicked)
 
         sys.exit(app.exec_())
 
@@ -179,7 +180,7 @@ class Controller:
         environments = flowizi.environment_list
         env_grid = self.main_view.generate_element_grid(environments)
         self.main_view.splitter.insertWidget(0, env_grid)
- 
+
     def start_button_clicked(self):
         for i in range(len(self.main_view.grid)):
             label = self.main_view.grid.itemAt(i).widget()
@@ -187,3 +188,56 @@ class Controller:
 
             if self.main_view.label_clicked_style in label_style:
                 flowizi.environment_list[i].start()
+
+    def create_button_clicked(self):
+        msg_box = InputDialog()
+        msg_box.set_window_title("Create environment")
+        msg_box.set_message("Enter the name of the new environment")
+
+        msg_box.exec_()
+        env_name = msg_box.get_text()
+        if env_name == "":
+            self.show_invalid_input("The name must have at least one character")
+
+    def show_invalid_input(self, message):
+        error_box = QMessageBox()
+        error_box.setIcon(QMessageBox.Critical)
+        error_box.setWindowTitle("Error")
+        error_box.setText(message)
+        error_box.setStandardButtons(QMessageBox.Ok)
+        error_box.setDefaultButton(QMessageBox.Ok)
+
+        # Display the error box
+        error_box.exec_()
+
+
+class InputDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.message_label = QLabel()
+        self.message_label.setStyleSheet("font-size: 17px")
+        self.text_input = QLineEdit(self)
+
+        button_box = QHBoxLayout()
+        ok_button = QPushButton("Create")
+        ok_button.clicked.connect(self.accept)
+        cancel_button = QPushButton("Cancel")
+        cancel_button.clicked.connect(self.reject)
+        button_box.addWidget(ok_button)
+        button_box.addWidget(cancel_button)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.message_label)
+        layout.addWidget(self.text_input)
+        layout.addLayout(button_box)
+        self.setLayout(layout)
+        self.resize(350, 150)
+
+    def set_window_title(self, title):
+        self.setWindowTitle(title)
+
+    def set_message(self, message):
+        self.message_label.setText(message)
+
+    def get_text(self):
+        return self.text_input.text()

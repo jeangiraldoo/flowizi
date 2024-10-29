@@ -10,6 +10,7 @@ from flowizi import flowizi
 class MainWindow(QMainWindow):
     label_signal = pyqtSignal(int)
     label_double_click_signal = pyqtSignal(int)
+
     def __init__(self):
         super().__init__()
         self.resize(1000, 600)
@@ -27,14 +28,14 @@ class MainWindow(QMainWindow):
         right_widget.setStyleSheet("background-color: #454541;")
         self.generate_element_sidebar()
         right_widget.setLayout(self.element_info_container)
-        
+
         self.start_button = QPushButton("Start")
         self.start_button.setMaximumWidth(100)
         self.start_button.setMaximumHeight(40)
-        create_button = QPushButton("Create")
-        create_button.setMaximumWidth(100)
-        create_button.setMaximumHeight(40)
-        create_button.setStyleSheet("""QPushButton{
+        self.create_button = QPushButton("Create")
+        self.create_button.setMaximumWidth(100)
+        self.create_button.setMaximumHeight(40)
+        self.create_button.setStyleSheet("""QPushButton{
                                         color: white;
                                         font-size: 20px;
                                     }
@@ -51,7 +52,7 @@ class MainWindow(QMainWindow):
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
         self.toolbar.addWidget(self.start_button)
-        self.toolbar.addWidget(create_button)
+        self.toolbar.addWidget(self.create_button)
         self.toolbar.addStretch()
 
         grid_widget = self.generate_element_grid(flowizi.environment_list)

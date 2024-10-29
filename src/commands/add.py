@@ -2,6 +2,8 @@ import os
 import winreg
 from flowizi import flowizi
 from core.elements.element_utils import utils
+from core.database import database
+from PyQt5.QtWidgets import QApplication, QMessageBox, QWidget
 
 
 def add(args, parser):
@@ -18,11 +20,13 @@ def add(args, parser):
 
 
 def add_environment(parser, env_name):
-    if flowizi.json.exists_environment(env_name):
+    result = database.add_environment(env_name)
+    if not result and parser:
         parser.error("The environment specified already exists")
-
-    flowizi.json.add_environment(env_name)
-    print(f"The {env_name} environment has been added!")
+    elif result and parser:
+        print(f"The {env_name} environment has been added!")
+    else:
+        return result
 
 
 def add_website(parser, env_name, url):

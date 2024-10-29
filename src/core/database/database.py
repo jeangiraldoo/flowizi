@@ -63,9 +63,9 @@ def add_environment(name):
     environment = (name, 0)
     try:
         cursor.execute("INSERT INTO environments (name, record) VALUES (?, ?)", environment)
-        print(f"The {name} environment was successfully created!")
+        return True
     except:
-        print("Error. There's already an environment with that name.")
+        return False
 
 
 def delete_environment(name):
