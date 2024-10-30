@@ -1,4 +1,5 @@
 import sqlite3
+from core.elements.environment import Environment
 
 conn = sqlite3.connect("example.db")
 cursor = conn.cursor()
@@ -63,6 +64,7 @@ def add_environment(name):
     environment = (name, 0)
     try:
         cursor.execute("INSERT INTO environments (name, record) VALUES (?, ?)", environment)
+        commit_changes()
         return True
     except:
         return False
@@ -167,4 +169,23 @@ def update_environment_record(env_name, value):
         print("The record setting has been updated!")
 
 
-conn.commit()
+def deserialize_elements():
+    environments = deserialize_environments()
+    return environments
+
+
+def deserialize_environments():
+    environments = []
+    cursor.execute("SELECT * FROM environments")
+    rows = cursor.fetchall()
+
+    for tuple in rows:
+        env = Environment(tuple[1])
+        env.set_record(tuple[2])
+        environments.append(env)
+
+    return environments
+
+
+def commit_changes():
+    conn.commit()

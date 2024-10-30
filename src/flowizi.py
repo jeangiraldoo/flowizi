@@ -1,13 +1,19 @@
 import os
 from urllib.parse import urlparse
 from core.json_data.json_repository import JSON_repository
+from core.database import database
 
 
 class Flowizi:
     def __init__(self):
         self.version = "1.4.0-alpha"
         self.json = JSON_repository()
-        self.environment_list = self.json.load()
+        self.environment_list = database.deserialize_elements()
+
+    def update_environments(self):
+        """Gets the current environments in the database and updates
+        the environment_list attribute"""
+        self.environment_list = database.deserialize_elements()
 
     def verify_URL(self, url: str, element_type: str) -> bool:
         "Checks if a URL is valid"

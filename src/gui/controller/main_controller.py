@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QMessageBox, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtGui import QFont
 from gui.view.main_view import MainWindow
 from flowizi import flowizi
+from commands import add
 
 
 class Controller:
@@ -113,6 +114,9 @@ class Controller:
             if widget:
                 widget.deleteLater()
 
+        self.remove_grid()
+
+    def remove_grid(self):
         self.main_view.splitter.widget(0).deleteLater()
 
     def show_environment_overview(self, pos):
@@ -193,21 +197,33 @@ class Controller:
         msg_box = InputDialog()
         msg_box.set_window_title("Create environment")
         msg_box.set_message("Enter the name of the new environment")
-
         msg_box.exec_()
+
         env_name = msg_box.get_text()
         if env_name == "":
-            self.show_invalid_input("The name must have at least one character")
+            self.show_error_message("The name must have at least one character")
+        else:
+            self.valid_input()
+            
+    def valid_input(self):
+        result = add.add_environment("", env_name)
+        if not result:
+            message = f"There is already an environment called {env_name}"
+            self.show_error_message(message)
+        else:
+            self.remove_grid()
+            flowizi.update_environments()
+            envs = flowizi.environment_list
+            updated_grid = self.main_view.generate_element_grid(envs)
+            self.main_view.splitter.insertWidget(0, updated_grid)
 
-    def show_invalid_input(self, message):
+    def show_error_message(self, message):
         error_box = QMessageBox()
         error_box.setIcon(QMessageBox.Critical)
         error_box.setWindowTitle("Error")
         error_box.setText(message)
         error_box.setStandardButtons(QMessageBox.Ok)
         error_box.setDefaultButton(QMessageBox.Ok)
-
-        # Display the error box
         error_box.exec_()
 
 

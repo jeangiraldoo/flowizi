@@ -20,6 +20,12 @@ def add(args, parser):
 
 
 def add_environment(parser, env_name):
+    '''Calls the function that inserts environments into the database
+
+    Parameters:
+    parser ("" or ArgumentParser): Defines how the feedback will be shown (CLI/GUI)
+    env_name (Str): Name of the environment to add'''
+    database.serialize_elements()
     result = database.add_environment(env_name)
     if not result and parser:
         parser.error("The environment specified already exists")
