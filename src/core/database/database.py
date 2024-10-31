@@ -1,5 +1,6 @@
 import sqlite3
 from core.elements.environment import Environment
+from core.elements.website import Website
 
 conn = sqlite3.connect("example.db")
 cursor = conn.cursor()
@@ -82,9 +83,12 @@ def delete_environment(name):
 
 
 def insert_element(env_name, element_type, name, url):
-    env_id = get_environment_ID(env_name)
+    if isinstance(env_name, int):
+        env_id = env_name + 1
+    else:
+        env_id = get_environment_ID(env_name)
+
     if not env_id:
-        print("There's no environment with that name")
         return False
 
     element_id = get_element_ID(name, element_type)
@@ -94,10 +98,9 @@ def insert_element(env_name, element_type, name, url):
 
     insert_result = finish_insert_element(env_id, env_name, element_id, element_type)
     if not insert_result:
-        print(f"The {name} element is already in the {env_name} environment")
         return False
 
-    print(f"{name} was succesfully added to the {env_name} environment!")
+    commit_changes()
     return True
 
 
@@ -171,7 +174,8 @@ def update_environment_record(env_name, value):
 
 def deserialize_elements():
     environments = deserialize_environments()
-    return environments
+    final_environments = deserialize_contained_elements(environments)
+    return final_environments
 
 
 def deserialize_environments():
@@ -186,6 +190,20 @@ def deserialize_environments():
 
     return environments
 
+
+def deserialize_contained_elements(envs):
+    for environment in envs:
+        env_id = get_environment_ID(environment.name)
+        cursor.execute("SELECT element_id FROM environment_websites WHERE environment_id = ?", (env_id,)) 
+        result = cursor.fetchall()
+
+        for tuple in result:
+            cursor.execute("SELECT * FROM websites WHERE id = ?", (tuple[0],))
+            result = cursor.fetchone()
+            new_website = Website(result[1], result[2])
+            environment.websites.append(new_website)
+
+    return envs
 
 def commit_changes():
     conn.commit()

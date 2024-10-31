@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QApplication, QMessageBox, QVBoxLayout, QHBoxLayout,
 from PyQt5.QtGui import QFont
 from gui.view.main_view import MainWindow
 from flowizi import flowizi
+from core.database import database
 from commands import add
 
 
@@ -59,10 +60,14 @@ class Controller:
         self.remove_widgets()        
         self.set_contained_element_sidebar()
         self.show_environment_overview(pos)
-        
+
     def get_grid(self, pos, element_type):
-        environment = flowizi.environment_list[pos]
-        elements = getattr(environment, element_type)
+        if element_type == "environments":
+            elements = flowizi.environment_list
+        else:
+            environment = flowizi.environment_list[pos]
+            elements = getattr(environment, element_type)
+
         if elements:
             return self.main_view.generate_element_grid(elements)
         else:
@@ -130,7 +135,20 @@ class Controller:
                                     QPushButton:hover{
                                         background-color: #f19600;
                                     }""")
+        create_button = QPushButton("Create")
+        create_button.setMaximumWidth(100)
+        create_button.setMaximumHeight(40)
+        create_button.clicked.connect(self.create_button_clicked)
+        create_button.setStyleSheet("""QPushButton{
+                                        color: white;
+                                        font-size: 20px;
+                                    }
+                                    QPushButton:hover{
+                                        background-color: #f19600;
+                                    }""")
+
         self.main_view.toolbar.addWidget(back_button)
+        self.main_view.toolbar.addWidget(create_button)
         self.main_view.toolbar.addStretch()
 
         self.tab_widget = QTabWidget()
@@ -162,6 +180,7 @@ class Controller:
         create_button = QPushButton("Create")
         create_button.setMaximumWidth(100)
         create_button.setMaximumHeight(40)
+        create_button.clicked.connect(self.create_button_clicked)
         create_button.setStyleSheet("""QPushButton{
                                         color: white;
                                         font-size: 20px;
@@ -194,28 +213,86 @@ class Controller:
                 flowizi.environment_list[i].start()
 
     def create_button_clicked(self):
-        msg_box = InputDialog()
-        msg_box.set_window_title("Create environment")
-        msg_box.set_message("Enter the name of the new environment")
-        msg_box.exec_()
+        if self.current_view == "environments":
+            title = "Create environment"
+            message = "Enter the name of the new environment"
+            element_type = "environments"
+        elif self.current_tab == 0:
+            title = "Create website"
+            message = "Enter the URL for the new website"
+            element_type = "websites"
+        elif self.current_tab == 1:
+            title = "Create application"
+            message = "Enter the name of the new application"
+            element_type = "applications"
+        elif self.current_tab == 2:
+            title = "Create file"
+            message = "Enter the path to the new file"
+            element_type = "files"
 
-        env_name = msg_box.get_text()
-        if env_name == "":
-            self.show_error_message("The name must have at least one character")
+        msg_box = self.show_create_element_msg_box(title, message)
+        result = msg_box.exec_()
+
+        if result:
+            input = msg_box.get_text()
+            if input == "":
+                self.show_error_message("The name must have at least one character")
+            else:
+                self.valid_input(input, element_type)
+
+    def valid_input(self, input, element_type):
+        if element_type == "environments":
+            result = self.add_environment(input)
+        elif element_type == "websites":
+            result = self.add_website(input)
+        elif element_type == "applications":
+            result = self.add_application()
+        elif element_type == "files":
+            result = self.add_file()
+
+        if result:
+            self.update_element_grid(element_type)
+
+    def update_element_grid(self, element_type):
+        flowizi.update_environments()
+        updated_grid = self.get_grid(self.current_environment, element_type)
+
+        if element_type == "environments":
+            self.remove_grid()
+            self.main_view.splitter.insertWidget(0, updated_grid)
         else:
-            self.valid_input()
-            
-    def valid_input(self):
+            self.tab_widget.widget(self.current_tab).deleteLater()
+            self.tab_widget.insertTab(self.current_tab, updated_grid, self.tab_widget.tabText(self.current_tab))
+            self.tab_widget.setCurrentWidget(updated_grid)
+
+    def add_environment(self, env_name):
         result = add.add_environment("", env_name)
         if not result:
             message = f"There is already an environment called {env_name}"
             self.show_error_message(message)
+
+        return result
+
+    def add_website(self, url):
+        result = add.add_website("", self.current_environment, url)
+        if not result[0]:
+            self.show_add_website_error(result[1], url)
+
+        return result
+
+    def show_add_website_error(self, result, url):
+        if result == "invalid_url":
+            message = f"{url} is not a valid URL"
         else:
-            self.remove_grid()
-            flowizi.update_environments()
-            envs = flowizi.environment_list
-            updated_grid = self.main_view.generate_element_grid(envs)
-            self.main_view.splitter.insertWidget(0, updated_grid)
+            message = f"There is already a website with the url {url}"
+
+        self.show_error_message(message)
+
+    def show_create_element_msg_box(self, title, message):
+        msg_box = InputDialog()
+        msg_box.set_window_title(title)
+        msg_box.set_message(message)
+        return msg_box
 
     def show_error_message(self, message):
         error_box = QMessageBox()

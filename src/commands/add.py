@@ -3,7 +3,6 @@ import winreg
 from flowizi import flowizi
 from core.elements.element_utils import utils
 from core.database import database
-from PyQt5.QtWidgets import QApplication, QMessageBox, QWidget
 
 
 def add(args, parser):
@@ -25,7 +24,6 @@ def add_environment(parser, env_name):
     Parameters:
     parser ("" or ArgumentParser): Defines how the feedback will be shown (CLI/GUI)
     env_name (Str): Name of the environment to add'''
-    database.serialize_elements()
     result = database.add_environment(env_name)
     if not result and parser:
         parser.error("The environment specified already exists")
@@ -36,23 +34,26 @@ def add_environment(parser, env_name):
 
 
 def add_website(parser, env_name, url):
-    if not flowizi.json.exists_environment(env_name):
+    env_id = database.get_environment_ID(env_name)
+    if not env_id and parser:
         parser.error("The environment specified does not exist")
 
     if not utils.verify_URL(url, "website"):
         url = f"https://{url}"
-        if not utils.verify_URL(url, "website"):
+        if not utils.verify_URL(url, "website") and parser:
             parser.error("The link does not follow a proper link format")
+        elif not utils.verify_URL(url, "website") and not parser:
+            return [False, "invalid_url"]
 
     name = url[url.rfind("/") + 1:]
-    for environment in flowizi.environment_list:
-        website_exists = any(website.name == name for website in environment.websites)
-        if environment.name == env_name and len(environment.websites) > 0 and website_exists:
-            parser.error("This website already exists")
+    result = database.insert_element(env_name, "websites", name, url)
 
-    website = create_website(name, url)
-    flowizi.json.add_environment_element(env_name, "websites", website)
-    print(f"The {name} website was added to the {env_name} environment")
+    if not result and parser:
+        parser.error("This website already exists")
+    elif result and parser:
+        print(f"The {name} website was added to the {env_name} environment")
+
+    return [result, ""]
 
 
 def create_website(name, url):
