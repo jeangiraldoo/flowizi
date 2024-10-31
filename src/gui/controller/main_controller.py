@@ -285,7 +285,6 @@ class Controller:
             self.remove_grid()
             self.main_view.splitter.insertWidget(0, updated_grid)
         else:
-            print("siuu")
             self.tab_widget.widget(self.current_tab).deleteLater()
             self.tab_widget.insertTab(self.current_tab, updated_grid, self.tab_widget.tabText(self.current_tab))
             self.tab_widget.setCurrentWidget(updated_grid)
@@ -299,7 +298,8 @@ class Controller:
         return result
 
     def add_website(self, url):
-        result = add.add_website("", self.current_environment, url)
+        env_name = flowizi.environment_list[self.current_environment].name
+        result = add.add_website("", env_name, url)
         if not result[0]:
             self.show_add_website_error(result[1], url)
 
@@ -311,11 +311,11 @@ class Controller:
         dialog.setNameFilter("All files (*)")  # Filters by file type if desired
         if dialog.exec_():
             file_path = dialog.selectedFiles()[0]
-            result = add.add_file("", self.current_environment, file_path)
+            env_name = flowizi.environment_list[self.current_environment].name
+            result = add.add_file("", env_name, file_path)
 
             if not result:
                 self.show_error_message("The selected file is already in the environment")
-            print(result)
             return result
 
     def show_add_website_error(self, result, url):

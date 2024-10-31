@@ -85,10 +85,7 @@ def delete_environment(name):
 
 
 def insert_element(env_name, element_type, name, url):
-    if isinstance(env_name, int):
-        env_id = env_name + 1
-    else:
-        env_id = get_environment_ID(env_name)
+    env_id = get_environment_ID(env_name)
 
     if not env_id:
         return False
@@ -98,12 +95,9 @@ def insert_element(env_name, element_type, name, url):
     if not element_id:
         element_id = insert_and_get_element_ID(name, url, element_type)
 
-    insert_result = finish_insert_element(env_id, env_name, element_id, element_type)
-    if not insert_result:
-        return False
-
+    insert_result = finish_insert_element(env_id, element_id, element_type)
     commit_changes()
-    return True
+    return insert_result
 
 
 def delete_element(env_name, element_type, name):
@@ -150,7 +144,7 @@ def insert_and_get_element_ID(name, url, element_type) -> int:
     return element_id
 
 
-def finish_insert_element(env_id, env_name, element_id, element_type):
+def finish_insert_element(env_id, element_id, element_type):
     try:
         cursor.execute(f"INSERT INTO environment_{element_type} (environment_id, element_id) VALUES (?, ?)", (env_id, element_id))
         return True
@@ -196,23 +190,12 @@ def deserialize_environments():
 
 
 def deserialize_contained_elements(envs, element_type):
-    cursor.execute("SELECT * FROM environment_files")
-    result = cursor.fetchall()
-    print(f"env_files: {len(result)}")
-    cursor.execute("SELECT * FROM environments")
-    result = cursor.fetchall()
-    print(f"envs: {len(result)}")
-    cursor.execute("SELECT * FROM files")
-    result = cursor.fetchall()
-    print(f"files: {len(result)}")
-
     for environment in envs:
         env_id = get_environment_ID(environment.name)
         cursor.execute(f"SELECT element_id FROM environment_{element_type} WHERE environment_id = ?", (env_id,)) 
         result = cursor.fetchall()
 
         for tuple in result:
-            print("lol")
             cursor.execute(f"SELECT * FROM {element_type} WHERE id = ?", (tuple[0],))
             result = cursor.fetchone()
             element_list = getattr(environment, element_type)
@@ -222,7 +205,6 @@ def deserialize_contained_elements(envs, element_type):
                 new_element = File(result[1], result[2])
             else:
                 new_element = Application(result[1], result[2])
-            print(new_element.name)
             element_list.append(new_element)
 
     return envs
