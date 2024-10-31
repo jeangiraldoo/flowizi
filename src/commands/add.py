@@ -61,10 +61,11 @@ def create_website(name, url):
 
 
 def add_file(parser, env_name, url):
-    if not flowizi.json.exists_environment(env_name):
+    env_id = database.get_environment_ID(env_name)
+    if not env_id and parser:
         parser.error("The environment specified does not exist")
 
-    if not utils.verify_URL(url, "file"):
+    if not utils.verify_URL(url, "file") and parser:
         parser.error(
             "There's no file in your system associated"
             " with the path you typed"
@@ -75,12 +76,14 @@ def add_file(parser, env_name, url):
 
     for environment in flowizi.environment_list:
         file_exists = any(file.name == name for file in environment.files)
-        if environment.name == env_name and len(environment.websites) > 0 and file_exists:
+        if environment.name == env_name and len(environment.websites) > 0 and file_exists and parser:
             parser.error("This file already exists")
 
     file = create_file(name, url)
-    flowizi.json.add_environment_element(env_name, "files", file)
-    print(f"The {name} in the {url} path was added to the {env_name} environment")
+    result = database.insert_element(env_name, "files", name, url)
+    if parser:
+        print(f"The {name} in the {url} path was added to the {env_name} environment")
+    return result
 
 
 def create_file(name, url):

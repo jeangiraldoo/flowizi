@@ -1,9 +1,12 @@
 import sqlite3
 from core.elements.environment import Environment
 from core.elements.website import Website
+from core.elements.file import File
 
 conn = sqlite3.connect("example.db")
 cursor = conn.cursor()
+
+cursor.execute("PRAGMA foreign_keys = ON;")
 
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS environments (
@@ -172,9 +175,11 @@ def update_environment_record(env_name, value):
 
 
 def deserialize_elements():
+    element_types = ["websites", "files"]
     environments = deserialize_environments()
-    final_environments = deserialize_contained_elements(environments)
-    return final_environments
+    for i in range(len(element_types)):
+        environments = deserialize_contained_elements(environments, element_types[i])
+    return environments
 
 
 def deserialize_environments():
@@ -190,17 +195,35 @@ def deserialize_environments():
     return environments
 
 
-def deserialize_contained_elements(envs):
+def deserialize_contained_elements(envs, element_type):
+    cursor.execute("SELECT * FROM environment_files")
+    result = cursor.fetchall()
+    print(f"env_files: {len(result)}")
+    cursor.execute("SELECT * FROM environments")
+    result = cursor.fetchall()
+    print(f"envs: {len(result)}")
+    cursor.execute("SELECT * FROM files")
+    result = cursor.fetchall()
+    print(f"files: {len(result)}")
+
     for environment in envs:
         env_id = get_environment_ID(environment.name)
-        cursor.execute("SELECT element_id FROM environment_websites WHERE environment_id = ?", (env_id,)) 
+        cursor.execute(f"SELECT element_id FROM environment_{element_type} WHERE environment_id = ?", (env_id,)) 
         result = cursor.fetchall()
 
         for tuple in result:
-            cursor.execute("SELECT * FROM websites WHERE id = ?", (tuple[0],))
+            print("lol")
+            cursor.execute(f"SELECT * FROM {element_type} WHERE id = ?", (tuple[0],))
             result = cursor.fetchone()
-            new_website = Website(result[1], result[2])
-            environment.websites.append(new_website)
+            element_list = getattr(environment, element_type)
+            if element_type == "websites":
+                new_element = Website(result[1], result[2])
+            elif element_type == "files":
+                new_element = File(result[1], result[2])
+            else:
+                new_element = Application(result[1], result[2])
+            print(new_element.name)
+            element_list.append(new_element)
 
     return envs
 

@@ -1,5 +1,7 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMessageBox, QVBoxLayout, QHBoxLayout, QDialog, QLineEdit, QSizePolicy, QLabel, QPushButton, QTabWidget
+from PyQt5.QtWidgets import (QApplication, QMessageBox, QVBoxLayout,
+                             QHBoxLayout, QDialog, QLineEdit, QSizePolicy,
+                             QLabel, QPushButton, QTabWidget, QFileDialog)
 from PyQt5.QtGui import QFont
 from gui.view.main_view import MainWindow
 from flowizi import flowizi
@@ -191,7 +193,7 @@ class Controller:
         delete_button = QPushButton("Delete")
         delete_button.setMaximumWidth(100)
         delete_button.setMaximumHeight(40)
-        delete_button.clicked.connect(self.create_button_clicked)
+        delete_button.clicked.connect(self.delete_button_clicked)
         create_button.setStyleSheet("""QPushButton{
                                         color: white;
                                         font-size: 20px;
@@ -245,29 +247,32 @@ class Controller:
             message = "Enter the name of the new application"
             element_type = "applications"
         elif self.current_tab == 2:
-            title = "Create file"
-            message = "Enter the path to the new file"
             element_type = "files"
 
-        msg_box = self.show_create_element_msg_box(title, message)
-        result = msg_box.exec_()
+        if element_type != "files" and element_type != "applications":
+            self.get_input(element_type, title, message)
+        elif element_type == "files":
+            result = self.add_file()
+            if result:
+                self.update_element_grid(element_type)
 
-        if result:
+    def get_input(self, element_type, w_title, w_message):
+        msg_box = self.show_create_element_msg_box(w_title, w_message)
+
+        if msg_box.exec():
             input = msg_box.get_text()
             if input == "":
                 self.show_error_message("The name must have at least one character")
             else:
-                self.valid_input(input, element_type)
+                self.validate_input(input, element_type)
 
-    def valid_input(self, input, element_type):
+    def validate_input(self, input, element_type):
         if element_type == "environments":
             result = self.add_environment(input)
         elif element_type == "websites":
             result = self.add_website(input)
         elif element_type == "applications":
             result = self.add_application()
-        elif element_type == "files":
-            result = self.add_file()
 
         if result:
             self.update_element_grid(element_type)
@@ -280,6 +285,7 @@ class Controller:
             self.remove_grid()
             self.main_view.splitter.insertWidget(0, updated_grid)
         else:
+            print("siuu")
             self.tab_widget.widget(self.current_tab).deleteLater()
             self.tab_widget.insertTab(self.current_tab, updated_grid, self.tab_widget.tabText(self.current_tab))
             self.tab_widget.setCurrentWidget(updated_grid)
@@ -298,6 +304,19 @@ class Controller:
             self.show_add_website_error(result[1], url)
 
         return result
+
+    def add_file(self):
+        dialog = QFileDialog()
+        dialog.setFileMode(QFileDialog.ExistingFile)  # Allows selecting only existing files
+        dialog.setNameFilter("All files (*)")  # Filters by file type if desired
+        if dialog.exec_():
+            file_path = dialog.selectedFiles()[0]
+            result = add.add_file("", self.current_environment, file_path)
+
+            if not result:
+                self.show_error_message("The selected file is already in the environment")
+            print(result)
+            return result
 
     def show_add_website_error(self, result, url):
         if result == "invalid_url":
