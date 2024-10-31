@@ -75,11 +75,10 @@ def delete_environment(name):
     id = get_environment_ID(name)
     print(id)
     if not id:
-        print("There is no environment with the specified name")
         return False
 
     cursor.execute("DELETE FROM environments WHERE id = ?", (id,))
-    print(f"The {name} environment was successfully removed!")
+    commit_changes()
 
 
 def insert_element(env_name, element_type, name, url):

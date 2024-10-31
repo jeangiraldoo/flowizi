@@ -4,7 +4,7 @@ from PyQt5.QtGui import QFont
 from gui.view.main_view import MainWindow
 from flowizi import flowizi
 from core.database import database
-from commands import add
+from commands import add, remove
 
 
 class Controller:
@@ -19,6 +19,7 @@ class Controller:
         self.main_view.label_double_click_signal.connect(self.element_double_clicked)
         self.main_view.start_button.clicked.connect(self.start_button_clicked)
         self.main_view.create_button.clicked.connect(self.create_button_clicked)
+        self.main_view.delete_button.clicked.connect(self.delete_button_clicked)
 
         sys.exit(app.exec_())
 
@@ -70,6 +71,12 @@ class Controller:
 
         if elements:
             return self.main_view.generate_element_grid(elements)
+        elif element_type == "environments":
+            label_text = "You haven't created any environments yet. You can create one with the 'Create' button"
+            empty_label = QLabel(label_text)
+            empty_label.setWordWrap(True)
+            empty_label.setStyleSheet("color: white; font-size: 20px; padding: 10px;")
+            return empty_label
         else:
             empty_label = QLabel(f"There are no {element_type} in the {flowizi.environment_list[pos].name} environment.")
             empty_label.setStyleSheet("background-color: white; font-size: 20px; padding: 10px;")
@@ -181,6 +188,10 @@ class Controller:
         create_button.setMaximumWidth(100)
         create_button.setMaximumHeight(40)
         create_button.clicked.connect(self.create_button_clicked)
+        delete_button = QPushButton("Delete")
+        delete_button.setMaximumWidth(100)
+        delete_button.setMaximumHeight(40)
+        delete_button.clicked.connect(self.create_button_clicked)
         create_button.setStyleSheet("""QPushButton{
                                         color: white;
                                         font-size: 20px;
@@ -195,9 +206,17 @@ class Controller:
                                     QPushButton:hover{
                                         background-color: #f19600;
                                     }""")
+        delete_button.setStyleSheet("""QPushButton{
+                                        color: white;
+                                        font-size: 20px;
+                                    }
+                                    QPushButton:hover{
+                                        background-color: #f19600;
+                                    }""")
 
         self.main_view.toolbar.addWidget(start_button)
         self.main_view.toolbar.addWidget(create_button)
+        self.main_view.toolbar.addWidget(delete_button)
         self.main_view.toolbar.addStretch()
         self.reset_environment_sidebar()
         environments = flowizi.environment_list
@@ -287,6 +306,17 @@ class Controller:
             message = f"There is already a website with the url {url}"
 
         self.show_error_message(message)
+
+    def delete_button_clicked(self):
+        total_elements = len(self.main_view.grid)
+        for i in range(total_elements):
+            label = self.main_view.grid.itemAt(i).widget()
+            label_style = label.styleSheet()
+
+            if self.main_view.label_clicked_style in label_style and self.current_view == "environments":
+                remove.remove_environment(flowizi.environment_list[i].name)
+                self.update_element_grid("environments")
+                break
 
     def show_create_element_msg_box(self, title, message):
         msg_box = InputDialog()

@@ -1,4 +1,5 @@
 from flowizi import flowizi
+from core.database import database
 
 
 def remove(args, parser):
@@ -17,7 +18,7 @@ def remove(args, parser):
 
 
 def remove_environment(name):
-    flowizi.json.remove_environment(name)
+    database.delete_environment(name)
 
 
 def remove_website(parser, env_name, name):

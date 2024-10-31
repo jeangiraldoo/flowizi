@@ -35,6 +35,10 @@ class MainWindow(QMainWindow):
         self.create_button = QPushButton("Create")
         self.create_button.setMaximumWidth(100)
         self.create_button.setMaximumHeight(40)
+        self.delete_button = QPushButton("Delete")
+        self.delete_button.setMaximumWidth(100)
+        self.delete_button.setMaximumHeight(40)
+
         self.create_button.setStyleSheet("""QPushButton{
                                         color: white;
                                         font-size: 20px;
@@ -49,13 +53,28 @@ class MainWindow(QMainWindow):
                                     QPushButton:hover{
                                         background-color: #f19600;
                                     }""")
+        self.delete_button.setStyleSheet("""QPushButton{
+                                        color: white;
+                                        font-size: 20px;
+                                    }
+                                    QPushButton:hover{
+                                        background-color: #f19600;
+                                    }""")
+
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
         self.toolbar.addWidget(self.start_button)
         self.toolbar.addWidget(self.create_button)
+        self.toolbar.addWidget(self.delete_button)
         self.toolbar.addStretch()
 
         grid_widget = self.generate_element_grid(flowizi.environment_list)
+        if not len(flowizi.environment_list):
+            label_text = "No environments have been created yet. Use the 'Create' button to create one"
+            grid_widget = QLabel(label_text)
+            grid_widget.setWordWrap(True)
+            grid_widget.setStyleSheet("color: white; font-size: 20px; padding: 10px;")
+
         self.splitter.addWidget(grid_widget)
         self.vbox.addLayout(self.toolbar)
         self.vbox.addWidget(self.splitter)
