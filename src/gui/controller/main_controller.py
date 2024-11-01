@@ -48,7 +48,7 @@ class Controller:
         elif self.current_tab == 1:
             contained_elements = environment.applications
         elif self.current_tab == 2:
-            contained_elements = environment.websites
+            contained_elements = environment.files
 
         self.main_view.element_info_container.itemAt(1).widget().setText(f"Name: {contained_elements[pos].name}")
         self.main_view.element_info_container.itemAt(2).widget().setText(f"URL: {contained_elements[pos].url}")
@@ -350,11 +350,16 @@ class Controller:
             env_name = flowizi.environment_list[element_pos].name
             remove.remove_environment(env_name)
             self.update_element_grid("environments")
-        if self.current_tab == 0 and element_pos is not None:
+        elif self.current_tab == 0 and element_pos is not None:
             env = flowizi.environment_list[self.current_environment]
             website_name = env.websites[element_pos].name
             remove.remove_website("", env.name, website_name)
             self.update_element_grid("websites")
+        elif self.current_tab == 2 and element_pos is not None:
+            env = flowizi.environment_list[self.current_environment]
+            file_name = env.files[element_pos].name
+            remove.remove_file("", env.name, file_name)
+            self.update_element_grid("files")
 
     def get_clicked_element_pos(self):
         total_elements = len(self.main_view.grid)
