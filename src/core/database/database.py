@@ -76,7 +76,6 @@ def add_environment(name):
 
 def delete_environment(name):
     id = get_environment_ID(name)
-    print(id)
     if not id:
         return False
 
@@ -108,10 +107,11 @@ def delete_element(env_name, element_type, name):
 
     element_id = get_element_ID(name, element_type)
     if not element_id:
-        print(f"There is no element called {name} in the {env_name} environment")
+        return False
 
     cursor.execute(f"DELETE FROM environment_{element_type} WHERE element_id = ?", (element_id,))
-    print("The {name} element was deleted from the {env_name} environment!")
+    commit_changes()
+    return True
 
 
 def get_environment_ID(env_name) -> int:

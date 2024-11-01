@@ -39,13 +39,8 @@ class Controller:
         self.main_view.element_info_container.itemAt(4).widget().setText(f"Apps: {len(flowizi.environment_list[pos].applications)}")
         self.main_view.element_info_container.itemAt(5).widget().setText(f"Files: {len(flowizi.environment_list[pos].files)}")
 
-        for i in range(len(self.main_view.grid)):
-            if pos == i:
-                clicked_label = self.main_view.grid.itemAt(pos)
-                clicked_label.widget().setStyleSheet(self.main_view.label_clicked_style)
-            else:
-                self.main_view.grid.itemAt(i).widget().setStyleSheet(self.main_view.label_default_style)
-
+        self.highlight_clicked_element(pos)
+        
     def contained_element_clicked(self, pos):
         environment = flowizi.environment_list[self.current_environment]
         if self.current_tab == 0:
@@ -57,6 +52,17 @@ class Controller:
 
         self.main_view.element_info_container.itemAt(1).widget().setText(f"Name: {contained_elements[pos].name}")
         self.main_view.element_info_container.itemAt(2).widget().setText(f"URL: {contained_elements[pos].url}")
+
+        self.highlight_clicked_element(pos)
+
+    def highlight_clicked_element(self, pos):
+        for i in range(len(self.main_view.grid)):
+            if pos == i:
+                clicked_label = self.main_view.grid.itemAt(pos)
+                clicked_label.widget().setStyleSheet(self.main_view.label_clicked_style)
+            else:
+                self.main_view.grid.itemAt(i).widget().setStyleSheet(self.main_view.label_default_style)
+
 
     def element_double_clicked(self, pos):
         self.current_view = "contained_elements"
@@ -155,9 +161,21 @@ class Controller:
                                     QPushButton:hover{
                                         background-color: #f19600;
                                     }""")
+        delete_button = QPushButton("Delete")
+        delete_button.setMaximumWidth(100)
+        delete_button.setMaximumHeight(40)
+        delete_button.clicked.connect(self.delete_button_clicked)
+        delete_button.setStyleSheet("""QPushButton{
+                                        color: white;
+                                        font-size: 20px;
+                                    }
+                                    QPushButton:hover{
+                                        background-color: #f19600;
+                                    }""")
 
         self.main_view.toolbar.addWidget(back_button)
         self.main_view.toolbar.addWidget(create_button)
+        self.main_view.toolbar.addWidget(delete_button)
         self.main_view.toolbar.addStretch()
 
         self.tab_widget = QTabWidget()
@@ -327,15 +345,25 @@ class Controller:
         self.show_error_message(message)
 
     def delete_button_clicked(self):
+        element_pos = self.get_clicked_element_pos()
+        if self.current_view == "environments" and element_pos is not None:
+            env_name = flowizi.environment_list[element_pos].name
+            remove.remove_environment(env_name)
+            self.update_element_grid("environments")
+        if self.current_tab == 0 and element_pos is not None:
+            env = flowizi.environment_list[self.current_environment]
+            website_name = env.websites[element_pos].name
+            remove.remove_website("", env.name, website_name)
+            self.update_element_grid("websites")
+
+    def get_clicked_element_pos(self):
         total_elements = len(self.main_view.grid)
         for i in range(total_elements):
             label = self.main_view.grid.itemAt(i).widget()
             label_style = label.styleSheet()
 
-            if self.main_view.label_clicked_style in label_style and self.current_view == "environments":
-                remove.remove_environment(flowizi.environment_list[i].name)
-                self.update_element_grid("environments")
-                break
+            if self.main_view.label_clicked_style in label_style:
+                return i
 
     def show_create_element_msg_box(self, title, message):
         msg_box = InputDialog()

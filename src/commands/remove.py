@@ -22,11 +22,11 @@ def remove_environment(name):
 
 
 def remove_website(parser, env_name, name):
-    if not flowizi.json.exists_environment_element(env_name, "websites", name):
+    id = database.get_environment_ID(env_name)
+    if not id and parser:
         parser.error("The element specfified does not exist")
 
-    flowizi.json.remove_environment_element(env_name, "websites", name)
-
+    database.delete_element(env_name, "websites", name)
 
 def remove_file(parser, env_name, name):
     if not flowizi.json.exists_environment_element(env_name, "files", name):

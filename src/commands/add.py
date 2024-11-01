@@ -79,7 +79,6 @@ def add_file(parser, env_name, url):
         if environment.name == env_name and len(environment.websites) > 0 and file_exists and parser:
             parser.error("This file already exists")
 
-    file = create_file(name, url)
     result = database.insert_element(env_name, "files", name, url)
     if parser:
         print(f"The {name} in the {url} path was added to the {env_name} environment")
