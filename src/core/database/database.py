@@ -2,6 +2,7 @@ import sqlite3
 from core.elements.environment import Environment
 from core.elements.website import Website
 from core.elements.file import File
+from core.elements.application import Application
 
 conn = sqlite3.connect("example.db")
 cursor = conn.cursor()
@@ -169,7 +170,7 @@ def update_environment_record(env_name, value):
 
 
 def deserialize_elements():
-    element_types = ["websites", "files"]
+    element_types = ["websites", "files", "applications"]
     environments = deserialize_environments()
     for i in range(len(element_types)):
         environments = deserialize_contained_elements(environments, element_types[i])

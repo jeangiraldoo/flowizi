@@ -1,8 +1,9 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QVBoxLayout,
                              QHBoxLayout, QDialog, QLineEdit, QSizePolicy,
-                             QLabel, QPushButton, QTabWidget, QFileDialog)
+                             QLabel,QListWidget, QPushButton, QTabWidget, QFileDialog)
 from PyQt5.QtGui import QFont
+from PyQt5.QtCore import pyqtSignal
 from gui.view.main_view import MainWindow
 from flowizi import flowizi
 from core.database import database
@@ -17,6 +18,7 @@ class Controller:
         self.current_view = "environments"
         self.current_environment = None
         self.current_tab = None
+        self.selected_app = None
         self.main_view.label_signal.connect(self.element_clicked)
         self.main_view.label_double_click_signal.connect(self.element_double_clicked)
         self.main_view.start_button.clicked.connect(self.start_button_clicked)
@@ -267,12 +269,17 @@ class Controller:
         elif self.current_tab == 2:
             element_type = "files"
 
-        if element_type != "files" and element_type != "applications":
-            self.get_input(element_type, title, message)
-        elif element_type == "files":
+        if element_type == "files":
             result = self.add_file()
             if result:
                 self.update_element_grid(element_type)
+        if element_type == "applications":
+            result = self.add_application()
+            if result:
+                self.update_element_grid(element_type)
+        else:
+            self.get_input(element_type, title, message)
+
 
     def get_input(self, element_type, w_title, w_message):
         msg_box = self.show_create_element_msg_box(w_title, w_message)
@@ -336,6 +343,15 @@ class Controller:
                 self.show_error_message("The selected file is already in the environment")
             return result
 
+    def add_application(self):
+        app_window = AppDialog(self.current_environment)
+        app_window.set_window_title("Create an app:")
+        app_window.set_message("Double click one of the available apps:")
+        result = app_window.result_signal.connect(self.get_app_insertion_result)
+        app_window.exec_()
+
+        return result
+
     def show_add_website_error(self, result, url):
         if result == "invalid_url":
             message = f"{url} is not a valid URL"
@@ -343,6 +359,9 @@ class Controller:
             message = f"There is already a website with the url {url}"
 
         self.show_error_message(message)
+
+    def get_app_insertion_result(self, result):
+        return result
 
     def delete_button_clicked(self):
         element_pos = self.get_clicked_element_pos()
@@ -360,6 +379,12 @@ class Controller:
             file_name = env.files[element_pos].name
             remove.remove_file("", env.name, file_name)
             self.update_element_grid("files")
+        else:
+            env = flowizi.environment_list[self.current_environment]
+            app_name = env.applications[element_pos].name
+            remove.remove_application("", env.name, app_name)
+            self.update_element_grid("applications")
+
 
     def get_clicked_element_pos(self):
         total_elements = len(self.main_view.grid)
@@ -416,3 +441,54 @@ class InputDialog(QDialog):
 
     def get_text(self):
         return self.text_input.text()
+
+class AppDialog(QDialog):
+    result_signal = pyqtSignal(bool)
+
+    def __init__(self, env_name):
+        super().__init__()
+        self.current_env_name = env_name
+        self.current_step = "app"
+        self.apps = add.get_all_installed_apps()
+        self.message_label = QLabel()
+        self.message_label.setStyleSheet("font-size: 17px")
+        self.item_list = QListWidget(self)
+        self.item_list.itemDoubleClicked.connect(self.update_list)
+        self.set_items(self.apps)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.message_label)
+        layout.addWidget(self.item_list)
+        self.setLayout(layout)
+        self.resize(450, 550)
+
+    def set_window_title(self, title):
+        self.setWindowTitle(title)
+
+    def set_message(self, message):
+        self.message_label.setText(message)
+
+    def set_items(self, items):
+        for i in items:
+            self.item_list.addItem(i)
+
+    def update_list(self, item):
+        if self.current_step == "app":
+            self.current_step = "execs"
+            self.app_name = item.text()
+            self.show_execs(self.app_name)
+        elif self.current_step == "execs":
+            path = self.execs[item.text()]
+            env_name = flowizi.environment_list[self.current_env_name].name
+            result = add.add_one_similar_app(env_name, self.app_name, path)
+            self.result_signal.emit(result)
+            self.close()
+        
+    def show_execs(self, app_name):
+        path = self.apps[app_name]
+        self.execs = add.get_exec_files("", path)
+        self.message_label.setText("Choose the executable file of the application:")
+        self.item_list.clear()
+        self.set_items(self.execs)
+
+

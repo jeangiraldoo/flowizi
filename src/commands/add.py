@@ -90,48 +90,52 @@ def create_file(name, url):
 
 
 def add_application(parser, env_name):
-    if not flowizi.json.exists_environment(env_name):
+    if not database.get_environment_ID(env_name) and parser:
         parser.error("The environment specified does not exist")
 
     apps = get_all_installed_apps()
     app_names = list(apps.keys())
     display_apps(apps)
-    position, choice, similar_apps = ask_app_name(apps, app_names)
+    app_name = ask_app_name(apps, app_names)
+    similar_apps = get_similar_apps(app_name, app_names)
+    add_similar_apps(parser, env_name, similar_apps, app_name, app_names, apps)
 
-    if len(similar_apps) == 0:
-        print(f"There's no app named {choice} or with {choice} as part of its name")
+
+def ask_app_name():
+    choice = input("\nType the name/part of the name of any app: ")
+    return choice
+
+
+def get_similar_apps(choice, app_names):
+    similar_apps = []
+    for inx, app_name in enumerate(app_names):
+        if choice in app_name:
+            similar_apps.append({app_name: inx})
+    return similar_apps
+
+
+def add_similar_apps(parser, env_name, similar_apps, app_name, app_names, apps):
+    if len(similar_apps) == 0 and parser:
+        print(f"There's no app named {app_name} or with {app_name} as part of its name")
         exit(1)
     elif len(similar_apps) == 1:
-        add_one_similar_app(parser, env_name, position, apps, app_names)
+        dic = similar_apps[0]
+        name = dic.keys()
+        path = dic[name]
+        exec_files = get_exec_files(parser, path)
+
+        add_one_similar_app(parser, env_name, dic, name, path)
     else:
-        add_similar_apps(parser, env_name, apps, similar_apps)
+        add_multiple_similar_apps(parser, env_name, apps, similar_apps)
 
 
-def ask_app_name(apps, app_names):
-    position = ""
-    similar_apps = [] #stores the app names that are similar to the user's choice
-    if apps:
-        choice = input("\nType the name/part of the name of any app: ")
-        for inx, app_name in enumerate(app_names):
-            if choice in app_name:
-                position = inx
-                similar_apps.append(app_name)
-
-    return [position, choice, similar_apps]
+def add_one_similar_app(env_name, name, path):
+    if not database.insert_element(env_name, "applications", name, path):
+        return False
+    return True
 
 
-def add_one_similar_app(parser, env_name, position, apps, app_names):
-    selected_app = app_names[position]
-
-    if flowizi.json.exists_environment_element(env_name, "applications", selected_app):
-        parser.error(f"The {selected_app} application already exists in the {env_name} environment")
-
-    app_dir = apps[selected_app]
-    path_to_exe = get_exe(parser, app_dir)
-    create_app(env_name, selected_app, path_to_exe)
-
-
-def add_similar_apps(parser, env_name, apps, similar_apps):
+def add_multiple_similar_apps(parser, env_name, apps, similar_apps):
     print("\nThere's multiple apps with that name:")
     for idx, name in enumerate(similar_apps, start = 1):
         print(f"{idx}. {name}")
@@ -156,7 +160,7 @@ def add_similar_apps(parser, env_name, apps, similar_apps):
 
     app_dir = apps[selected_app]
     path_to_exe = get_exe(parser, app_dir)
-    create_app(env_name, selected_app, path_to_exe)
+    #insert
 
 
 def get_all_installed_apps():
@@ -212,7 +216,7 @@ def display_apps(app_dict):
         print(app_name)
 
 
-def get_exe(parser, app_path):
+def get_exec_files(parser, app_path):
     final_list = {}
     file_list = os.listdir(app_path)
     exec_list = {file: os.path.join(app_path, file) for file in file_list if file[len(file) - 4:] == ".exe"}
@@ -223,6 +227,16 @@ def get_exe(parser, app_path):
         bin_exec_list = {f"bin/{file}": os.path.join(app_path, f"bin/{file}") for file in bin_list if file[len(file) - 4:] == ".exe"}
         final_list.update(bin_exec_list)
 
+    return final_list
+
+
+def validate_exec_choice(choice, upper_range):
+    if not validate_number_range(choice, 1, upper_range):
+        return False
+    return True
+
+
+def get_exe(parser, final_list, app_path):
     print("\nExecutable files found: ")
     for inx, file in enumerate(final_list, start = 1):
         print(f"{inx}. {file}")
@@ -231,21 +245,9 @@ def get_exe(parser, app_path):
     except:
         print("You must type a number")
 
-    try:
-        if not validate_number_range(choice, 1, len(final_list)):
-            raise ValueError("Error. The number you typed is not within the range of the list of executables")
-    except ValueError as e:
-        print(e)
-        exit(1)
-
     for idx, file in enumerate(final_list):
         if idx == choice - 1:
             return final_list[file]
-
-
-def create_app(env_name, name, url):
-    application = {"name": name, "url": url}
-    flowizi.json.add_environment_element(env_name, "applications", application)
 
 
 def validate_number_range(number, lower_range, upper_range):
