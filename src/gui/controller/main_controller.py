@@ -200,9 +200,9 @@ class Controller:
             singular_name = self.current_view[: len(self.current_view) - 1]
             title = f"Create {singular_name}"
             message = f"Enter the name of the new {singular_name}"
-            self.get_input(self.current_view, title, message)
+            self.get_input(title, message)
 
-    def get_input(self, element_type, w_title, w_message):
+    def get_input(self, w_title, w_message):
         msg_box = self.show_create_element_msg_box(w_title, w_message)
 
         if msg_box.exec():
@@ -210,14 +210,14 @@ class Controller:
             if input == "":
                 self.show_error_message("The name must have at least one character")
             else:
-                self.validate_input(input, element_type)
+                self.validate_input(input)
 
-    def validate_input(self, input, element_type):
-        if element_type == "environments":
+    def validate_input(self, input):
+        if self.current_view == "environments":
             result = self.add_environment(input)
-        elif element_type == "websites":
+        elif self.current_view == "websites":
             result = self.add_website(input)
-        elif element_type == "applications":
+        elif self.current_view == "applications":
             result = self.add_application()
 
         if result:
