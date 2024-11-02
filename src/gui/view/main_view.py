@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel,
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 from flowizi import flowizi
+from gui.view.view_utils import ViewUtils
 
 
 class MainWindow(QMainWindow):
@@ -27,7 +28,7 @@ class MainWindow(QMainWindow):
         self.splitter = QSplitter(Qt.Horizontal)
         right_widget = QWidget()
         right_widget.setStyleSheet("background-color: #454541;")
-        self.generate_element_sidebar()
+        self.generate_sidebar()
         right_widget.setLayout(self.element_info_container)
 
         self.toolbar = QHBoxLayout()
@@ -46,38 +47,16 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(right_widget)
         central_widget.setLayout(self.vbox)
 
-    def generate_element_sidebar(self):
-        style = "background-color: #454541; font-size: 18px; color: white; padding: 20px;"
+    def generate_sidebar(self):
         self.element_info_container = QVBoxLayout()
-        env_name = QLabel("No environments selected")
-        env_name.setWordWrap(True)
-        env_name.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        env_name.setStyleSheet(style)
-        env_name.setFixedHeight(65)
-
-        env_screen_rec_setting = QLabel("")
-        env_screen_rec_setting.setStyleSheet(f"{style} height: 1px;")
-        env_screen_rec_setting.setFixedHeight(60)
-
-        env_num_websites = QLabel("")
-        env_num_websites.setStyleSheet(f"{style} height: 1px;")
-        env_num_websites.setFixedHeight(60)
-
-        env_num_files = QLabel("")
-        env_num_files.setStyleSheet(f"{style} height: 1px;")
-        env_num_files.setFixedHeight(60)
-
-        env_num_apps = QLabel("")
-        env_num_apps.setStyleSheet(f"{style} height: 1px;")
-        env_num_apps.setFixedHeight(60)
+        env_name = ViewUtils.create_sidebar_label("No environments selected")
 
         self.element_info_container.addStretch()
         self.element_info_container.addWidget(env_name)
-        self.element_info_container.addWidget(env_screen_rec_setting)
-        self.element_info_container.addWidget(env_num_websites)
-        self.element_info_container.addWidget(env_num_apps)
-        self.element_info_container.addWidget(env_num_files)
 
+        for i in range(4):
+            label = ViewUtils.create_sidebar_label("")
+            self.element_info_container.addWidget(label)
 
     def generate_element_grid(self, element_list) -> QWidget:
         number_elements_row = 4
@@ -85,27 +64,7 @@ class MainWindow(QMainWindow):
         total_rows = math.ceil(total_environments/number_elements_row)
         row_number = 0
         current_environment = 0
-        self.label_default_style = """QLabel{
-                                    background-color: #454541;
-                                    color: white;
-                                    font-size: 20px;
-                                    height: 10px;
-                                    border: 2px solid white;
-                                    border-radius: 10px;
-                                    }
-                                    QLabel:hover{
-                                    background-color: #4d4c49;
-                                    }"""
-        self.label_clicked_style =  """QLabel{
-                                    background-color: #f19600;
-                                    color: white;
-                                    font-size: 20px;
-                                    height: 10px;
-                                    border: 2px solid white;
-                                    border-radius: 10px;
-                                    }"""
 
- 
         self.grid = QGridLayout()
         self.grid.setSpacing(30)
         grid_widget = QWidget()  # New widget for the grid
@@ -114,7 +73,7 @@ class MainWindow(QMainWindow):
             for environment in range(number_elements_row):
                 label = ClickableLabel()
                 label.setText(f"{element_list[current_environment].name}")
-                label.setStyleSheet(self.label_default_style)
+                label.setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
                 label.setAlignment(Qt.AlignCenter)
                 self.grid.addWidget(label, row, environment)
                 label.set_pos(self.grid.indexOf(label))

@@ -76,9 +76,9 @@ class Controller:
         for i in range(len(self.main_view.grid)):
             if pos == i:
                 clicked_label = self.main_view.grid.itemAt(pos)
-                clicked_label.widget().setStyleSheet(self.main_view.label_clicked_style)
+                clicked_label.widget().setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
             else:
-                self.main_view.grid.itemAt(i).widget().setStyleSheet(self.main_view.label_default_style)
+                self.main_view.grid.itemAt(i).widget().setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
 
 
     def element_double_clicked(self, pos):
@@ -176,7 +176,6 @@ class Controller:
         self.current_tab = self.tab_widget.currentIndex()
 
     def back_btn_clicked(self):
-        print("back")
         self.current_view = "environments"
         self.current_tab = None
         self.current_environment = None
