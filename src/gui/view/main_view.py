@@ -34,12 +34,7 @@ class MainWindow(QMainWindow):
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
 
-        grid_widget = self.generate_grid(flowizi.environment_list)
-        if not len(flowizi.environment_list):
-            label_text = "No environments have been created yet. Use the 'Create' button to create one"
-            grid_widget = QLabel(label_text)
-            grid_widget.setWordWrap(True)
-            grid_widget.setStyleSheet("color: white; font-size: 20px; padding: 10px;")
+        grid_widget = self.get_grid("environments", flowizi.environment_list)
 
         self.splitter.addWidget(grid_widget)
         self.vbox.addLayout(self.toolbar)
@@ -56,6 +51,12 @@ class MainWindow(QMainWindow):
         for i in range(4):
             label = ViewUtils.create_sidebar_label("")
             self.element_info_container.addWidget(label)
+
+    def get_grid(self, element_type, element_list):
+        if len(element_list):
+            return self.generate_grid(element_list)
+        else:
+            return self.generate_empty_grid_label(element_type)
 
     def generate_grid(self, element_list) -> QWidget:
         self.grid = QGridLayout()
@@ -86,6 +87,14 @@ class MainWindow(QMainWindow):
                     break
 
         return grid_widget
+
+    def generate_empty_grid_label(self, element_type):
+        label_text = f"No {element_type} have been created yet. Use the 'Create' button to create one"
+        label = QLabel(label_text)
+        label.setWordWrap(True)
+        label.setStyleSheet("color: white; font-size: 20px; padding: 10px;")
+
+        return label
 
     def create_label_event(self, pos):
         def event(event):
