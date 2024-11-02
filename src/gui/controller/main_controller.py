@@ -18,7 +18,6 @@ class Controller:
         self.main_view.show()
         self.current_view = "environments"
         self.current_env = None
-        self.current_tab = None
         self.current_tab_pos = None
         self.selected_app = None
 
@@ -61,11 +60,11 @@ class Controller:
         
     def contained_element_clicked(self, pos):
         environment = flowizi.environment_list[self.current_env]
-        if self.current_tab == "websites":
+        if self.current_view == "websites":
             contained_elements = environment.websites
-        elif self.current_tab == "applications":
+        elif self.current_view == "applications":
             contained_elements = environment.applications
-        elif self.current_tab == "files":
+        elif self.current_view == "files":
             contained_elements = environment.files
 
         self.main_view.element_info_container.itemAt(1).widget().setText(f"Name: {contained_elements[pos].name}")
@@ -167,16 +166,15 @@ class Controller:
         self.current_tab_pos = self.tab_widget.currentIndex()
 
         if self.current_tab_pos == 0:
-            self.current_tab = "websites"
+            self.current_view = "websites"
         elif self.current_tab_pos == 1:
-            self.current_tab = "applications"
+            self.current_view = "applications"
         else:
-            self.current_tab = "files"
+            self.current_view = "files"
 
     def back_btn_clicked(self):
         self.current_view = "environments"
         self.current_tab_pos = None
-        self.current_tab = None
         self.current_env = None
         self.remove_widgets()
 
@@ -198,32 +196,15 @@ class Controller:
                 flowizi.environment_list[i].start()
 
     def create_btn_clicked(self):
-        if self.current_view == "environments":
-            title = "Create environment"
-            message = "Enter the name of the new environment"
-            element_type = "environments"
-        elif self.current_tab == "websites":
-            title = "Create website"
-            message = "Enter the URL for the new website"
-            element_type = "websites"
-        elif self.current_tab == "applications":
-            title = "Create application"
-            message = "Enter the name of the new application"
-            element_type = "applications"
-        elif self.current_tab == "files":
-            element_type = "files"
-
-        if element_type == "files":
-            result = self.add_file()
-            if result:
-                self.refresh_grid()
-        elif element_type == "applications":
-            result = self.add_application()
-            if result:
-                self.refresh_grid()
-        else:
-            self.get_input(element_type, title, message)
-
+        if ((self.current_view == "applications" and self.add_application())
+           or (self.current_view == "files" and self.add_file())):
+            self.refresh_grid()
+        elif self.current_view == "websites" or self.current_view == "environments":
+            print(self.current_view)
+            singular_name = self.current_view[: len(self.current_view) - 1]
+            title = f"Create {singular_name}"
+            message = f"Enter the name of the new {singular_name}"
+            self.get_input(self.current_view, title, message)
 
     def get_input(self, element_type, w_title, w_message):
         msg_box = self.show_create_element_msg_box(w_title, w_message)
@@ -254,7 +235,7 @@ class Controller:
             updated_grid = self.get_grid_widget("environments")
             self.main_view.splitter.insertWidget(0, updated_grid)
         else:
-            updated_grid = self.get_grid_widget(self.current_tab)
+            updated_grid = self.get_grid_widget(self.current_view)
             self.tab_widget.widget(self.current_tab_pos).deleteLater()
             self.tab_widget.insertTab(self.current_tab_pos, updated_grid, self.tab_widget.tabText(self.current_tab_pos))
             self.tab_widget.setCurrentWidget(updated_grid)
