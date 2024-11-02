@@ -62,7 +62,6 @@ class Controller:
         self.highlight_clicked_element(pos)
         
     def contained_element_clicked(self, pos):
-        print(pos)
         environment = flowizi.environment_list[self.current_env]
         if self.current_view == "websites":
             contained_elements = environment.websites
@@ -86,7 +85,8 @@ class Controller:
 
     def element_double_clicked(self, pos):
         self.current_view = "contained_elements"
-        self.remove_widgets()        
+        self.refresh_toolbar()
+        self.remove_grid()
         self.set_contained_element_sidebar()
         self.show_environment_overview()
 
@@ -138,11 +138,13 @@ class Controller:
             if widget:
                 widget.deleteLater()
 
-    def remove_widgets(self):
-        while self.main_view.toolbar.count():
-            self.main_view.toolbar.takeAt(0)
-
-        self.remove_grid()
+    def refresh_toolbar(self):
+        if self.current_view == "environments":
+            self.start_btn.show()
+            self.back_btn.hide()
+        else:
+            self.start_btn.hide()
+            self.back_btn.show()
 
     def remove_grid(self):
         self.main_view.splitter.widget(0).deleteLater()
@@ -177,7 +179,8 @@ class Controller:
         self.current_view = "environments"
         self.current_tab_pos = None
         self.current_env = None
-        self.remove_widgets()
+        self.refresh_toolbar()
+        self.remove_grid()
 
         self.main_view.toolbar.addStretch()
         self.reset_environment_sidebar()
@@ -186,12 +189,8 @@ class Controller:
         self.main_view.splitter.insertWidget(0, env_grid)
 
     def start_btn_clicked(self):
-        for i in range(len(self.main_view.grid)):
-            label = self.main_view.grid.itemAt(i).widget()
-            label_style = label.styleSheet()
-
-            if self.main_view.label_clicked_style in label_style:
-                flowizi.environment_list[i].start()
+        pos = self.get_clicked_element_pos()
+        flowizi.environment_list[pos].start()
 
     def create_btn_clicked(self):
         if ((self.current_view == "applications" and self.add_application())
