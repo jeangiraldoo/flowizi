@@ -34,7 +34,7 @@ class MainWindow(QMainWindow):
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
 
-        grid_widget = self.generate_element_grid(flowizi.environment_list)
+        grid_widget = self.generate_grid(flowizi.environment_list)
         if not len(flowizi.environment_list):
             label_text = "No environments have been created yet. Use the 'Create' button to create one"
             grid_widget = QLabel(label_text)
@@ -48,9 +48,8 @@ class MainWindow(QMainWindow):
         central_widget.setLayout(self.vbox)
 
     def generate_sidebar(self):
-        self.element_info_container = QVBoxLayout()
         env_name = ViewUtils.create_sidebar_label("No environments selected")
-
+        self.element_info_container = QVBoxLayout()
         self.element_info_container.addStretch()
         self.element_info_container.addWidget(env_name)
 
@@ -58,33 +57,34 @@ class MainWindow(QMainWindow):
             label = ViewUtils.create_sidebar_label("")
             self.element_info_container.addWidget(label)
 
-    def generate_element_grid(self, element_list) -> QWidget:
-        number_elements_row = 4
-        total_environments = len(element_list)
-        total_rows = math.ceil(total_environments/number_elements_row)
-        row_number = 0
-        current_environment = 0
-
+    def generate_grid(self, element_list) -> QWidget:
         self.grid = QGridLayout()
         self.grid.setSpacing(30)
-        grid_widget = QWidget()  # New widget for the grid
-        grid_widget.setLayout(self.grid)  # Set the grid layout on this widget
+        grid_widget = QWidget()
+        grid_widget.setLayout(self.grid)
+
+        num_elems_row = 4
+        total_envs = len(element_list)
+        total_rows = math.ceil(total_envs/num_elems_row)
+        current_env = 0
+
         for row in range(total_rows):
-            for environment in range(number_elements_row):
+            self.grid.setRowStretch(row, 1)
+            for column in range(num_elems_row):
                 label = ClickableLabel()
-                label.setText(f"{element_list[current_environment].name}")
+                label.setText(f"{element_list[current_env].name}")
                 label.setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
                 label.setAlignment(Qt.AlignCenter)
-                self.grid.addWidget(label, row, environment)
+
+                self.grid.addWidget(label, row, column)
                 label.set_pos(self.grid.indexOf(label))
                 label.mousePressEvent = self.create_label_event(label.pos)
                 label.label_double_click_signal.connect(self.create_label_double_click_event)
-                current_environment += 1
+                current_env += 1
 
-                if current_environment == total_environments:
+                if current_env == total_envs:
                     break
-            row_number += 1
-            self.grid.setRowStretch(row, 1)
+
         return grid_widget
 
     def create_label_event(self, pos):
@@ -104,10 +104,3 @@ class ClickableLabel(QLabel):
 
     def mouseDoubleClickEvent(self, event):
         self.label_double_click_signal.emit(self.pos)
-
-
-def main():
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())

@@ -95,7 +95,7 @@ class Controller:
             elements = getattr(environment, element_type)
 
         if elements:
-            return self.main_view.generate_element_grid(elements)
+            return self.main_view.generate_grid(elements)
         elif element_type == "environments":
             label_text = "You haven't created any environments yet. You can create one with the 'Create' button"
             empty_label = QLabel(label_text)
@@ -187,7 +187,7 @@ class Controller:
         self.main_view.toolbar.addStretch()
         self.reset_environment_sidebar()
         environments = flowizi.environment_list
-        env_grid = self.main_view.generate_element_grid(environments)
+        env_grid = self.main_view.generate_grid(environments)
         self.main_view.splitter.insertWidget(0, env_grid)
 
     def start_btn_clicked(self):
