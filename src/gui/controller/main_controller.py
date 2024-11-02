@@ -85,7 +85,7 @@ class Controller:
         self.current_view = "contained_elements"
         self.remove_widgets()        
         self.set_contained_element_sidebar()
-        self.show_environment_overview(pos)
+        self.show_environment_overview()
 
     def get_grid(self, element_type):
         if element_type == "environments":
@@ -142,7 +142,7 @@ class Controller:
     def remove_grid(self):
         self.main_view.splitter.widget(0).deleteLater()
 
-    def show_environment_overview(self, pos):
+    def show_environment_overview(self):
         self.main_view.toolbar.addWidget(self.back_btn)
         self.main_view.toolbar.addWidget(self.create_btn)
         self.main_view.toolbar.addWidget(self.delete_btn)
@@ -200,15 +200,15 @@ class Controller:
             title = "Create environment"
             message = "Enter the name of the new environment"
             element_type = "environments"
-        elif self.current_tab_pos == 0:
+        elif self.current_tab == "websites":
             title = "Create website"
             message = "Enter the URL for the new website"
             element_type = "websites"
-        elif self.current_tab_pos == 1:
+        elif self.current_tab == "applications":
             title = "Create application"
             message = "Enter the name of the new application"
             element_type = "applications"
-        elif self.current_tab_pos == 2:
+        elif self.current_tab == "files":
             element_type = "files"
 
         if element_type == "files":
