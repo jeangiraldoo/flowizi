@@ -34,9 +34,12 @@ class Controller:
         self.delete_btn.clicked.connect(self.delete_btn_clicked)
         self.back_btn.clicked.connect(self.back_btn_clicked)
 
+        self.main_view.toolbar.addWidget(self.back_btn)
         self.main_view.toolbar.addWidget(self.start_btn)
         self.main_view.toolbar.addWidget(self.create_btn)
         self.main_view.toolbar.addWidget(self.delete_btn)
+        self.back_btn.hide()
+
         self.main_view.toolbar.addStretch()
 
                 
@@ -45,9 +48,9 @@ class Controller:
     def element_clicked(self, pos):
         if self.current_view == "environments":
             self.environment_clicked(pos)
-        elif self.current_view == "contained_elements":
+        else:
             self.contained_element_clicked(pos)
-            
+
     def environment_clicked(self, pos):
         self.current_env = pos
         self.main_view.element_info_container.itemAt(1).widget().setText(f"Name: {flowizi.environment_list[pos].name}")
@@ -59,6 +62,7 @@ class Controller:
         self.highlight_clicked_element(pos)
         
     def contained_element_clicked(self, pos):
+        print(pos)
         environment = flowizi.environment_list[self.current_env]
         if self.current_view == "websites":
             contained_elements = environment.websites
@@ -144,9 +148,6 @@ class Controller:
         self.main_view.splitter.widget(0).deleteLater()
 
     def show_environment_overview(self):
-        self.main_view.toolbar.addWidget(self.back_btn)
-        self.main_view.toolbar.addWidget(self.create_btn)
-        self.main_view.toolbar.addWidget(self.delete_btn)
         self.main_view.toolbar.addStretch()
 
         self.tab_widget = QTabWidget()
@@ -178,9 +179,6 @@ class Controller:
         self.current_env = None
         self.remove_widgets()
 
-        self.main_view.toolbar.addWidget(self.start_btn)
-        self.main_view.toolbar.addWidget(self.create_btn)
-        self.main_view.toolbar.addWidget(self.delete_btn)
         self.main_view.toolbar.addStretch()
         self.reset_environment_sidebar()
         environments = flowizi.environment_list
@@ -200,7 +198,6 @@ class Controller:
            or (self.current_view == "files" and self.add_file())):
             self.refresh_grid()
         elif self.current_view == "websites" or self.current_view == "environments":
-            print(self.current_view)
             singular_name = self.current_view[: len(self.current_view) - 1]
             title = f"Create {singular_name}"
             message = f"Enter the name of the new {singular_name}"
@@ -308,14 +305,13 @@ class Controller:
             remove.remove_application("", env.name, app_name)
         self.refresh_grid()
 
-
     def get_clicked_element_pos(self):
         total_elements = len(self.main_view.grid)
         for i in range(total_elements):
             label = self.main_view.grid.itemAt(i).widget()
             label_style = label.styleSheet()
 
-            if self.main_view.label_clicked_style in label_style:
+            if ViewUtils.ELEM_LABEL_CLICKED_STYLE in label_style:
                 return i
 
     def show_create_element_msg_box(self, title, message):
