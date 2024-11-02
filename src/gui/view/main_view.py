@@ -1,8 +1,9 @@
 import sys
 import math
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel,
-                            QWidget, QVBoxLayout, QSplitter, QHBoxLayout, QGridLayout, QSizePolicy, QLayout)
-from PyQt5.QtGui import QIcon, QFont
+                             QWidget, QVBoxLayout, QSplitter, QHBoxLayout,
+                             QGridLayout, QSizePolicy)
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 from flowizi import flowizi
 
@@ -29,44 +30,8 @@ class MainWindow(QMainWindow):
         self.generate_element_sidebar()
         right_widget.setLayout(self.element_info_container)
 
-        self.start_button = QPushButton("Start")
-        self.start_button.setMaximumWidth(100)
-        self.start_button.setMaximumHeight(40)
-        self.create_button = QPushButton("Create")
-        self.create_button.setMaximumWidth(100)
-        self.create_button.setMaximumHeight(40)
-        self.delete_button = QPushButton("Delete")
-        self.delete_button.setMaximumWidth(100)
-        self.delete_button.setMaximumHeight(40)
-
-        self.create_button.setStyleSheet("""QPushButton{
-                                        color: white;
-                                        font-size: 20px;
-                                    }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-        self.start_button.setStyleSheet("""QPushButton{
-                                        color: white;
-                                        font-size: 20px;
-                                    }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-        self.delete_button.setStyleSheet("""QPushButton{
-                                        color: white;
-                                        font-size: 20px;
-                                    }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
-        self.toolbar.addWidget(self.start_button)
-        self.toolbar.addWidget(self.create_button)
-        self.toolbar.addWidget(self.delete_button)
-        self.toolbar.addStretch()
 
         grid_widget = self.generate_element_grid(flowizi.environment_list)
         if not len(flowizi.environment_list):
@@ -171,6 +136,7 @@ class MainWindow(QMainWindow):
     def create_label_double_click_event(self, pos):
         self.label_double_click_signal.emit(pos)
 
+
 class ClickableLabel(QLabel):
     label_double_click_signal = pyqtSignal(int)
 
@@ -179,6 +145,7 @@ class ClickableLabel(QLabel):
 
     def mouseDoubleClickEvent(self, event):
         self.label_double_click_signal.emit(self.pos)
+
 
 def main():
     app = QApplication(sys.argv)

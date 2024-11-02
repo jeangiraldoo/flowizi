@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (QApplication, QMessageBox, QVBoxLayout,
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import pyqtSignal
 from gui.view.main_view import MainWindow
+from gui.view.view_utils import ViewUtils
 from flowizi import flowizi
 from core.database import database
 from commands import add, remove
@@ -19,12 +20,26 @@ class Controller:
         self.current_environment = None
         self.current_tab = None
         self.selected_app = None
+
         self.main_view.label_signal.connect(self.element_clicked)
         self.main_view.label_double_click_signal.connect(self.element_double_clicked)
-        self.main_view.start_button.clicked.connect(self.start_button_clicked)
-        self.main_view.create_button.clicked.connect(self.create_button_clicked)
-        self.main_view.delete_button.clicked.connect(self.delete_button_clicked)
 
+        self.start_btn = ViewUtils.create_btn("Start")
+        self.create_btn = ViewUtils.create_btn("Create")
+        self.delete_btn = ViewUtils.create_btn("Delete")
+        self.back_btn = ViewUtils.create_btn("Back")
+
+        self.start_btn.clicked.connect(self.start_btn_clicked)
+        self.create_btn.clicked.connect(self.create_btn_clicked)
+        self.delete_btn.clicked.connect(self.delete_btn_clicked)
+        self.back_btn.clicked.connect(self.back_btn_clicked)
+
+        self.main_view.toolbar.addWidget(self.start_btn)
+        self.main_view.toolbar.addWidget(self.create_btn)
+        self.main_view.toolbar.addWidget(self.delete_btn)
+        self.main_view.toolbar.addStretch()
+
+                
         sys.exit(app.exec_())
 
     def element_clicked(self, pos):
@@ -132,9 +147,6 @@ class Controller:
     def remove_widgets(self):
         while self.main_view.toolbar.count():
             item = self.main_view.toolbar.takeAt(0)
-            widget = item.widget()
-            if widget:
-                widget.deleteLater()
 
         self.remove_grid()
 
@@ -142,42 +154,9 @@ class Controller:
         self.main_view.splitter.widget(0).deleteLater()
 
     def show_environment_overview(self, pos):
-        back_button = QPushButton("Back")
-        back_button.setMaximumSize(100, 40)
-        back_button.clicked.connect(self.back_button_clicked)
-        back_button.setStyleSheet("""QPushButton{
-                                        background-color: white;
-                                        font-size: 20px;
-                                        }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-        create_button = QPushButton("Create")
-        create_button.setMaximumWidth(100)
-        create_button.setMaximumHeight(40)
-        create_button.clicked.connect(self.create_button_clicked)
-        create_button.setStyleSheet("""QPushButton{
-                                        color: white;
-                                        font-size: 20px;
-                                    }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-        delete_button = QPushButton("Delete")
-        delete_button.setMaximumWidth(100)
-        delete_button.setMaximumHeight(40)
-        delete_button.clicked.connect(self.delete_button_clicked)
-        delete_button.setStyleSheet("""QPushButton{
-                                        color: white;
-                                        font-size: 20px;
-                                    }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-
-        self.main_view.toolbar.addWidget(back_button)
-        self.main_view.toolbar.addWidget(create_button)
-        self.main_view.toolbar.addWidget(delete_button)
+        self.main_view.toolbar.addWidget(self.back_btn)
+        self.main_view.toolbar.addWidget(self.create_btn)
+        self.main_view.toolbar.addWidget(self.delete_btn)
         self.main_view.toolbar.addStretch()
 
         self.tab_widget = QTabWidget()
@@ -196,56 +175,23 @@ class Controller:
     def update_current_tab(self):
         self.current_tab = self.tab_widget.currentIndex()
 
-    def back_button_clicked(self):
+    def back_btn_clicked(self):
+        print("back")
         self.current_view = "environments"
         self.current_tab = None
         self.current_environment = None
         self.remove_widgets()
 
-        start_button = QPushButton("Start")
-        start_button.setMaximumWidth(100)
-        start_button.setMaximumHeight(40)
-        start_button.clicked.connect(self.start_button_clicked)
-        create_button = QPushButton("Create")
-        create_button.setMaximumWidth(100)
-        create_button.setMaximumHeight(40)
-        create_button.clicked.connect(self.create_button_clicked)
-        delete_button = QPushButton("Delete")
-        delete_button.setMaximumWidth(100)
-        delete_button.setMaximumHeight(40)
-        delete_button.clicked.connect(self.delete_button_clicked)
-        create_button.setStyleSheet("""QPushButton{
-                                        color: white;
-                                        font-size: 20px;
-                                    }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-        start_button.setStyleSheet("""QPushButton{
-                                        color: white;
-                                        font-size: 20px;
-                                    }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-        delete_button.setStyleSheet("""QPushButton{
-                                        color: white;
-                                        font-size: 20px;
-                                    }
-                                    QPushButton:hover{
-                                        background-color: #f19600;
-                                    }""")
-
-        self.main_view.toolbar.addWidget(start_button)
-        self.main_view.toolbar.addWidget(create_button)
-        self.main_view.toolbar.addWidget(delete_button)
+        self.main_view.toolbar.addWidget(self.start_btn)
+        self.main_view.toolbar.addWidget(self.create_btn)
+        self.main_view.toolbar.addWidget(self.delete_btn)
         self.main_view.toolbar.addStretch()
         self.reset_environment_sidebar()
         environments = flowizi.environment_list
         env_grid = self.main_view.generate_element_grid(environments)
         self.main_view.splitter.insertWidget(0, env_grid)
 
-    def start_button_clicked(self):
+    def start_btn_clicked(self):
         for i in range(len(self.main_view.grid)):
             label = self.main_view.grid.itemAt(i).widget()
             label_style = label.styleSheet()
@@ -253,7 +199,7 @@ class Controller:
             if self.main_view.label_clicked_style in label_style:
                 flowizi.environment_list[i].start()
 
-    def create_button_clicked(self):
+    def create_btn_clicked(self):
         if self.current_view == "environments":
             title = "Create environment"
             message = "Enter the name of the new environment"
@@ -273,7 +219,7 @@ class Controller:
             result = self.add_file()
             if result:
                 self.update_element_grid(element_type)
-        if element_type == "applications":
+        elif element_type == "applications":
             result = self.add_application()
             if result:
                 self.update_element_grid(element_type)
@@ -363,7 +309,7 @@ class Controller:
     def get_app_insertion_result(self, result):
         return result
 
-    def delete_button_clicked(self):
+    def delete_btn_clicked(self):
         element_pos = self.get_clicked_element_pos()
         if self.current_view == "environments" and element_pos is not None:
             env_name = flowizi.environment_list[element_pos].name
@@ -418,18 +364,18 @@ class InputDialog(QDialog):
         self.message_label.setStyleSheet("font-size: 17px")
         self.text_input = QLineEdit(self)
 
-        button_box = QHBoxLayout()
-        ok_button = QPushButton("Create")
-        ok_button.clicked.connect(self.accept)
-        cancel_button = QPushButton("Cancel")
-        cancel_button.clicked.connect(self.reject)
-        button_box.addWidget(ok_button)
-        button_box.addWidget(cancel_button)
+        btn_box = QHBoxLayout()
+        ok_btn = QPushButton("Create")
+        ok_btn.clicked.connect(self.accept)
+        cancel_btn = QPushButton("Cancel")
+        cancel_btn.clicked.connect(self.reject)
+        btn_box.addWidget(ok_btn)
+        btn_box.addWidget(cancel_btn)
 
         layout = QVBoxLayout()
         layout.addWidget(self.message_label)
         layout.addWidget(self.text_input)
-        layout.addLayout(button_box)
+        layout.addLayout(btn_box)
         self.setLayout(layout)
         self.resize(350, 150)
 
