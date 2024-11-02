@@ -87,14 +87,16 @@ class Controller:
         self.set_contained_element_sidebar()
         self.show_environment_overview()
 
-    def get_grid(self, element_type):
-        if element_type == "environments":
-            elements = flowizi.environment_list
+    def get_grid_widget(self, elem_type):
+        """Returns a QWidget that contains a grid of elements or a label in case
+        there is no elements of the given type"""
+        if elem_type == "environments":
+            elems = flowizi.environment_list
         else:
-            environment = flowizi.environment_list[self.current_env]
-            elements = getattr(environment, element_type)
+            env = flowizi.environment_list[self.current_env]
+            elems = getattr(env, elem_type)
 
-        return self.main_view.get_grid(element_type, elements)
+        return self.main_view.get_grid(elem_type, elems)
 
     def reset_environment_sidebar(self):
         self.main_view.element_info_container.itemAt(1).widget().setText("No environments selected")
@@ -153,9 +155,9 @@ class Controller:
         self.tab_widget.setStyleSheet("""QTabBar::tab::selected{
                                         background-color: #f19600;
                                  }""")
-        self.tab_widget.addTab(self.get_grid("websites"), "Websites")
-        self.tab_widget.addTab(self.get_grid("applications"), "Apps")
-        self.tab_widget.addTab(self.get_grid("files"), "Files")
+        self.tab_widget.addTab(self.get_grid_widget("websites"), "Websites")
+        self.tab_widget.addTab(self.get_grid_widget("applications"), "Apps")
+        self.tab_widget.addTab(self.get_grid_widget("files"), "Files")
         font = QFont()
         font.setPointSize(12)
         self.tab_widget.tabBar().setFont(font)
@@ -214,11 +216,11 @@ class Controller:
         if element_type == "files":
             result = self.add_file()
             if result:
-                self.refresh_grid(element_type)
+                self.refresh_grid()
         elif element_type == "applications":
             result = self.add_application()
             if result:
-                self.refresh_grid(element_type)
+                self.refresh_grid()
         else:
             self.get_input(element_type, title, message)
 
@@ -242,16 +244,17 @@ class Controller:
             result = self.add_application()
 
         if result:
-            self.refresh_grid(element_type)
+            self.refresh_grid()
 
-    def refresh_grid(self, element_type):
+    def refresh_grid(self):
         flowizi.update_environments()
-        updated_grid = self.get_grid(element_type)
 
-        if element_type == "environments":
+        if self.current_view == "environments":
             self.remove_grid()
+            updated_grid = self.get_grid_widget("environments")
             self.main_view.splitter.insertWidget(0, updated_grid)
         else:
+            updated_grid = self.get_grid_widget(self.current_tab)
             self.tab_widget.widget(self.current_tab_pos).deleteLater()
             self.tab_widget.insertTab(self.current_tab_pos, updated_grid, self.tab_widget.tabText(self.current_tab_pos))
             self.tab_widget.setCurrentWidget(updated_grid)
@@ -310,22 +313,19 @@ class Controller:
         if self.current_view == "environments" and element_pos is not None:
             env_name = flowizi.environment_list[element_pos].name
             remove.remove_environment(env_name)
-            self.refresh_grid("environments")
         elif self.current_tab_pos == 0 and element_pos is not None:
             env = flowizi.environment_list[self.current_env]
             website_name = env.websites[element_pos].name
             remove.remove_website("", env.name, website_name)
-            self.refresh_grid("websites")
         elif self.current_tab_pos == 2 and element_pos is not None:
             env = flowizi.environment_list[self.current_env]
             file_name = env.files[element_pos].name
             remove.remove_file("", env.name, file_name)
-            self.refresh_grid("files")
         else:
             env = flowizi.environment_list[self.current_env]
             app_name = env.applications[element_pos].name
             remove.remove_application("", env.name, app_name)
-            self.refresh_grid("applications")
+        self.refresh_grid()
 
 
     def get_clicked_element_pos(self):
