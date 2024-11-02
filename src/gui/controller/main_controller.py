@@ -19,6 +19,7 @@ class Controller:
         self.current_view = "environments"
         self.current_env = None
         self.current_tab = None
+        self.current_tab_pos = None
         self.selected_app = None
 
         self.main_view.label_signal.connect(self.element_clicked)
@@ -60,11 +61,11 @@ class Controller:
         
     def contained_element_clicked(self, pos):
         environment = flowizi.environment_list[self.current_env]
-        if self.current_tab == 0:
+        if self.current_tab == "websites":
             contained_elements = environment.websites
-        elif self.current_tab == 1:
+        elif self.current_tab == "applications":
             contained_elements = environment.applications
-        elif self.current_tab == 2:
+        elif self.current_tab == "files":
             contained_elements = environment.files
 
         self.main_view.element_info_container.itemAt(1).widget().setText(f"Name: {contained_elements[pos].name}")
@@ -79,7 +80,6 @@ class Controller:
                 clicked_label.widget().setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
             else:
                 self.main_view.grid.itemAt(i).widget().setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
-
 
     def element_double_clicked(self, pos):
         self.current_view = "contained_elements"
@@ -135,7 +135,7 @@ class Controller:
 
     def remove_widgets(self):
         while self.main_view.toolbar.count():
-            item = self.main_view.toolbar.takeAt(0)
+            self.main_view.toolbar.takeAt(0)
 
         self.remove_grid()
 
@@ -162,10 +162,18 @@ class Controller:
         self.main_view.splitter.insertWidget(0, self.tab_widget)
 
     def update_current_tab(self):
-        self.current_tab = self.tab_widget.currentIndex()
+        self.current_tab_pos = self.tab_widget.currentIndex()
+
+        if self.current_tab_pos == 0:
+            self.current_tab = "websites"
+        elif self.current_tab_pos == 1:
+            self.current_tab = "applications"
+        else:
+            self.current_tab = "files"
 
     def back_btn_clicked(self):
         self.current_view = "environments"
+        self.current_tab_pos = None
         self.current_tab = None
         self.current_env = None
         self.remove_widgets()
@@ -192,25 +200,25 @@ class Controller:
             title = "Create environment"
             message = "Enter the name of the new environment"
             element_type = "environments"
-        elif self.current_tab == 0:
+        elif self.current_tab_pos == 0:
             title = "Create website"
             message = "Enter the URL for the new website"
             element_type = "websites"
-        elif self.current_tab == 1:
+        elif self.current_tab_pos == 1:
             title = "Create application"
             message = "Enter the name of the new application"
             element_type = "applications"
-        elif self.current_tab == 2:
+        elif self.current_tab_pos == 2:
             element_type = "files"
 
         if element_type == "files":
             result = self.add_file()
             if result:
-                self.update_element_grid(element_type)
+                self.refresh_grid(element_type)
         elif element_type == "applications":
             result = self.add_application()
             if result:
-                self.update_element_grid(element_type)
+                self.refresh_grid(element_type)
         else:
             self.get_input(element_type, title, message)
 
@@ -234,9 +242,9 @@ class Controller:
             result = self.add_application()
 
         if result:
-            self.update_element_grid(element_type)
+            self.refresh_grid(element_type)
 
-    def update_element_grid(self, element_type):
+    def refresh_grid(self, element_type):
         flowizi.update_environments()
         updated_grid = self.get_grid(element_type)
 
@@ -244,8 +252,8 @@ class Controller:
             self.remove_grid()
             self.main_view.splitter.insertWidget(0, updated_grid)
         else:
-            self.tab_widget.widget(self.current_tab).deleteLater()
-            self.tab_widget.insertTab(self.current_tab, updated_grid, self.tab_widget.tabText(self.current_tab))
+            self.tab_widget.widget(self.current_tab_pos).deleteLater()
+            self.tab_widget.insertTab(self.current_tab_pos, updated_grid, self.tab_widget.tabText(self.current_tab_pos))
             self.tab_widget.setCurrentWidget(updated_grid)
 
     def add_environment(self, env_name):
@@ -302,22 +310,22 @@ class Controller:
         if self.current_view == "environments" and element_pos is not None:
             env_name = flowizi.environment_list[element_pos].name
             remove.remove_environment(env_name)
-            self.update_element_grid("environments")
-        elif self.current_tab == 0 and element_pos is not None:
+            self.refresh_grid("environments")
+        elif self.current_tab_pos == 0 and element_pos is not None:
             env = flowizi.environment_list[self.current_env]
             website_name = env.websites[element_pos].name
             remove.remove_website("", env.name, website_name)
-            self.update_element_grid("websites")
-        elif self.current_tab == 2 and element_pos is not None:
+            self.refresh_grid("websites")
+        elif self.current_tab_pos == 2 and element_pos is not None:
             env = flowizi.environment_list[self.current_env]
             file_name = env.files[element_pos].name
             remove.remove_file("", env.name, file_name)
-            self.update_element_grid("files")
+            self.refresh_grid("files")
         else:
             env = flowizi.environment_list[self.current_env]
             app_name = env.applications[element_pos].name
             remove.remove_application("", env.name, app_name)
-            self.update_element_grid("applications")
+            self.refresh_grid("applications")
 
 
     def get_clicked_element_pos(self):
