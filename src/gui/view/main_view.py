@@ -28,8 +28,11 @@ class MainWindow(QMainWindow):
         self.splitter = QSplitter(Qt.Horizontal)
         right_widget = QWidget()
         right_widget.setStyleSheet("background-color: #454541;")
-        self.generate_sidebar()
-        right_widget.setLayout(self.element_info_container)
+
+        self.sidebar = QVBoxLayout()
+        self.sidebar.addStretch()
+
+        right_widget.setLayout(self.sidebar)
 
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
@@ -41,16 +44,6 @@ class MainWindow(QMainWindow):
         self.vbox.addWidget(self.splitter)
         self.splitter.addWidget(right_widget)
         central_widget.setLayout(self.vbox)
-
-    def generate_sidebar(self):
-        env_name = ViewUtils.create_sidebar_label("No environments selected")
-        self.element_info_container = QVBoxLayout()
-        self.element_info_container.addStretch()
-        self.element_info_container.addWidget(env_name)
-
-        for i in range(4):
-            label = ViewUtils.create_sidebar_label("")
-            self.element_info_container.addWidget(label)
 
     def get_grid(self, element_type, element_list):
         if len(element_list):

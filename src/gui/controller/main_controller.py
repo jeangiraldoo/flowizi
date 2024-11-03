@@ -39,40 +39,61 @@ class Controller:
         self.main_view.toolbar.addWidget(self.create_btn)
         self.main_view.toolbar.addWidget(self.delete_btn)
         self.back_btn.hide()
-
         self.main_view.toolbar.addStretch()
 
-                
+        self.sidebar_name_label = ViewUtils.create_sidebar_label("No environments selected")
+        self.sidebar_elem_info_label = ViewUtils.create_sidebar_label("")
+        self.sidebar_websites_label = ViewUtils.create_sidebar_label("")
+        self.sidebar_apps_label = ViewUtils.create_sidebar_label("")
+        self.sidebar_files_label = ViewUtils.create_sidebar_label("")
+
+        self.main_view.sidebar.addWidget(self.sidebar_name_label)
+        self.main_view.sidebar.addWidget(self.sidebar_elem_info_label)
+        self.main_view.sidebar.addWidget(self.sidebar_websites_label)
+        self.main_view.sidebar.addWidget(self.sidebar_apps_label)
+        self.main_view.sidebar.addWidget(self.sidebar_files_label)
+
         sys.exit(app.exec_())
+
+    def set_sidebar(self):
+        if self.current_view == "environments":
+            self.sidebar_name_label.setText("No environments selected")
+            self.sidebar_elem_info_label.setText("")
+
+            self.sidebar_websites_label.show()
+            self.sidebar_apps_label.show()
+            self.sidebar_files_label.show()
+
+            self.sidebar_websites_label.setText("")
+            self.sidebar_apps_label.setText("")
+            self.sidebar_files_label.setText("")
+        else:
+            self.sidebar_name_label.setText("No element selected")
+            self.sidebar_elem_info_label.setText("")
+
+            self.sidebar_websites_label.hide()
+            self.sidebar_apps_label.hide()
+            self.sidebar_files_label.hide()
+
+    def refresh_sidebar(self, pos):
+        if self.current_view == "environments":
+            env = flowizi.environment_list[pos]
+            self.sidebar_name_label.setText(f"Name: {env.name}")
+            self.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
+            self.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
+            self.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
+            self.sidebar_files_label.setText(f"Files: {len(env.files)}")
+        else:
+            env = flowizi.environment_list[self.current_env]
+            elements = getattr(env, self.current_view)
+            element = elements[pos]
+            self.sidebar_name_label.setText(f"Name: {element.name}")
+            self.sidebar_elem_info_label.setText(f"Name: {element.url}")
 
     def element_clicked(self, pos):
         if self.current_view == "environments":
-            self.environment_clicked(pos)
-        else:
-            self.contained_element_clicked(pos)
-
-    def environment_clicked(self, pos):
-        self.current_env = pos
-        self.main_view.element_info_container.itemAt(1).widget().setText(f"Name: {flowizi.environment_list[pos].name}")
-        self.main_view.element_info_container.itemAt(2).widget().setText(f"Screen recording: {flowizi.environment_list[pos].record}")
-        self.main_view.element_info_container.itemAt(3).widget().setText(f"Websites: {len(flowizi.environment_list[pos].websites)}")
-        self.main_view.element_info_container.itemAt(4).widget().setText(f"Apps: {len(flowizi.environment_list[pos].applications)}")
-        self.main_view.element_info_container.itemAt(5).widget().setText(f"Files: {len(flowizi.environment_list[pos].files)}")
-
-        self.highlight_clicked_element(pos)
-        
-    def contained_element_clicked(self, pos):
-        environment = flowizi.environment_list[self.current_env]
-        if self.current_view == "websites":
-            contained_elements = environment.websites
-        elif self.current_view == "applications":
-            contained_elements = environment.applications
-        elif self.current_view == "files":
-            contained_elements = environment.files
-
-        self.main_view.element_info_container.itemAt(1).widget().setText(f"Name: {contained_elements[pos].name}")
-        self.main_view.element_info_container.itemAt(2).widget().setText(f"URL: {contained_elements[pos].url}")
-
+            self.current_env = pos
+        self.refresh_sidebar(pos)
         self.highlight_clicked_element(pos)
 
     def highlight_clicked_element(self, pos):
@@ -87,7 +108,7 @@ class Controller:
         self.current_view = "contained_elements"
         self.refresh_toolbar()
         self.remove_grid()
-        self.set_contained_element_sidebar()
+        self.set_sidebar()
         self.show_environment_overview()
 
     def get_grid_widget(self, elem_type):
@@ -100,43 +121,6 @@ class Controller:
             elems = getattr(env, elem_type)
 
         return self.main_view.get_grid(elem_type, elems)
-
-    def reset_environment_sidebar(self):
-        self.main_view.element_info_container.itemAt(1).widget().setText("No environments selected")
-        self.main_view.element_info_container.itemAt(2).widget().setText("")
-        style = "background-color: #454541; font-size: 18px; color: white; padding: 20px;"
-        websites_label = QLabel("")
-        websites_label.setWordWrap(True)
-        websites_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        websites_label.setStyleSheet(style)
-        websites_label.setFixedHeight(65)
-
-        applications_label = QLabel("")
-        applications_label.setWordWrap(True)
-        applications_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        applications_label.setStyleSheet(style)
-        applications_label.setFixedHeight(65)
-
-        files_label = QLabel("")
-        files_label.setWordWrap(True)
-        files_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        files_label.setStyleSheet(style)
-        files_label.setFixedHeight(65)
-
-        self.main_view.element_info_container.addWidget(websites_label)
-        self.main_view.element_info_container.addWidget(applications_label)
-        self.main_view.element_info_container.addWidget(files_label)
-
-
-    def set_contained_element_sidebar(self):
-        self.main_view.element_info_container.itemAt(1).widget().setText("No element selected")
-        self.main_view.element_info_container.itemAt(2).widget().setText("")
-
-        while self.main_view.element_info_container.count() > 3:
-            item = self.main_view.element_info_container.takeAt(3)
-            widget = item.widget()
-            if widget:
-                widget.deleteLater()
 
     def refresh_toolbar(self):
         if self.current_view == "environments":
@@ -183,7 +167,7 @@ class Controller:
         self.remove_grid()
 
         self.main_view.toolbar.addStretch()
-        self.reset_environment_sidebar()
+        self.set_sidebar()
         environments = flowizi.environment_list
         env_grid = self.main_view.generate_grid(environments)
         self.main_view.splitter.insertWidget(0, env_grid)
@@ -360,6 +344,7 @@ class InputDialog(QDialog):
     def get_text(self):
         return self.text_input.text()
 
+
 class AppDialog(QDialog):
     result_signal = pyqtSignal(bool)
 
@@ -401,12 +386,10 @@ class AppDialog(QDialog):
             result = add.add_one_similar_app(env_name, self.app_name, path)
             self.result_signal.emit(result)
             self.close()
-        
+
     def show_execs(self, app_name):
         path = self.apps[app_name]
         self.execs = add.get_exec_files("", path)
         self.message_label.setText("Choose the executable file of the application:")
         self.item_list.clear()
         self.set_items(self.execs)
-
-
