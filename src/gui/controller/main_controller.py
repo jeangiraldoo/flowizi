@@ -47,20 +47,20 @@ class Controller:
         self.sidebar_apps_label = ViewUtils.create_sidebar_label("")
         self.sidebar_files_label = ViewUtils.create_sidebar_label("")
 
-        self.main_view.sidebar.addWidget(self.sidebar_name_label)
-        self.main_view.sidebar.addWidget(self.sidebar_elem_info_label)
-        self.main_view.sidebar.addWidget(self.sidebar_websites_label)
-        self.main_view.sidebar.addWidget(self.sidebar_apps_label)
-        self.main_view.sidebar.addWidget(self.sidebar_files_label)
+        self.main_view.sidebar_layout.addWidget(self.sidebar_name_label)
+        self.main_view.sidebar_layout.addWidget(self.sidebar_elem_info_label)
+        self.main_view.sidebar_layout.addWidget(self.sidebar_websites_label)
+        self.main_view.sidebar_layout.addWidget(self.sidebar_apps_label)
+        self.main_view.sidebar_layout.addWidget(self.sidebar_files_label)
         self.hide_sidebar()
 
         sys.exit(app.exec_())
 
     def hide_sidebar(self):
-        self.main_view.right_widget.hide()
+        self.main_view.sidebar_widget.hide()
 
     def refresh_sidebar(self, pos):
-        self.main_view.right_widget.show()
+        self.main_view.sidebar_widget.show()
         if self.current_view == "environments":
             env = flowizi.environment_list[pos]
             self.sidebar_name_label.setText(f"Name: {env.name}")
