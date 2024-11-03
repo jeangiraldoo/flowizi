@@ -41,7 +41,7 @@ class ViewUtils():
             padding: 20px; height: 1px;"""
         label = QLabel(name)
         label.setStyleSheet(style)
-        label.setFixedHeight(60)
+        label.setFixedHeight(80)
         label.setWordWrap(True)
         label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
