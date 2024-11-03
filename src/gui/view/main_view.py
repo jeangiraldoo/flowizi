@@ -27,7 +27,7 @@ class MainWindow(QMainWindow):
         self.vbox = QVBoxLayout()
         self.splitter = QSplitter(Qt.Horizontal)
         self.sidebar_widget = QWidget()
-        self.sidebar_widget.setStyleSheet("background-color: #454541;")
+        self.sidebar_widget.setMinimumWidth(300)
 
         self.sidebar_layout = QVBoxLayout()
         self.sidebar_layout.addStretch()
@@ -54,6 +54,7 @@ class MainWindow(QMainWindow):
     def generate_grid(self, element_list) -> QWidget:
         self.grid = QGridLayout()
         self.grid.setSpacing(30)
+
         grid_widget = QWidget()
         grid_widget.setLayout(self.grid)
 
@@ -85,7 +86,8 @@ class MainWindow(QMainWindow):
         label_text = f"No {element_type} have been created yet. Use the 'Create' button to create one"
         label = QLabel(label_text)
         label.setWordWrap(True)
-        label.setStyleSheet("color: white; font-size: 20px; padding: 10px;")
+        label.setAlignment(Qt.AlignCenter)
+        label.setStyleSheet("color: white; font-size: 30px; padding: 10px;")
 
         return label
 

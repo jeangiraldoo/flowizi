@@ -52,6 +52,7 @@ class Controller:
         self.main_view.sidebar_layout.addWidget(self.sidebar_websites_label)
         self.main_view.sidebar_layout.addWidget(self.sidebar_apps_label)
         self.main_view.sidebar_layout.addWidget(self.sidebar_files_label)
+        self.main_view.sidebar_layout.addStretch()
         self.hide_sidebar()
 
         sys.exit(app.exec_())
@@ -80,7 +81,7 @@ class Controller:
             elements = getattr(env, self.current_view)
             element = elements[pos]
             self.sidebar_name_label.setText(f"Name: {element.name}")
-            self.sidebar_elem_info_label.setText(f"Name: {element.url}")
+            self.sidebar_elem_info_label.setText(f"URL: {element.url}")
 
             self.sidebar_websites_label.hide()
             self.sidebar_apps_label.hide()

@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QPushButton, QLabel, QSizePolicy
+from PyQt5.QtCore import Qt
 
 
 class ViewUtils():
@@ -27,21 +28,19 @@ class ViewUtils():
         btn = QPushButton(name)
         btn.setMaximumSize(100, 40)
         btn.setStyleSheet("""QPushButton{
-                    color: white;
+                    background-color: #f19600;
                     font-size: 20px;
                     }
                     QPushButton:hover{
-                    background-color: #f19600;
+                    background-color: #ffbb4d;
                     }""")
         return btn
 
     @staticmethod
     def create_sidebar_label(name):
-        style = """background-color: #454541; font-size: 18px; color: white;
-            padding: 20px; height: 1px;"""
+        style = """background-color: #1c1c1b; padding-left: 3px; border-radius: 8px; font-size: 22px; color: white;"""
         label = QLabel(name)
         label.setStyleSheet(style)
-        label.setFixedHeight(80)
         label.setWordWrap(True)
         label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
