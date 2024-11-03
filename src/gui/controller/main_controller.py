@@ -52,36 +52,28 @@ class Controller:
         self.main_view.sidebar.addWidget(self.sidebar_websites_label)
         self.main_view.sidebar.addWidget(self.sidebar_apps_label)
         self.main_view.sidebar.addWidget(self.sidebar_files_label)
+        self.hide_sidebar()
 
         sys.exit(app.exec_())
 
-    def set_sidebar(self):
-        if self.current_view == "environments":
-            self.sidebar_name_label.setText("No environments selected")
-            self.sidebar_elem_info_label.setText("")
-
-            self.sidebar_websites_label.show()
-            self.sidebar_apps_label.show()
-            self.sidebar_files_label.show()
-
-            self.sidebar_websites_label.setText("")
-            self.sidebar_apps_label.setText("")
-            self.sidebar_files_label.setText("")
-        else:
-            self.sidebar_name_label.setText("No element selected")
-            self.sidebar_elem_info_label.setText("")
-
-            self.sidebar_websites_label.hide()
-            self.sidebar_apps_label.hide()
-            self.sidebar_files_label.hide()
+    def hide_sidebar(self):
+        self.main_view.right_widget.hide()
 
     def refresh_sidebar(self, pos):
+        self.main_view.right_widget.show()
         if self.current_view == "environments":
             env = flowizi.environment_list[pos]
             self.sidebar_name_label.setText(f"Name: {env.name}")
+
             self.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
+
+            self.sidebar_websites_label.show()
             self.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
+
+            self.sidebar_apps_label.show()
             self.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
+
+            self.sidebar_files_label.show()
             self.sidebar_files_label.setText(f"Files: {len(env.files)}")
         else:
             env = flowizi.environment_list[self.current_env]
@@ -89,6 +81,10 @@ class Controller:
             element = elements[pos]
             self.sidebar_name_label.setText(f"Name: {element.name}")
             self.sidebar_elem_info_label.setText(f"Name: {element.url}")
+
+            self.sidebar_websites_label.hide()
+            self.sidebar_apps_label.hide()
+            self.sidebar_files_label.hide()
 
     def element_clicked(self, pos):
         if self.current_view == "environments":
@@ -108,7 +104,7 @@ class Controller:
         self.current_view = "contained_elements"
         self.refresh_toolbar()
         self.remove_grid()
-        self.set_sidebar()
+        self.hide_sidebar()
         self.show_environment_overview()
 
     def get_grid_widget(self, elem_type):
@@ -167,7 +163,7 @@ class Controller:
         self.remove_grid()
 
         self.main_view.toolbar.addStretch()
-        self.set_sidebar()
+        self.hide_sidebar()
         environments = flowizi.environment_list
         env_grid = self.main_view.generate_grid(environments)
         self.main_view.splitter.insertWidget(0, env_grid)

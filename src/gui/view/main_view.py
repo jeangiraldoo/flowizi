@@ -26,13 +26,13 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         self.vbox = QVBoxLayout()
         self.splitter = QSplitter(Qt.Horizontal)
-        right_widget = QWidget()
-        right_widget.setStyleSheet("background-color: #454541;")
+        self.right_widget = QWidget()
+        self.right_widget.setStyleSheet("background-color: #454541;")
 
         self.sidebar = QVBoxLayout()
         self.sidebar.addStretch()
 
-        right_widget.setLayout(self.sidebar)
+        self.right_widget.setLayout(self.sidebar)
 
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(grid_widget)
         self.vbox.addLayout(self.toolbar)
         self.vbox.addWidget(self.splitter)
-        self.splitter.addWidget(right_widget)
+        self.splitter.addWidget(self.right_widget)
         central_widget.setLayout(self.vbox)
 
     def get_grid(self, element_type, element_list):
