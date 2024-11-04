@@ -17,7 +17,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.resize(1000, 600)
         self.setWindowTitle("Flowizi")
-        self.setWindowIcon(QIcon("../assets/logo.svg"))
+        self.setWindowIcon(QIcon("logo.svg"))
         self.setStyleSheet("background-color: #30302f;")
         self.initUI()
 
@@ -30,7 +30,6 @@ class MainWindow(QMainWindow):
         self.sidebar_widget.setMinimumWidth(300)
 
         self.sidebar_layout = QVBoxLayout()
-        self.sidebar_layout.addStretch()
 
         self.sidebar_widget.setLayout(self.sidebar_layout)
 

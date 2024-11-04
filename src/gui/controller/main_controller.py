@@ -2,8 +2,8 @@ import sys
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QVBoxLayout,
                              QHBoxLayout, QDialog, QLineEdit, QSizePolicy,
                              QLabel,QListWidget, QPushButton, QTabWidget, QFileDialog)
-from PyQt5.QtGui import QFont
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtGui import QFont, QPixmap
+from PyQt5.QtCore import pyqtSignal, Qt
 from gui.view.main_view import MainWindow
 from gui.view.view_utils import ViewUtils
 from flowizi import flowizi
@@ -41,12 +41,17 @@ class Controller:
         self.back_btn.hide()
         self.main_view.toolbar.addStretch()
 
-        self.sidebar_name_label = ViewUtils.create_sidebar_label("No environments selected")
+        self.sidebar_icon = ViewUtils.create_sidebar_label("")
+        icon = QPixmap("logo.svg")
+        self.sidebar_icon.setPixmap(icon)
+        self.sidebar_icon.setAlignment(Qt.AlignCenter)
+        self.sidebar_name_label = ViewUtils.create_sidebar_label("")
         self.sidebar_elem_info_label = ViewUtils.create_sidebar_label("")
         self.sidebar_websites_label = ViewUtils.create_sidebar_label("")
         self.sidebar_apps_label = ViewUtils.create_sidebar_label("")
         self.sidebar_files_label = ViewUtils.create_sidebar_label("")
 
+        self.main_view.sidebar_layout.addWidget(self.sidebar_icon)
         self.main_view.sidebar_layout.addWidget(self.sidebar_name_label)
         self.main_view.sidebar_layout.addWidget(self.sidebar_elem_info_label)
         self.main_view.sidebar_layout.addWidget(self.sidebar_websites_label)
