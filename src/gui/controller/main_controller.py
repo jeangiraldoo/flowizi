@@ -25,8 +25,10 @@ class Controller:
         self.main_view.label_double_click_signal.connect(self.element_double_clicked)
 
         self.start_btn = ViewUtils.create_btn("Start")
+        self.start_btn.setEnabled(False)
         self.create_btn = ViewUtils.create_btn("Create")
         self.delete_btn = ViewUtils.create_btn("Delete")
+        self.delete_btn.setEnabled(False)
         self.back_btn = ViewUtils.create_btn("Back")
 
         self.start_btn.clicked.connect(self.start_btn_clicked)
@@ -62,8 +64,34 @@ class Controller:
 
         sys.exit(app.exec_())
 
-    def hide_sidebar(self):
-        self.main_view.sidebar_widget.hide()
+    def refresh_window(self):
+        self.refresh_grid()
+        self.refresh_toolbar()
+        self.hide_sidebar()
+
+    def refresh_toolbar(self):
+        self.start_btn.setEnabled(False)
+        self.delete_btn.setEnabled(False)
+
+        if self.current_view == "environments":
+            self.start_btn.show()
+            self.back_btn.hide()
+        else:
+            self.start_btn.hide()
+            self.back_btn.show()
+
+    def refresh_grid(self):
+        flowizi.update_environments()
+
+        if self.current_view == "environments":
+            self.remove_grid()
+            updated_grid = self.get_grid_widget("environments")
+            self.main_view.splitter.insertWidget(0, updated_grid)
+        else:
+            updated_grid = self.get_grid_widget(self.current_view)
+            self.tab_widget.widget(self.current_tab_pos).deleteLater()
+            self.tab_widget.insertTab(self.current_tab_pos, updated_grid, self.tab_widget.tabText(self.current_tab_pos))
+            self.tab_widget.setCurrentWidget(updated_grid)
 
     def refresh_sidebar(self, pos):
         self.main_view.sidebar_widget.show()
@@ -92,10 +120,15 @@ class Controller:
             self.sidebar_apps_label.hide()
             self.sidebar_files_label.hide()
 
+    def hide_sidebar(self):
+        self.main_view.sidebar_widget.hide()
+
     def element_clicked(self, pos):
         if self.current_view == "environments":
             self.current_env = pos
         self.refresh_sidebar(pos)
+        self.start_btn.setEnabled(True)
+        self.delete_btn.setEnabled(True)
         self.highlight_clicked_element(pos)
 
     def highlight_clicked_element(self, pos):
@@ -108,10 +141,10 @@ class Controller:
 
     def element_double_clicked(self, pos):
         self.current_view = "contained_elements"
-        self.refresh_toolbar()
         self.remove_grid()
         self.hide_sidebar()
         self.show_environment_overview()
+        self.refresh_toolbar()
 
     def get_grid_widget(self, elem_type):
         """Returns a QWidget that contains a grid of elements or a label in case
@@ -123,14 +156,6 @@ class Controller:
             elems = getattr(env, elem_type)
 
         return self.main_view.get_grid(elem_type, elems)
-
-    def refresh_toolbar(self):
-        if self.current_view == "environments":
-            self.start_btn.show()
-            self.back_btn.hide()
-        else:
-            self.start_btn.hide()
-            self.back_btn.show()
 
     def remove_grid(self):
         self.main_view.splitter.widget(0).deleteLater()
@@ -176,12 +201,14 @@ class Controller:
 
     def start_btn_clicked(self):
         pos = self.get_clicked_element_pos()
-        flowizi.environment_list[pos].start()
+        print(pos)
+        if pos is not None:
+            flowizi.environment_list[pos].start()
 
     def create_btn_clicked(self):
         if ((self.current_view == "applications" and self.add_application())
            or (self.current_view == "files" and self.add_file())):
-            self.refresh_grid()
+            self.refresh_window()
         elif self.current_view == "websites" or self.current_view == "environments":
             singular_name = self.current_view[: len(self.current_view) - 1]
             title = f"Create {singular_name}"
@@ -207,21 +234,9 @@ class Controller:
             result = self.add_application()
 
         if result:
-            self.refresh_grid()
+            self.refresh_window()
 
-    def refresh_grid(self):
-        flowizi.update_environments()
-
-        if self.current_view == "environments":
-            self.remove_grid()
-            updated_grid = self.get_grid_widget("environments")
-            self.main_view.splitter.insertWidget(0, updated_grid)
-        else:
-            updated_grid = self.get_grid_widget(self.current_view)
-            self.tab_widget.widget(self.current_tab_pos).deleteLater()
-            self.tab_widget.insertTab(self.current_tab_pos, updated_grid, self.tab_widget.tabText(self.current_tab_pos))
-            self.tab_widget.setCurrentWidget(updated_grid)
-
+    
     def add_environment(self, env_name):
         result = add.add_environment("", env_name)
         if not result:
@@ -288,7 +303,7 @@ class Controller:
             env = flowizi.environment_list[self.current_env]
             app_name = env.applications[element_pos].name
             remove.remove_application("", env.name, app_name)
-        self.refresh_grid()
+        self.refresh_window()
 
     def get_clicked_element_pos(self):
         total_elements = len(self.main_view.grid)
