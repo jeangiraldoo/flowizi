@@ -65,7 +65,7 @@ class Controller:
         sys.exit(app.exec_())
 
     def refresh_window(self):
-        self.refresh_grid()
+        self.refresh_left_widget()
         self.refresh_toolbar()
         self.hide_sidebar()
 
@@ -80,16 +80,15 @@ class Controller:
             self.start_btn.hide()
             self.back_btn.show()
 
-    def refresh_grid(self):
+    def refresh_left_widget(self):
         flowizi.update_environments()
+        self.remove_left_widget()
 
         if self.current_view == "environments":
-            self.remove_grid()
             updated_grid = self.get_grid_widget("environments")
             self.main_view.splitter.insertWidget(0, updated_grid)
         else:
             updated_grid = self.get_grid_widget(self.current_view)
-            self.tab_widget.widget(self.current_tab_pos).deleteLater()
             self.tab_widget.insertTab(self.current_tab_pos, updated_grid, self.tab_widget.tabText(self.current_tab_pos))
             self.tab_widget.setCurrentWidget(updated_grid)
 
@@ -140,9 +139,8 @@ class Controller:
                 self.main_view.grid.itemAt(i).widget().setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
 
     def element_double_clicked(self, pos):
-        self.current_view = "contained_elements"
-        self.remove_grid()
         self.hide_sidebar()
+        self.remove_left_widget()
         self.show_environment_overview()
         self.refresh_toolbar()
 
@@ -157,8 +155,11 @@ class Controller:
 
         return self.main_view.get_grid(elem_type, elems)
 
-    def remove_grid(self):
-        self.main_view.splitter.widget(0).deleteLater()
+    def remove_left_widget(self):
+        if self.current_view == "environments":
+            self.main_view.splitter.widget(0).deleteLater()
+        else:
+            self.tab_widget.widget(self.current_tab_pos).deleteLater()
 
     def show_environment_overview(self):
         self.main_view.toolbar.addStretch()
@@ -175,6 +176,7 @@ class Controller:
         font.setPointSize(12)
         self.tab_widget.tabBar().setFont(font)
         self.main_view.splitter.insertWidget(0, self.tab_widget)
+        self.update_current_tab()
 
     def update_current_tab(self):
         self.current_tab_pos = self.tab_widget.currentIndex()
@@ -190,14 +192,7 @@ class Controller:
         self.current_view = "environments"
         self.current_tab_pos = None
         self.current_env = None
-        self.refresh_toolbar()
-        self.remove_grid()
-
-        self.main_view.toolbar.addStretch()
-        self.hide_sidebar()
-        environments = flowizi.environment_list
-        env_grid = self.main_view.generate_grid(environments)
-        self.main_view.splitter.insertWidget(0, env_grid)
+        self.refresh_window()
 
     def start_btn_clicked(self):
         pos = self.get_clicked_element_pos()
@@ -228,15 +223,12 @@ class Controller:
     def validate_input(self, input):
         if self.current_view == "environments":
             result = self.add_environment(input)
-        elif self.current_view == "websites":
+        else:
             result = self.add_website(input)
-        elif self.current_view == "applications":
-            result = self.add_application()
 
         if result:
             self.refresh_window()
 
-    
     def add_environment(self, env_name):
         result = add.add_environment("", env_name)
         if not result:
@@ -268,9 +260,9 @@ class Controller:
 
     def add_application(self):
         app_window = AppDialog(self.current_env)
-        app_window.set_window_title("Create an app:")
+        app_window.set_window_title("Create an app")
         app_window.set_message("Double click one of the available apps:")
-        result = app_window.result_signal.connect(self.get_app_insertion_result)
+        result = app_window.result_signal.connect(lambda result: result)
         app_window.exec_()
 
         return result
@@ -282,9 +274,6 @@ class Controller:
             message = f"There is already a website with the url {url}"
 
         self.show_error_message(message)
-
-    def get_app_insertion_result(self, result):
-        return result
 
     def delete_btn_clicked(self):
         element_pos = self.get_clicked_element_pos()
