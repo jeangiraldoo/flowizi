@@ -1,10 +1,11 @@
 import sqlite3
+from core.system_detection.system_information import database_path
 from core.elements.environment import Environment
 from core.elements.website import Website
 from core.elements.file import File
 from core.elements.application import Application
 
-conn = sqlite3.connect("example.db")
+conn = sqlite3.connect(database_path)
 cursor = conn.cursor()
 
 cursor.execute("PRAGMA foreign_keys = ON;")

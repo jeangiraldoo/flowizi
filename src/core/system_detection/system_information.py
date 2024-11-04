@@ -19,8 +19,8 @@ def get_known_folder_path(folder_id):
     return Path(path_ptr.value)
 
 
-json_dir = f"{get_known_folder_path(APPDATA_LOCAL)}/flowizi"
-json_path = f"{json_dir}/data.json"
+database_dir = f"{get_known_folder_path(APPDATA_LOCAL)}/flowizi"
+database_path = f"{database_dir}/flowizi_database.db"
 record_dir = f"{get_known_folder_path(VIDEOS_ID)}/flowizi"
 system_sound_names = ["Stereo Mix", "Stereo-Mix", "Mezcla estéreo",
                       "Mixagem estéreo", "Mixage stéréo", "Mix Stereo",
