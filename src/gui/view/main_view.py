@@ -1,8 +1,6 @@
-import sys
 import math
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QLabel,
-                             QWidget, QVBoxLayout, QSplitter, QHBoxLayout,
-                             QGridLayout, QSizePolicy)
+from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
+                             QSplitter, QHBoxLayout, QGridLayout)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 from flowizi import flowizi
