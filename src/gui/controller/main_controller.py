@@ -18,6 +18,7 @@ class Controller:
         self.main_view.show()
         self.current_view = "environments"
         self.current_env = None
+        self.update_current_grid()
         self.current_tab_pos = None
         self.selected_app = None
 
@@ -25,11 +26,10 @@ class Controller:
         self.main_view.label_double_click_signal.connect(self.element_double_clicked)
 
         self.start_btn = ViewUtils.create_btn("Start")
-        self.start_btn.setEnabled(False)
         self.create_btn = ViewUtils.create_btn("Create")
         self.delete_btn = ViewUtils.create_btn("Delete")
-        self.delete_btn.setEnabled(False)
         self.back_btn = ViewUtils.create_btn("Back")
+        self.disable_buttons()
 
         self.start_btn.clicked.connect(self.start_btn_clicked)
         self.create_btn.clicked.connect(self.create_btn_clicked)
@@ -70,8 +70,7 @@ class Controller:
         self.hide_sidebar()
 
     def refresh_toolbar(self):
-        self.start_btn.setEnabled(False)
-        self.delete_btn.setEnabled(False)
+        self.disable_buttons()
 
         if self.current_view == "environments":
             self.start_btn.show()
@@ -91,6 +90,8 @@ class Controller:
             updated_grid = self.get_grid_widget(self.current_view)
             self.tab_widget.insertTab(self.current_tab_pos, updated_grid, self.tab_widget.tabText(self.current_tab_pos))
             self.tab_widget.setCurrentWidget(updated_grid)
+
+        self.update_current_grid()
 
     def refresh_sidebar(self, pos):
         self.main_view.sidebar_widget.show()
@@ -126,23 +127,42 @@ class Controller:
         if self.current_view == "environments":
             self.current_env = pos
         self.refresh_sidebar(pos)
-        self.start_btn.setEnabled(True)
-        self.delete_btn.setEnabled(True)
-        self.highlight_clicked_element(pos)
+        self.style_clicked_element(pos)
 
-    def highlight_clicked_element(self, pos):
-        for i in range(len(self.main_view.grid)):
-            if pos == i:
-                clicked_label = self.main_view.grid.itemAt(pos)
-                clicked_label.widget().setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
-            else:
-                self.main_view.grid.itemAt(i).widget().setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
+    def style_clicked_element(self, pos):
+        """Changes the style of the label on a given position"""
+
+        self.disable_buttons()
+        clicked_pos = self.get_clicked_element_pos()
+
+        new_label = self.current_grid.itemAt(pos).widget()
+        if clicked_pos is not None and clicked_pos == pos: #Enters if the previous clicked label is the same as the current one
+            old_label = self.current_grid.itemAt(clicked_pos).widget()
+            old_label.setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
+        elif clicked_pos is not None:
+            old_label = self.current_grid.itemAt(clicked_pos).widget()
+            old_label.setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
+            new_label.setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
+
+            self.enable_buttons()
+        else:  # This code will only run the first time a label is clicked
+            new_label.setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
+            self.enable_buttons()
 
     def element_double_clicked(self, pos):
-        self.hide_sidebar()
-        self.remove_left_widget()
-        self.show_environment_overview()
-        self.refresh_toolbar()
+        if self.current_view == "environments":
+            self.hide_sidebar()
+            self.remove_left_widget()
+            self.show_environment_overview()
+            self.refresh_toolbar()
+
+    def enable_buttons(self):
+        self.start_btn.setEnabled(True)
+        self.delete_btn.setEnabled(True)
+
+    def disable_buttons(self):
+        self.start_btn.setEnabled(False)
+        self.delete_btn.setEnabled(False)
 
     def get_grid_widget(self, elem_type):
         """Returns a QWidget that contains a grid of elements or a label in case
@@ -187,6 +207,18 @@ class Controller:
             self.current_view = "applications"
         else:
             self.current_view = "files"
+
+        self.update_current_grid()
+
+    def update_current_grid(self):
+        if self.current_view == "environments":
+            self.current_grid = self.main_view.splitter.widget(0).layout()
+        elif self.current_view == "websites":
+            self.current_grid = self.tab_widget.widget(0).layout()
+        elif self.current_view == "applications":
+            self.current_grid = self.tab_widget.widget(1).layout()
+        else:
+            self.current_grid = self.tab_widget.widget(2).layout()
 
     def back_btn_clicked(self):
         self.current_view = "environments"
@@ -295,9 +327,9 @@ class Controller:
         self.refresh_window()
 
     def get_clicked_element_pos(self):
-        total_elements = len(self.main_view.grid)
+        total_elements = len(self.current_grid)
         for i in range(total_elements):
-            label = self.main_view.grid.itemAt(i).widget()
+            label = self.current_grid.itemAt(i).widget()
             label_style = label.styleSheet()
 
             if ViewUtils.ELEM_LABEL_CLICKED_STYLE in label_style:

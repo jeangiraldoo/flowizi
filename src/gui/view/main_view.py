@@ -51,11 +51,11 @@ class MainWindow(QMainWindow):
             return self.generate_empty_grid_label(element_type)
 
     def generate_grid(self, element_list) -> QWidget:
-        self.grid = QGridLayout()
-        self.grid.setSpacing(30)
+        grid = QGridLayout()
+        grid.setSpacing(30)
 
         grid_widget = QWidget()
-        grid_widget.setLayout(self.grid)
+        grid_widget.setLayout(grid)
 
         num_elems_row = 4
         total_envs = len(element_list)
@@ -63,15 +63,15 @@ class MainWindow(QMainWindow):
         current_env = 0
 
         for row in range(total_rows):
-            self.grid.setRowStretch(row, 1)
+            grid.setRowStretch(row, 1)
             for column in range(num_elems_row):
                 label = ClickableLabel()
                 label.setText(f"{element_list[current_env].name}")
                 label.setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
                 label.setAlignment(Qt.AlignCenter)
 
-                self.grid.addWidget(label, row, column)
-                label.set_pos(self.grid.indexOf(label))
+                grid.addWidget(label, row, column)
+                label.set_pos(grid.indexOf(label))
                 label.mousePressEvent = self.create_label_event(label.pos)
                 label.label_double_click_signal.connect(self.create_label_double_click_event)
                 current_env += 1
