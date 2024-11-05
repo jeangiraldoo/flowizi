@@ -24,8 +24,8 @@ class Controller:
         self.selected_app = None
 
         # Connect label signals to slots
-        self.main_view.label_signal.connect(self.element_clicked)
-        self.main_view.label_double_click_signal.connect(self.element_double_clicked)
+        self.main_view.label_signal.connect(self.elem_clicked)
+        self.main_view.label_double_click_signal.connect(self.elem_double_clicked)
 
         # Create toolbar buttons
         self.start_btn = ViewUtils.create_btn("Start")
@@ -120,7 +120,7 @@ class Controller:
 
         self.update_current_grid()
 
-    def element_clicked(self, pos):
+    def elem_clicked(self, pos):
         """Slot triggered when an element is clicked, updating the sidebar with
         information about the clicked element and visually highlighting it,
         while unhighlighting any previously selected elements.
@@ -129,21 +129,21 @@ class Controller:
         if self.current_view == "environments":
             self.current_env = pos
         self.refresh_sidebar(pos)
-        self.style_clicked_element(pos)
+        self.style_clicked_elem(pos)
 
-    def element_double_clicked(self, pos):
+    def elem_double_clicked(self, pos):
         """Slot triggered when an environment is double clicked,
         revealing the websites, apps and files it holds."""
         if self.current_view == "environments":
             self.hide_sidebar()
             self.remove_left_widget()
-            self.show_environment_overview()
+            self.show_contained_elems()
             self.refresh_toolbar()
 
-    def style_clicked_element(self, pos):
+    def style_clicked_elem(self, pos):
         """Changes the style of the label on a given position"""
         self.disable_buttons()
-        clicked_pos = self.get_clicked_element_pos()
+        clicked_pos = self.get_clicked_elem_pos()
 
         new_label = self.current_grid.itemAt(pos).widget()
         if clicked_pos is not None and clicked_pos == pos: #Enters if the previous clicked label is the same as the current one
@@ -159,14 +159,14 @@ class Controller:
             new_label.setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
             self.enable_buttons()
 
-    def get_clicked_element_pos(self) -> Optional[int]:
+    def get_clicked_elem_pos(self) -> Optional[int]:
         """Returns the index position of the clicked label in the currently
         displayed grid. If no label is selected, returns None.
 
         Returns:
         int or None: The index of the clicked label, or None if no label is selected."""
-        total_elements = len(self.current_grid)
-        for i in range(total_elements):
+        total_elems = len(self.current_grid)
+        for i in range(total_elems):
             label = self.current_grid.itemAt(i).widget()
             label_style = label.styleSheet()
 
@@ -200,7 +200,7 @@ class Controller:
         else:
             self.tab_widget.widget(self.current_tab_pos).deleteLater()
 
-    def show_environment_overview(self):
+    def show_contained_elems(self):
         """Inserts a QTabWidget into the splitter at index 0.
 
         The QTabWidget contains tabs for each type of contained element,
@@ -268,27 +268,27 @@ class Controller:
         """If an environment is selected, the elements contained within it
         will be launched.
         """
-        pos = self.get_clicked_element_pos()
+        pos = self.get_clicked_elem_pos()
         if pos is not None:
             flowizi.environment_list[pos].start()
 
     def delete_btn_clicked(self):
         """Deletes the element associated with the clicked label"""
-        element_pos = self.get_clicked_element_pos()
-        if self.current_view == "environments" and element_pos is not None:
-            env_name = flowizi.environment_list[element_pos].name
+        elem_pos = self.get_clicked_elem_pos()
+        if self.current_view == "environments" and elem_pos is not None:
+            env_name = flowizi.environment_list[elem_pos].name
             remove.remove_environment(env_name)
-        elif self.current_tab_pos == 0 and element_pos is not None:
+        elif self.current_tab_pos == 0 and elem_pos is not None:
             env = flowizi.environment_list[self.current_env]
-            website_name = env.websites[element_pos].name
+            website_name = env.websites[elem_pos].name
             remove.remove_website("", env.name, website_name)
-        elif self.current_tab_pos == 2 and element_pos is not None:
+        elif self.current_tab_pos == 2 and elem_pos is not None:
             env = flowizi.environment_list[self.current_env]
-            file_name = env.files[element_pos].name
+            file_name = env.files[elem_pos].name
             remove.remove_file("", env.name, file_name)
         else:
             env = flowizi.environment_list[self.current_env]
-            app_name = env.applications[element_pos].name
+            app_name = env.applications[elem_pos].name
             remove.remove_application("", env.name, app_name)
         self.refresh_window()
 
@@ -307,7 +307,7 @@ class Controller:
         """Displays a message box prompting the user for input to create
         a website or environment.
         """
-        msg_box = self.show_create_element_msg_box(w_title, w_message)
+        msg_box = self.show_create_elem_msg_box(w_title, w_message)
 
         if msg_box.exec():
             input = msg_box.get_text()
@@ -371,7 +371,8 @@ class Controller:
         it will be added.
 
         Returns:
-            bool: True if the file was successfully created and added, False otherwise.
+            bool: True if the file was successfully created and added,
+            False otherwise.
         """
         dialog = QFileDialog()
         dialog.setFileMode(QFileDialog.ExistingFile)  # Allows selecting only existing files
@@ -443,10 +444,10 @@ class Controller:
             self.sidebar_files_label.setText(f"Files: {len(env.files)}")
         else:
             env = flowizi.environment_list[self.current_env]
-            elements = getattr(env, self.current_view)
-            element = elements[pos]
-            self.sidebar_name_label.setText(f"Name: {element.name}")
-            self.sidebar_elem_info_label.setText(f"URL: {element.url}")
+            elems = getattr(env, self.current_view)
+            elem = elems[pos]
+            self.sidebar_name_label.setText(f"Name: {elem.name}")
+            self.sidebar_elem_info_label.setText(f"URL: {elem.url}")
 
             self.sidebar_websites_label.hide()
             self.sidebar_apps_label.hide()
@@ -470,7 +471,7 @@ class Controller:
         self.start_btn.setEnabled(False)
         self.delete_btn.setEnabled(False)
 
-    def show_create_element_msg_box(self, title, message):
+    def show_create_elem_msg_box(self, title, message):
         msg_box = InputDialog()
         msg_box.set_window_title(title)
         msg_box.set_message(message)
