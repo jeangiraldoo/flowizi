@@ -2,7 +2,7 @@ from flowizi import flowizi
 from core.database import database
 
 
-def remove(args, parser):
+def remove_command(args, parser):
     """Remove a link from the configuration file"""
     if not flowizi.json.exists_environment(args.name):
         parser.error("There's no environment with that name")

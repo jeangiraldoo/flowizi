@@ -2,7 +2,7 @@ from flowizi import flowizi
 from core.database import database
 
 
-def list_(parser, args):
+def list_command(parser, args):
     if len(flowizi.environment_list) == 0:
         print("There's no environments. You can add one by using the add command, followed by the environment name")
     elif args.name and not database.get_environment_ID(args.name):

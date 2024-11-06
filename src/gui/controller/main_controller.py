@@ -8,7 +8,6 @@ from gui.view.main_view import MainWindow
 from gui.view.view_utils import ViewUtils
 from gui.view.view_utils import InputDialog, AppDialog
 from flowizi import flowizi
-from commands import add, remove
 from core.database import validations
 
 

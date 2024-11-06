@@ -145,12 +145,6 @@ def get_exec_files(app_path) -> dict:
     return final_list
 
 
-def validate_exec_choice(choice, upper_range):
-    if not validate_number_range(choice, 1, upper_range):
-        return False
-    return True
-
-
 def get_exe_path(final_list: dict) -> str:
     display_items(final_list, "\nExecutable files found: ")
 

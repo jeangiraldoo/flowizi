@@ -1,7 +1,7 @@
 from flowizi import flowizi
 
 
-def record(args, parser):
+def record_command(args, parser):
     if not flowizi.json.exists_environment(args.name):
         parser.error("There's no environment with that name")
     if args.t:

@@ -1,11 +1,7 @@
-import os
-import winreg
-from flowizi import flowizi
-from core.elements.element_utils import utils
 from core.database import database, validations, app_validation
 
 
-def add(args, parser):
+def add_command(args, parser):
     if args.w:
         website_url = args.w[0]
         add_website(parser, args.name, website_url)
