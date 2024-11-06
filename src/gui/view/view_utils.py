@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QPushButton, QLabel, QSizePolicy, QDialog,
                              QVBoxLayout, QHBoxLayout, QLineEdit, QListWidget)
 from PyQt5.QtCore import pyqtSignal
 from flowizi import flowizi
-from commands import add
+from core.database import app_validation
 
 
 class ViewUtils():
@@ -89,7 +89,7 @@ class AppDialog(QDialog):
         super().__init__()
         self.current_env_name = env_name
         self.current_step = "app"
-        self.apps = add.get_all_installed_apps()
+        self.apps = app_validation.get_installed_apps()
         self.message_label = QLabel()
         self.message_label.setStyleSheet("font-size: 17px")
         self.item_list = QListWidget(self)
@@ -120,13 +120,13 @@ class AppDialog(QDialog):
         elif self.current_step == "execs":
             path = self.execs[item.text()]
             env_name = flowizi.environment_list[self.current_env_name].name
-            result = add.add_one_similar_app(env_name, self.app_name, path)
+            result = app_validation.add_one_similar_app(env_name, self.app_name, path)
             self.result_signal.emit(result)
             self.close()
 
     def show_execs(self, app_name):
         path = self.apps[app_name]
-        self.execs = add.get_exec_files("", path)
+        self.execs = app_validation.get_exec_files(path)
         self.message_label.setText("Choose the executable file of the application:")
         self.item_list.clear()
         self.set_items(self.execs)

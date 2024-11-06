@@ -1,29 +1,19 @@
 from flowizi import flowizi
+from core.database import database
 
 
 def list_(parser, args):
     if len(flowizi.environment_list) == 0:
         print("There's no environments. You can add one by using the add command, followed by the environment name")
-
-    if args.w:
-        if not flowizi.json.exists_environment(args.name):
-            parser.error("The environment specified does not exist")
-
+    elif args.name and not database.get_environment_ID(args.name):
+        parser.error("The environment specified does not exist")
+    elif args.w:
         list_contained_elements(args.name, "websites")
     elif args.f:
-        if not flowizi.json.exists_environment(args.name):
-            parser.error("The environment specified does not exist")
-
         list_contained_elements(args.name, "files")
     elif args.a:
-        if not flowizi.json.exists_environment(args.name):
-            parser.error("The environment specified does not exist")
-
         list_contained_elements(args.name, "applications")
     elif args.name:
-        if not flowizi.json.exists_environment(args.name):
-            parser.error("The environment specified does not exist")
-
         list_contained_elements(args.name, "websites")
         list_contained_elements(args.name, "files")
         list_contained_elements(args.name, "applications")
