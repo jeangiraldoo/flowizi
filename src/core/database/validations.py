@@ -14,7 +14,7 @@ def add_env_validation(env_name: str) -> bool:
         bool: True if the environment was successfully added.
               False if there's already an environment with the same name.
     """
-    env_id = database.get_environment_ID(env_name)
+    env_id = database.get_element_ID(env_name, "environments")
     if env_id:
         return False
 
@@ -34,7 +34,7 @@ def add_elem_validation(env_name: str, elem_type: str, url: str) -> list[bool, s
         list[bool, ValidationResult]: A list where the first element indicates
         success, and the second provides status.
     """
-    env_id = database.get_environment_ID(env_name)
+    env_id = database.get_element_ID(env_name, "environments")
     if not env_id:
         return [False, "no env"]
 
@@ -138,7 +138,7 @@ def delete_env_validation(env_name: str) -> bool:
         bool: Returns True if the environment was successfully deleted.
               Returns False if the environment does not exist.
     """
-    env_id = database.get_environment_ID(env_name)
+    env_id = database.get_element_ID(env_name, "environments")
 
     if not env_id:
         return False
@@ -161,7 +161,7 @@ def delete_elem_validation(env_name: str, elem_type: str, name: str) -> list[boo
               Returns False if the deletion failed (e.g., if there is no
               environment or element with the specified name).
     """
-    env_id = database.get_environment_ID(env_name)
+    env_id = database.get_element_ID(env_name, "environments")
     if not env_id:
         return [False, "no env"]
 

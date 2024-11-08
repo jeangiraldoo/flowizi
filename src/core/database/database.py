@@ -77,7 +77,7 @@ def delete_environment(env_id: int):
     conn.commit()
 
 
-def insert_element(env_id: int, id: int, elem_type: str, name: str, url: str):
+def insert_element(env_id: int, id: int, elem_type: str, name: str, url: str) -> bool:
     try:
         cursor.execute(f"INSERT INTO environment_{elem_type} (environment_id, element_id) VALUES (?, ?)", (env_id, id))
         conn.commit()
@@ -110,16 +110,6 @@ def finish_insert_element(env_id, element_id, element_type) -> bool:
 def delete_element(env_name, elem_type, elem_id, name):
     cursor.execute(f"DELETE FROM environment_{elem_type} WHERE element_id = ?", (elem_id,))
     conn.commit()
-
-
-def get_environment_ID(env_name) -> int:
-    try:
-        cursor.execute("SELECT id FROM environments WHERE name = ?", (env_name,))
-        env_result = cursor.fetchone()
-        env_id = env_result[0]
-        return env_id
-    except:
-        return 0
 
 
 def get_element_ID(name, element_type) -> int:

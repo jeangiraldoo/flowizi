@@ -45,7 +45,7 @@ def add_website(parser, env_name, url):
 
 
 def add_file(parser, env_name, url):
-    env_id = database.get_environment_ID(env_name)
+    env_id = database.get_element_ID(env_name, "environments")
     if not env_id and parser:
         parser.error("The environment specified does not exist")
 
@@ -67,7 +67,7 @@ def add_file(parser, env_name, url):
 
 
 def add_application(parser, env_name):
-    if not database.get_environment_ID(env_name):
+    if not database.get_element_ID(env_name, "environments"):
         parser.error("The environment specified does not exist")
 
     apps = app_validation.get_installed_apps()

@@ -3,7 +3,7 @@ from core.database import database, validations
 
 def remove_command(args, parser):
     """Remove a link from the configuration file"""
-    if not database.get_environment_ID(args.name):
+    if not database.get_element_ID(args.name, "environments"):
         parser.error("There's no environment with that name")
 
     if args.w:

@@ -5,7 +5,7 @@ from core.database import database
 def list_command(parser, args):
     if len(flowizi.environment_list) == 0:
         print("There's no environments. You can add one by using the add command, followed by the environment name")
-    elif args.name and not database.get_environment_ID(args.name):
+    elif args.name and not database.get_element_ID(args.name):
         parser.error("The environment specified does not exist")
     elif args.w:
         list_contained_elements(args.name, "websites")
