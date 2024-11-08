@@ -20,7 +20,7 @@ def add_environment(parser, env_name):
     Parameters:
     parser ("" or ArgumentParser): Defines how the feedback will be shown (CLI/GUI)
     env_name (Str): Name of the environment to add'''
-    result = validations.add_environment(env_name)
+    result = validations.add_env_validation(env_name)
     if not result:
         parser.error("The environment specified already exists")
     else:
@@ -74,13 +74,15 @@ def add_application(parser, env_name):
     apps = app_validation.get_installed_apps()
     app_validation.display_apps(apps)
     input_app_name = app_validation.ask_app_name()
-    similar_apps = app_validation.get_similar_apps(input_app_name, apps)
-    result = app_validation.add_similar_apps(env_name, similar_apps, apps)
+    similar_names = app_validation.get_similar_names(input_app_name, apps)
+    result = app_validation.start_app_addition(env_name, similar_names, apps)
 
     if not result[0] and result[1] == "insertion attempt":
         parser.error(f"The chosen application is already in the {env_name} environment")
-    elif not result[0] and result[1] == "empty":
+    elif not result[0] and result[1] == "no app":
         parser.error(f"There is no app with a name similar to {input_app_name}")
+    elif not result[0] and result[1] == "empty":
+        parser.error("There are no executable files in the installation directory for this app")
     elif not result[0] and result[1] == "number range":
         parser.error("The number is out of bounds")
     else:

@@ -3,7 +3,7 @@ from typing import Optional, Union
 from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
                              QLabel, QTabWidget, QFileDialog)
 from PyQt5.QtGui import QFont, QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEventLoop
 from gui.view.main_view import MainWindow
 from gui.view.view_utils import ViewUtils
 from gui.view.view_utils import InputDialog, AppDialog
@@ -400,10 +400,19 @@ class Controller:
         app_window = AppDialog(self.current_env)
         app_window.set_window_title("Create an app")
         app_window.set_message("Double click one of the available apps:")
-        result = app_window.result_signal.connect(lambda result: result)
+        self.loop = QEventLoop()
+        app_window.result_signal.connect(self.handle_app_signal)
+        app_window.user_close_signal.connect(self.handle_app_close_signal)
         app_window.exec_()
 
-        return result
+        if not self.user_app_close:
+            return self.app_result[0]
+
+    def handle_app_signal(self, value):
+        self.app_result = value
+
+    def handle_app_close_signal(self, value):
+        self.user_app_close = value
 
     def show_add_website_error(self, result, url):
         """Launches a window that displays an error message"""
