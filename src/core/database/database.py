@@ -98,15 +98,6 @@ def insert_and_get_element_ID(name, url, element_type) -> int:
     return element_id
 
 
-def finish_insert_element(env_id, element_id, element_type) -> bool:
-    try:
-        cursor.execute(f"INSERT INTO environment_{element_type} (environment_id, element_id) VALUES (?, ?)", (env_id, element_id))
-        conn.commit()
-        return True
-    except:
-        return False
-
-
 def delete_element(env_name, elem_type, elem_id, name):
     cursor.execute(f"DELETE FROM environment_{elem_type} WHERE element_id = ?", (elem_id,))
     conn.commit()
