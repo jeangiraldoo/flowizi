@@ -69,18 +69,18 @@ cursor.execute('''
 def add_environment(name: str):
     environment = (name, 0)
     cursor.execute("INSERT INTO environments (name, record) VALUES (?, ?)", environment)
-    commit_changes()
+    conn.commit()
 
 
 def delete_environment(env_id: int):
     cursor.execute("DELETE FROM environments WHERE id = ?", (env_id,))
-    commit_changes()
+    conn.commit()
 
 
 def insert_element(env_id: int, id: int, elem_type: str, name: str, url: str):
     try:
         cursor.execute(f"INSERT INTO environment_{elem_type} (environment_id, element_id) VALUES (?, ?)", (env_id, id))
-        commit_changes()
+        conn.commit()
         return True
     except:
         return False
@@ -88,7 +88,7 @@ def insert_element(env_id: int, id: int, elem_type: str, name: str, url: str):
 
 def delete_element(env_name, elem_type, elem_id, name):
     cursor.execute(f"DELETE FROM environment_{elem_type} WHERE element_id = ?", (elem_id,))
-    commit_changes()
+    conn.commit()
 
 
 def get_environment_ID(env_name) -> int:
@@ -110,6 +110,7 @@ def get_element_ID(name, element_type) -> int:
     except:
         return 0
 
+
 def insert_and_get_element_ID(name, url, element_type) -> int:
     element = (name, url)
     cursor.execute(f"INSERT INTO {element_type} (name, url) VALUES (?, ?)", element)
@@ -117,12 +118,15 @@ def insert_and_get_element_ID(name, url, element_type) -> int:
     element_result = cursor.fetchone()
     element_id = element_result[0]
 
+    conn.commit()
+
     return element_id
 
 
 def finish_insert_element(env_id, element_id, element_type):
     try:
         cursor.execute(f"INSERT INTO environment_{element_type} (environment_id, element_id) VALUES (?, ?)", (env_id, element_id))
+        conn.commit()
         return True
     except:
         return False
@@ -184,6 +188,3 @@ def deserialize_contained_elements(envs, element_type):
             element_list.append(new_element)
 
     return envs
-
-def commit_changes():
-    conn.commit()
