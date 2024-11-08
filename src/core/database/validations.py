@@ -104,7 +104,7 @@ def delete_env_validation(env_name: str) -> bool:
     return True
 
 
-def delete_elem_validation(env_name: str, elem_type: str, name: str) -> bool:
+def delete_elem_validation(env_name: str, elem_type: str, name: str) -> list[bool, str]:
     """Validates that an element exists in a specific environment before
     deleting it from the database.
 
@@ -120,11 +120,11 @@ def delete_elem_validation(env_name: str, elem_type: str, name: str) -> bool:
     """
     env_id = database.get_environment_ID(env_name)
     if not env_id:
-        return False
+        return [False, "no env"]
 
     elem_id = database.get_element_ID(name, elem_type)
     if not elem_id:
-        return False
+        return [False, "no elem"]
 
     database.delete_element(env_name, elem_type, elem_id, name)
-    return True
+    return [True, "success"]
