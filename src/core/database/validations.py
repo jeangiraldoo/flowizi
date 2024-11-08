@@ -55,7 +55,7 @@ def add_elem_validation(env_name: str, elem_type: str, url: str) -> list[bool, s
     if not elem_id:
         return element_not_exists(env_id, elem_id, elem_type, name, url)
     else:
-        res = database.insert_element(env_id, elem_id, elem_type, name, url)
+        res = database.insert_env_elem(env_id, elem_id, elem_type, name, url)
         return [res, "insertion attempt"]
 
 
@@ -75,7 +75,7 @@ def element_not_exists(env_id: int, elem_id: int, elem_type: str, name: str, url
         the second provides a status message.
     """
     elem_id = database.insert_and_get_element_ID(name, url, elem_type)
-    database.insert_element(env_id, elem_id, elem_type, name, url)
+    database.insert_env_elem(env_id, elem_id, elem_type, name, url)
     return [True, "insertion attempt"]
 
 

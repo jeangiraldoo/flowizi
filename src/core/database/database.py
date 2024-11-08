@@ -77,7 +77,7 @@ def delete_environment(env_id: int):
     conn.commit()
 
 
-def insert_element(env_id: int, id: int, elem_type: str, name: str, url: str) -> bool:
+def insert_env_elem(env_id: int, id: int, elem_type: str, name: str, url: str) -> bool:
     try:
         cursor.execute(f"INSERT INTO environment_{elem_type} (environment_id, element_id) VALUES (?, ?)", (env_id, id))
         conn.commit()
