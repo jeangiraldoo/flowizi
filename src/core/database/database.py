@@ -66,35 +66,24 @@ cursor.execute('''
 )''')
 
 
-def add_environment(name):
+def add_environment(name: str):
     environment = (name, 0)
-    try:
-        cursor.execute("INSERT INTO environments (name, record) VALUES (?, ?)", environment)
-        commit_changes()
-        return True
-    except:
-        return False
+    cursor.execute("INSERT INTO environments (name, record) VALUES (?, ?)", environment)
+    commit_changes()
 
 
-def delete_environment(env_id):
+def delete_environment(env_id: int):
     cursor.execute("DELETE FROM environments WHERE id = ?", (env_id,))
     commit_changes()
 
 
-def insert_element(env_name, element_type, name, url):
-    env_id = get_environment_ID(env_name)
-
-    if not env_id:
+def insert_element(env_id: int, id: int, elem_type: str, name: str, url: str):
+    try:
+        cursor.execute(f"INSERT INTO environment_{elem_type} (environment_id, element_id) VALUES (?, ?)", (env_id, id))
+        commit_changes()
+        return True
+    except:
         return False
-
-    element_id = get_element_ID(name, element_type)
-
-    if not element_id:
-        element_id = insert_and_get_element_ID(name, url, element_type)
-
-    insert_result = finish_insert_element(env_id, element_id, element_type)
-    commit_changes()
-    return insert_result
 
 
 def delete_element(env_name, elem_type, elem_id, name):
@@ -120,7 +109,6 @@ def get_element_ID(name, element_type) -> int:
         return element_id
     except:
         return 0
- 
 
 def insert_and_get_element_ID(name, url, element_type) -> int:
     element = (name, url)

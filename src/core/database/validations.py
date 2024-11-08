@@ -5,35 +5,78 @@ from urllib.parse import urlparse
 from core.database import database
 
 
-def add_env_validation(env_name):
-    '''Calls the function that inserts environments into the database
+def add_env_validation(env_name: str) -> bool:
+    """Calls the function that inserts environments into the database
 
-    Parameters:
-    env_name (Str): Name of the environment to add'''
-    return database.add_environment(env_name)
+    Args:
+        env_name (Str): Name of the environment to add'''
+    Returns:
+        bool: True if the environment was successfully added.
+              False if there's already an environment with the same name.
+    """
+    env_id = database.get_environment_ID(env_name)
+    if env_id:
+        return False
+
+    database.add_environment(env_name)
+    return True
 
 
-def add_website_validation(env_name, url):
-    if not verify_URL(url, "website"):
-        url = f"https://{url}"
+def add_elem_validation(env_name: str, elem_type: str, url: str) -> list[bool, str]:
+    """Validates if an element can be inserted into the database based or not.
+
+    Args:
+        env_name (str): Name of the environment to add the element to.
+        elem_type (str): Type of element (e.g., "websites" or "files").
+        url (str): URL or path of the element.
+
+    Returns:
+        list[bool, ValidationResult]: A list where the first element indicates
+        success, and the second provides status.
+    """
+    env_id = database.get_environment_ID(env_name)
+    if not env_id:
+        return [False, "no env"]
+
+    if elem_type == "websites":
         if not verify_URL(url, "website"):
-            return [False, "invalid_url"]
+            url = f"https://{url}"
+            if not verify_URL(url, "website"):
+                return [False, "invalid_url"]
+    else:
+        url = url.replace("\\", "/")
+        if not verify_URL(url, "file"):
+            return [False, "file not found"]
 
     name = url[url.rfind("/") + 1:]
-    result = database.insert_element(env_name, "websites", name, url)
 
-    return [result, "insertion_attempt"]
+    elem_id = database.get_element_ID(name, elem_type)
+
+    if not elem_id:
+        return element_not_exists(env_id, elem_id, elem_type, name, url)
+    else:
+        res = database.insert_element(env_id, elem_id, elem_type, name, url)
+        return [res, "insertion attempt"]
 
 
-def add_file_validation(env_name, url):
-    if not verify_URL(url, "file"):
-        return [False, "file not found"]
+def element_not_exists(env_id: int, elem_id: int, elem_type: str, name: str, url: str) -> list[bool, str]:
+    """Inserts the element into the specified environment if it does not
+    already exist.
 
-    url = url.replace("\\", "/")
-    name = url[url.rfind("/") + 1:]
+    Args:
+        env_id (int): ID of the environment in the database.
+        elem_id (int): ID of the element in the database.
+        elem_type (str): Element type ("files" or "websites").
+        name (str): Name of the element to insert.
+        url (str): URL or path of the element.
 
-    result = database.insert_element(env_name, "files", name, url)
-    return [result, "insertion_attempt"]
+    Returns:
+        list[bool, str]: A list where the first element indicates success, and
+        the second provides a status message.
+    """
+    elem_id = database.insert_and_get_element_ID(name, url, elem_type)
+    database.insert_element(env_id, elem_id, elem_type, name, url)
+    return [True, "insertion attempt"]
 
 
 def verify_URL(url: str, element_type: str) -> bool:

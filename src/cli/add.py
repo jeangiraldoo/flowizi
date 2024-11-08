@@ -28,15 +28,13 @@ def add_environment(parser, env_name):
 
 
 def add_website(parser, env_name, url):
-    env_id = database.get_environment_ID(env_name)
-    if not env_id and parser:
-        parser.error("The environment specified does not exist")
+    result, status_msg = validations.add_elem_validation(env_name, "websites", url)
 
-    result = validations.add_website_validation(env_name, url)
-
-    if not result[0] and result[1] == "invalid_url":
+    if not result and status_msg == "invalid_url":
         parser.error("The URL is not valid")
-    elif not result[0] and result[1] == "insertion_attempt":
+    elif not result and status_msg == "no env":
+        parser.error("The environment specified does not exist")
+    elif not result and status_msg == "insertion attempt":
         error_message = (
                 "There is already a website with that URL"
                 f" in the {env_name} environment"
@@ -51,19 +49,20 @@ def add_file(parser, env_name, url):
     if not env_id and parser:
         parser.error("The environment specified does not exist")
 
-    result = validations.add_file_validation(env_name, url)
+    result, status_msg = validations.add_elem_validation(env_name, "files", url)
 
-    if not result[0] and result[1] == "file not found":
+    if not result and status_msg == "file not found":
         parser.error(
             "There's no file in your system associated"
             " with the path you typed"
         )
-    elif not result[0] and result[1] == "insertion_attempt":
+    elif not result and status_msg == "insertion attempt":
         parser.error(
                 "There is already file with that path"
                 f" in the {env_name} environment"
                 )
     else:
+        print(result, status_msg)
         print(f"The file was successfully added to the {env_name} environment!")
 
 

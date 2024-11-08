@@ -356,9 +356,10 @@ class Controller:
         bool: True if the website was successfully created, False otherwise.
         """
         env_name = flowizi.environment_list[self.current_env].name
-        result = validations.add_website_validation(env_name, url)
-        if not result[0]:
-            self.show_add_website_error(result[1], url)
+        result, status_msg = validations.add_elem_validation(env_name, "websites", url)
+        print(status_msg)
+        if not result:
+            self.show_add_website_error(status_msg, url)
 
         return result
 
@@ -379,11 +380,11 @@ class Controller:
         if dialog.exec_():
             file_path = dialog.selectedFiles()[0]
             env_name = flowizi.environment_list[self.current_env].name
-            result = validations.add_file_validation(env_name, file_path)
+            result, status_msg = validations.add_elem_validation(env_name, "files", file_path)
 
-            if not result[0]:
+            if not result:
                 self.show_error_message("The selected file is already in the environment")
-            return result[0]
+            return result
 
     def add_application(self) -> bool:
         """Launches an AppDialog so that the user can choose the application
