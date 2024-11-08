@@ -1,5 +1,4 @@
 import os
-import winreg
 import re
 from tld import get_tld
 from urllib.parse import urlparse
@@ -82,4 +81,50 @@ def has_valid_tld(url: str) -> bool:
 def verify_file_url(url) -> bool:
     if not os.path.exists(url):
         return False
+    return True
+
+
+def delete_env_validation(env_name: str) -> bool:
+    """Validates that an environment with a specific name exists before
+    deleting it from the database.
+
+    Args:
+        env_name (str): Name of the environment.
+
+    Returns:
+        bool: Returns True if the environment was successfully deleted.
+              Returns False if the environment does not exist.
+    """
+    env_id = database.get_environment_ID(env_name)
+
+    if not env_id:
+        return False
+
+    database.delete_environment(env_id)
+    return True
+
+
+def delete_elem_validation(env_name: str, elem_type: str, name: str) -> bool:
+    """Validates that an element exists in a specific environment before
+    deleting it from the database.
+
+    Args:
+        env_name (str): Name of the environment.
+        elem_type (str): Element type ("websites", "applications", or "files").
+        name (str): Name of the element.
+
+    Returns:
+        bool: Returns True if the element was successfully deleted.
+              Returns False if the deletion failed (e.g., if there is no
+              environment or element with the specified name).
+    """
+    env_id = database.get_environment_ID(env_name)
+    if not env_id:
+        return False
+
+    elem_id = database.get_element_ID(name, elem_type)
+    if not elem_id:
+        return False
+
+    database.delete_element(env_name, elem_type, elem_id, name)
     return True

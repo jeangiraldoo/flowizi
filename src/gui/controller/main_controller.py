@@ -276,19 +276,19 @@ class Controller:
         elem_pos = self.get_clicked_elem_pos()
         if self.current_view == "environments" and elem_pos is not None:
             env_name = flowizi.environment_list[elem_pos].name
-            remove.remove_environment(env_name)
+            validations.delete_env_validation(env_name)
         elif self.current_tab_pos == 0 and elem_pos is not None:
             env = flowizi.environment_list[self.current_env]
             website_name = env.websites[elem_pos].name
-            remove.remove_website("", env.name, website_name)
+            validations.delete_elem_validation(env.name, "websites", website_name)
         elif self.current_tab_pos == 2 and elem_pos is not None:
             env = flowizi.environment_list[self.current_env]
             file_name = env.files[elem_pos].name
-            remove.remove_file("", env.name, file_name)
+            validations.delete_elem_validation(env.name, "files", file_name)
         else:
             env = flowizi.environment_list[self.current_env]
             app_name = env.applications[elem_pos].name
-            remove.remove_application("", env.name, app_name)
+            validations.delete_elem_validation(env.name, "applications", app_name)
         self.refresh_window()
 
     def create_btn_clicked(self):

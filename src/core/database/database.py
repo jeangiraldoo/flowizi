@@ -76,12 +76,8 @@ def add_environment(name):
         return False
 
 
-def delete_environment(name):
-    id = get_environment_ID(name)
-    if not id:
-        return False
-
-    cursor.execute("DELETE FROM environments WHERE id = ?", (id,))
+def delete_environment(env_id):
+    cursor.execute("DELETE FROM environments WHERE id = ?", (env_id,))
     commit_changes()
 
 
@@ -101,19 +97,9 @@ def insert_element(env_name, element_type, name, url):
     return insert_result
 
 
-def delete_element(env_name, element_type, name):
-    env_id = get_environment_ID(env_name)
-    if not env_id:
-        print("There is no environment with the specified name")
-        return False
-
-    element_id = get_element_ID(name, element_type)
-    if not element_id:
-        return False
-
-    cursor.execute(f"DELETE FROM environment_{element_type} WHERE element_id = ?", (element_id,))
+def delete_element(env_name, elem_type, elem_id, name):
+    cursor.execute(f"DELETE FROM environment_{elem_type} WHERE element_id = ?", (elem_id,))
     commit_changes()
-    return True
 
 
 def get_environment_ID(env_name) -> int:
