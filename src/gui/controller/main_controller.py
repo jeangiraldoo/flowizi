@@ -8,7 +8,7 @@ from gui.view.main_view import MainWindow
 from gui.view.view_utils import ViewUtils
 from gui.view.view_utils import InputDialog, AppDialog
 from flowizi import flowizi
-from core.database import validations
+from core.database.validations import Validations, ResultType
 
 
 class Controller:
@@ -276,19 +276,19 @@ class Controller:
         elem_pos = self.get_clicked_elem_pos()
         if self.current_view == "environments" and elem_pos is not None:
             env_name = flowizi.environment_list[elem_pos].name
-            validations.delete_env_validation(env_name)
+            Validations.delete_env_validation(env_name)
         elif self.current_tab_pos == 0 and elem_pos is not None:
             env = flowizi.environment_list[self.current_env]
             website_name = env.websites[elem_pos].name
-            validations.delete_elem_validation(env.name, "websites", website_name)
+            Validations.delete_elem_validation(env.name, "websites", website_name)
         elif self.current_tab_pos == 2 and elem_pos is not None:
             env = flowizi.environment_list[self.current_env]
             file_name = env.files[elem_pos].name
-            validations.delete_elem_validation(env.name, "files", file_name)
+            Validations.delete_elem_validation(env.name, "files", file_name)
         else:
             env = flowizi.environment_list[self.current_env]
             app_name = env.applications[elem_pos].name
-            validations.delete_elem_validation(env.name, "applications", app_name)
+            Validations.delete_elem_validation(env.name, "applications", app_name)
         self.refresh_window()
 
     def create_btn_clicked(self):
@@ -337,7 +337,7 @@ class Controller:
         Returns:
         bool: True if the environment was successfully created, False otherwise.
         """
-        result = validations.add_env_validation(env_name)
+        result: bool = Validations.add_env_validation(env_name)
         if not result:
             message = f"There is already an environment called {env_name}"
             self.show_error_message(message)
@@ -356,10 +356,9 @@ class Controller:
         bool: True if the website was successfully created, False otherwise.
         """
         env_name = flowizi.environment_list[self.current_env].name
-        result, status_msg = validations.add_elem_validation(env_name, "websites", url)
-        print(status_msg)
-        if not result:
-            self.show_add_website_error(status_msg, url)
+        result = Validations.add_elem_validation(env_name, "websites", url)
+        if not result == ResultType.SUCCESSFUL_OPERATION:
+            self.show_add_website_error(result, url)
 
         return result
 
@@ -380,9 +379,9 @@ class Controller:
         if dialog.exec_():
             file_path = dialog.selectedFiles()[0]
             env_name = flowizi.environment_list[self.current_env].name
-            result, status_msg = validations.add_elem_validation(env_name, "files", file_path)
+            result = Validations.add_elem_validation(env_name, "files", file_path)
 
-            if not result:
+            if not result == ResultType.SUCCESSFUL_OPERATION:
                 self.show_error_message("The selected file is already in the environment")
             return result
 
@@ -417,7 +416,7 @@ class Controller:
 
     def show_add_website_error(self, result, url):
         """Launches a window that displays an error message"""
-        if result == "invalid_url":
+        if result == ResultType.INVALID_URL:
             message = f"{url} is not a valid URL"
         else:
             message = f"There is already a website with the url {url}"

@@ -1,4 +1,5 @@
-from core.database import validations, app_validation
+from core.database import app_validation
+from core.database.validations import Validations, ResultType
 
 
 def add_command(args, parser):
@@ -20,21 +21,21 @@ def add_environment(parser, env_name):
     Parameters:
     parser ("" or ArgumentParser): Defines how the feedback will be shown (CLI/GUI)
     env_name (Str): Name of the environment to add'''
-    result = validations.add_env_validation(env_name)
+    result = Validations.add_env_validation(env_name)
     if not result:
         parser.error("The environment specified already exists")
-    else:
-        print(f"The {env_name} environment has been added!")
+
+    print(f"The {env_name} environment has been added!")
 
 
 def add_website(parser, env_name, url):
-    result, status_msg = validations.add_elem_validation(env_name, "websites", url)
+    result = Validations.add_elem_validation(env_name, "websites", url)
 
-    if not result and status_msg == "invalid_url":
+    if result == ResultType.INVALID_URL:
         parser.error("The URL is not valid")
-    elif not result and status_msg == "no env":
+    elif result == ResultType.ENV_NOT_EXISTS:
         parser.error("The environment specified does not exist")
-    elif not result and status_msg == "insertion attempt":
+    elif result == ResultType.UNSUCCESSFUL_OPERATION:
         error_message = (
                 "There is already a website with that URL"
                 f" in the {env_name} environment"
@@ -45,22 +46,21 @@ def add_website(parser, env_name, url):
 
 
 def add_file(parser, env_name, url):
-    result, status_msg = validations.add_elem_validation(env_name, "files", url)
+    result = Validations.add_elem_validation(env_name, "files", url)
 
-    if not result and status_msg == "no env":
+    if result == ResultType.ENV_NOT_EXISTS:
         parser.error("The environment specified does not exist")
-    elif not result and status_msg == "file not found":
+    elif result == ResultType.INVALID_URL:
         parser.error(
             "There's no file in your system associated"
             " with the path you typed"
         )
-    elif not result and status_msg == "insertion attempt":
+    elif result == ResultType.UNSUCCESSFUL_OPERATION:
         parser.error(
                 "There is already file with that path"
                 f" in the {env_name} environment"
                 )
     else:
-        print(result, status_msg)
         print(f"The file was successfully added to the {env_name} environment!")
 
 
@@ -69,17 +69,17 @@ def add_application(parser, env_name):
     app_validation.display_apps(apps)
     input_app_name = app_validation.ask_app_name()
     similar_names = app_validation.get_similar_names(input_app_name, apps)
-    result, status_msg = app_validation.start_app_addition(env_name, similar_names, apps)
+    result = app_validation.start_app_addition(env_name, similar_names, apps)
 
-    if not result and status_msg == "no env":
+    if result == ResultType.ENV_NOT_EXISTS:
         parser.error("The environment specified does not exist")
-    if not result and status_msg == "insertion attempt":
+    if result == ResultType.UNSUCCESSFUL_OPERATION:
         parser.error(f"The chosen application is already in the {env_name} environment")
-    elif not result and status_msg == "no app":
+    elif result == ResultType.APP_NOT_EXISTS:
         parser.error(f"There is no app with a name similar to {input_app_name}")
-    elif not result and status_msg == "empty":
+    elif result == ResultType.NO_EXECUTABLES:
         parser.error("There are no executable files in the installation directory for this app")
-    elif not result and status_msg == "number range":
+    elif result == ResultType.INVALID_NUMBER:
         parser.error("The number is out of bounds")
     else:
         print(f"The application was successfully added to the {env_name} environment!")

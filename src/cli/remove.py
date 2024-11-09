@@ -1,4 +1,4 @@
-from core.database import validations
+from core.database.validations import Validations, ResultType
 
 
 def remove_command(args, parser):
@@ -19,7 +19,7 @@ def remove_environment(parser, name: str):
     Args:
         name (str): Name of the environment to remove.
     """
-    result = validations.delete_env_validation(name)
+    result = Validations.delete_env_validation(name)
 
     if result:
         print(f"The {name} environment was successfully removed!")
@@ -38,10 +38,10 @@ def remove_element(parser, env_name: str, elem_type: str, name: str):
     """
     singular_type = elem_type[:len(elem_type) - 1]
 
-    result, status_msg = validations.delete_elem_validation(env_name, elem_type, name)
-    if not result and status_msg == "no env":
+    result = Validations.delete_elem_validation(env_name, elem_type, name)
+    if result == ResultType.ENV_NOT_EXISTS:
         parser.error(f"There is no environment called {env_name}")
-    elif not result and status_msg == "no elem":
+    elif result == ResultType.ELEM_NOT_EXISTS:
         parser.error(f"The {singular_type} specfified does not exist")
 
     print(f"The {name} {singular_type} was successfully removed from the {env_name} environment!")

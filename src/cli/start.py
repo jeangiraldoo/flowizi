@@ -1,9 +1,9 @@
 from flowizi import flowizi
-from core.database import validations
+from core.database.validations import Validations
 
 
 def start_command(args, parser):
-    if not validations.env_exists(args.name):
+    if not Validations.env_exists(args.name):
         parser.error("The environment specified does not exist")
 
     for environment in flowizi.environment_list:

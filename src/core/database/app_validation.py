@@ -1,8 +1,10 @@
 import winreg
 import os
+from typing import Union
 from winreg import HKEYType
 from fuzzywuzzy import fuzz
 from core.database import database
+from core.database.validations import ResultType
 
 
 def get_installed_apps() -> dict[str, str]:
@@ -115,7 +117,7 @@ def ask_app_name() -> str:
     return input_name
 
 
-def ask_pos(lower_range: int, upper_range: int) -> list[bool, int] | list[bool, str]:
+def ask_pos(lower_range: int, upper_range: int) -> ResultType | int:
     """Prompts the user to input a number that matches one of the items being
     shown on the screen.
 
@@ -131,8 +133,8 @@ def ask_pos(lower_range: int, upper_range: int) -> list[bool, int] | list[bool, 
         exit(1)
 
     if pos < lower_range or pos > upper_range:
-        return [False, "number range"]
-    return [True, pos]
+        return ResultType.INVALID_NUMBER
+    return pos
 
 
 def get_similar_names(name: str, apps: dict) -> list[str]:
@@ -151,7 +153,7 @@ def get_similar_names(name: str, apps: dict) -> list[str]:
     return similar_names
 
 
-def start_app_addition(env_name: str, sim_names: list[str], apps: dict) -> list[bool, str]:
+def start_app_addition(env_name: str, sim_names: list[str], apps: dict) -> ResultType:
     """
     Initiates the process of adding an app to the database, selecting the
     appropriate handling method based on the number of similar applications.
@@ -180,7 +182,7 @@ def start_app_addition(env_name: str, sim_names: list[str], apps: dict) -> list[
            or "add_multiple_similar_apps".
     """
     if len(sim_names) == 0:
-        result = [False, "no app"]
+        result = ResultType.APP_NOT_EXISTS
     elif len(sim_names) == 1:
         result = add_similar_app(env_name, sim_names[0], apps, "CLI")
     else:
@@ -218,7 +220,7 @@ def add_similar_app(env_name: str, name: str, apps: dict, interface: str) -> lis
     exec_files = get_all_execs(app_path)
 
     if len(exec_files) == 0:
-        return [False, "empty"]
+        return ResultType.NO_EXECUTABLES
 
     if interface == "CLI":
         exe_name, path = get_final_path(name, exec_files)
@@ -229,9 +231,7 @@ def add_similar_app(env_name: str, name: str, apps: dict, interface: str) -> lis
             return reject_detected_exec(env_name, name, exec_files)
 
     path = get_final_path(name, exec_files)[1]
-    result = finish_add_app(env_name, name, path)
-
-    return [result, "insertion attempt"]
+    return finish_add_app(env_name, name, path)
 
 
 def add_multiple_similar_apps(env_name: str, apps: dict, similar_names: list) -> list[bool, str]:
@@ -259,15 +259,15 @@ def add_multiple_similar_apps(env_name: str, apps: dict, similar_names: list) ->
     list_items("\nThere's multiple apps with that name:", similar_names)
     pos = ask_pos(1, len(similar_names))
 
-    if not pos[0]:
+    if pos == ResultType.INVALID_NUMBER:
         return pos
 
-    app_name = similar_names[pos[0] - 1]
+    app_name = similar_names[pos - 1]
     app_path = apps[app_name]
     exec_files = get_all_execs(app_path)
 
     if len(exec_files) == 0:
-        return [False, "empty"]
+        return ResultType.NO_EXECUTABLES
 
     exe_name, path = get_final_path(app_name, exec_files)
     answer = request_exe_confirmation(exe_name)
@@ -277,7 +277,7 @@ def add_multiple_similar_apps(env_name: str, apps: dict, similar_names: list) ->
         return reject_detected_exec(env_name, app_name, exec_files)
 
 
-def accept_detected_exec(env_name: str, app_name: str, path: str) -> list[bool, str]:
+def accept_detected_exec(env_name: str, app_name: str, path: str) -> ResultType:
     """Attempts to add a detected executable file to the specified environment.
 
     This function is only used by the CLI.
@@ -293,11 +293,10 @@ def accept_detected_exec(env_name: str, app_name: str, path: str) -> list[bool, 
         whether the insertion was successful, and the second element is a
         message describing the operation done.
     """
-    result = finish_add_app(env_name, app_name, path)
-    return [result, "insertion attempt"]
+    return finish_add_app(env_name, app_name, path)
 
 
-def reject_detected_exec(env_name: str, app_name: str, exec_files: dict[str, str]) -> list[bool, str]:
+def reject_detected_exec(env_name: str, app_name: str, exec_files: dict[str, str]) -> ResultType:
     """Allows the user to manually select an executable file if the detected
     one is not preferred.
 
@@ -321,14 +320,13 @@ def reject_detected_exec(env_name: str, app_name: str, exec_files: dict[str, str
              if manual selection failed or "insertion attempt" upon attempting
              to insert.
     """
-    exe_result: list[bool, str] = manually_choose_exe(exec_files)
-    if not exe_result[0]:
-        return [False, "number range"]
-    result = finish_add_app(env_name, app_name, exe_result[1])
-    return [result, "insertion attempt"]
+    exe_result = manually_choose_exe(exec_files)
+    if exe_result == ResultType.INVALID_NUMBER:
+        return ResultType.INVALID_NUMBER
+    return finish_add_app(env_name, app_name, exe_result)
 
 
-def finish_add_app(env_name: str, name: str, path: str) -> bool:
+def finish_add_app(env_name: str, name: str, path: str) -> ResultType:
     """Attempts to add a new application entry to the database for a given
     environment.
 
@@ -346,9 +344,9 @@ def finish_add_app(env_name: str, name: str, path: str) -> bool:
     path = clean_url(path)
 
     if not database.insert_element(env_name, "applications", name, path):
-        return False
+        return ResultType.UNSUCCESSFUL_OPERATION
 
-    return True
+    return ResultType.SUCCESSFUL_OPERATION
 
 
 def get_all_execs(path: str) -> dict[str, str]:
@@ -403,7 +401,7 @@ def get_final_path(app_name: str, exe_list: dict[str, str]) -> list[str, str]:
     return [exe_name, path]
 
 
-def manually_choose_exe(final_list: dict) -> [bool, str]:
+def manually_choose_exe(final_list: dict) -> ResultType | str:
     """Displays a list of executable files found in the app's directory
     and prompts the user to choose one.
 
@@ -422,12 +420,12 @@ def manually_choose_exe(final_list: dict) -> [bool, str]:
 
     pos = ask_pos(1, len(final_list))
 
-    if not pos[0]:
+    if pos == ResultType.INVALID_NUMBER:
         return pos
 
     for idx, file in enumerate(final_list):
-        if idx == pos[0] - 1:
-            return [True, final_list[file]]
+        if idx == pos - 1:
+            return final_list[file]
 
 
 def request_exe_confirmation(exe_name: str) -> bool:
