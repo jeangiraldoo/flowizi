@@ -1,4 +1,4 @@
-from core.database import database, validations, app_validation
+from core.database import validations, app_validation
 
 
 def add_command(args, parser):
@@ -45,13 +45,11 @@ def add_website(parser, env_name, url):
 
 
 def add_file(parser, env_name, url):
-    env_id = database.get_element_ID(env_name, "environments")
-    if not env_id and parser:
-        parser.error("The environment specified does not exist")
-
     result, status_msg = validations.add_elem_validation(env_name, "files", url)
 
-    if not result and status_msg == "file not found":
+    if not result and status_msg == "no env":
+        parser.error("The environment specified does not exist")
+    elif not result and status_msg == "file not found":
         parser.error(
             "There's no file in your system associated"
             " with the path you typed"
@@ -67,22 +65,21 @@ def add_file(parser, env_name, url):
 
 
 def add_application(parser, env_name):
-    if not database.get_element_ID(env_name, "environments"):
-        parser.error("The environment specified does not exist")
-
     apps = app_validation.get_installed_apps()
     app_validation.display_apps(apps)
     input_app_name = app_validation.ask_app_name()
     similar_names = app_validation.get_similar_names(input_app_name, apps)
-    result = app_validation.start_app_addition(env_name, similar_names, apps)
+    result, status_msg = app_validation.start_app_addition(env_name, similar_names, apps)
 
-    if not result[0] and result[1] == "insertion attempt":
+    if not result and status_msg == "no env":
+        parser.error("The environment specified does not exist")
+    if not result and status_msg == "insertion attempt":
         parser.error(f"The chosen application is already in the {env_name} environment")
-    elif not result[0] and result[1] == "no app":
+    elif not result and status_msg == "no app":
         parser.error(f"There is no app with a name similar to {input_app_name}")
-    elif not result[0] and result[1] == "empty":
+    elif not result and status_msg == "empty":
         parser.error("There are no executable files in the installation directory for this app")
-    elif not result[0] and result[1] == "number range":
+    elif not result and status_msg == "number range":
         parser.error("The number is out of bounds")
     else:
         print(f"The application was successfully added to the {env_name} environment!")

@@ -2,6 +2,7 @@ import os
 import re
 from tld import get_tld
 from urllib.parse import urlparse
+from core.elements.environment import Environment
 from core.database import database
 
 
@@ -172,3 +173,33 @@ def delete_elem_validation(env_name: str, elem_type: str, name: str) -> list[boo
 
     database.delete_element(elem_type, env_id, elem_id)
     return [True, "success"]
+
+
+def env_exists(env_name: str) -> bool:
+    """Checks if an environment exists in the database.
+
+    Acts as an interface between the request and the database by
+    verifying if the specified environment is present.
+
+    Args:
+        env_name (str): The name of the environment to check.
+
+    Returns:
+        bool: True if the environment exists, False otherwise.
+    """
+    if database.get_element_ID("environments", env_name):
+        return True
+    return False
+
+
+def get_envs() -> list[Environment]:
+    """Returns a list of Environment instances, each containing its respective
+    elements.
+
+    Retrieves and deserializes environment data from the database to
+    construct Environment instances with their contained elements.
+
+    Returns:
+        list[Environment]: A list of deserialized Environment instances.
+    """
+    return database.deserialize_elems()
