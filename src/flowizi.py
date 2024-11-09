@@ -6,12 +6,12 @@ from core.database import database
 class Flowizi:
     def __init__(self):
         self.version = "1.4.0-alpha"
-        self.environment_list = database.deserialize_elements()
+        self.environment_list = database.deserialize_elems()
 
     def update_environments(self):
         """Gets the current environments in the database and updates
         the environment_list attribute"""
-        self.environment_list = database.deserialize_elements()
+        self.environment_list = database.deserialize_elems()
 
     def verify_URL(self, url: str, element_type: str) -> bool:
         "Checks if a URL is valid"

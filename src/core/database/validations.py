@@ -6,15 +6,15 @@ from core.database import database
 
 
 def add_env_validation(env_name: str) -> bool:
-    """Calls the function that inserts environments into the database
+    """Validates if an environment can be inserted into the database.
 
     Args:
-        env_name (Str): Name of the environment to add'''
+        env_name (Str): Name of the environment to add.
     Returns:
         bool: True if the environment was successfully added.
               False if there's already an environment with the same name.
     """
-    env_id = database.get_element_ID(env_name, "environments")
+    env_id = database.get_element_ID("environments", env_name)
     if env_id:
         return False
 
@@ -34,7 +34,7 @@ def add_elem_validation(env_name: str, elem_type: str, url: str) -> list[bool, s
         list[bool, ValidationResult]: A list where the first element indicates
         success, and the second provides status.
     """
-    env_id = database.get_element_ID(env_name, "environments")
+    env_id = database.get_element_ID("environments", env_name)
     if not env_id:
         return [False, "no env"]
 
@@ -50,17 +50,17 @@ def add_elem_validation(env_name: str, elem_type: str, url: str) -> list[bool, s
 
     name = url[url.rfind("/") + 1:]
 
-    elem_id = database.get_element_ID(name, elem_type)
+    elem_id = database.get_element_ID(elem_type, name)
 
     if not elem_id:
-        return element_not_exists(env_id, elem_id, elem_type, name, url)
+        return element_not_exists(elem_type, env_id, elem_id, name, url)
     else:
-        res = database.insert_env_elem(env_id, elem_id, elem_type, name, url)
+        res = database.insert_env_elem(elem_type, env_id, elem_id)
         return [res, "insertion attempt"]
 
 
-def element_not_exists(env_id: int, elem_id: int, elem_type: str, name: str, url: str) -> list[bool, str]:
-    """Inserts the element into the specified environment if it does not
+def element_not_exists(elem_type: str, env_id: int, elem_id: int, name: str, url: str) -> list[bool, str]:
+    """Inserts an element into the specified environment if it does not
     already exist.
 
     Args:
@@ -75,8 +75,8 @@ def element_not_exists(env_id: int, elem_id: int, elem_type: str, name: str, url
         the second provides a status message.
     """
     database.insert_elem(elem_type, name, url)
-    elem_id = database.get_element_ID(name, elem_type)
-    database.insert_env_elem(env_id, elem_id, elem_type, name, url)
+    elem_id = database.get_element_ID(elem_type, name)
+    database.insert_env_elem(elem_type, env_id, elem_id)
     return [True, "insertion attempt"]
 
 
@@ -139,7 +139,7 @@ def delete_env_validation(env_name: str) -> bool:
         bool: Returns True if the environment was successfully deleted.
               Returns False if the environment does not exist.
     """
-    env_id = database.get_element_ID(env_name, "environments")
+    env_id = database.get_element_ID("environments", env_name)
 
     if not env_id:
         return False
@@ -162,11 +162,11 @@ def delete_elem_validation(env_name: str, elem_type: str, name: str) -> list[boo
               Returns False if the deletion failed (e.g., if there is no
               environment or element with the specified name).
     """
-    env_id = database.get_element_ID(env_name, "environments")
+    env_id = database.get_element_ID("environments", env_name)
     if not env_id:
         return [False, "no env"]
 
-    elem_id = database.get_element_ID(name, elem_type)
+    elem_id = database.get_element_ID(elem_type, name)
     if not elem_id:
         return [False, "no elem"]
 
