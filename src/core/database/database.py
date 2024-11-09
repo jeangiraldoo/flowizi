@@ -77,6 +77,16 @@ def delete_environment(env_id: int):
     conn.commit()
 
 
+def insert_elem(element_type: str, name: str, url: str) -> bool:
+    try:
+        element = (name, url)
+        cursor.execute(f"INSERT INTO {element_type} (name, url) VALUES (?, ?)", element)
+        conn.commit()
+        return True
+    except:
+        return False
+
+
 def insert_env_elem(env_id: int, id: int, elem_type: str, name: str, url: str) -> bool:
     try:
         cursor.execute(f"INSERT INTO environment_{elem_type} (environment_id, element_id) VALUES (?, ?)", (env_id, id))
@@ -84,18 +94,6 @@ def insert_env_elem(env_id: int, id: int, elem_type: str, name: str, url: str) -
         return True
     except:
         return False
-
-
-def insert_and_get_element_ID(name, url, element_type) -> int:
-    element = (name, url)
-    cursor.execute(f"INSERT INTO {element_type} (name, url) VALUES (?, ?)", element)
-    cursor.execute(f"SELECT id FROM {element_type} where name = ?", (name,))
-    element_result = cursor.fetchone()
-    element_id = element_result[0]
-
-    conn.commit()
-
-    return element_id
 
 
 def delete_element(env_name, elem_type, elem_id, name):
@@ -152,7 +150,7 @@ def deserialize_environments():
 
 def deserialize_contained_elements(envs, element_type):
     for environment in envs:
-        env_id = get_environment_ID(environment.name)
+        env_id = get_element_ID(environment.name, "environments")
         cursor.execute(f"SELECT element_id FROM environment_{element_type} WHERE environment_id = ?", (env_id,)) 
         result = cursor.fetchall()
 

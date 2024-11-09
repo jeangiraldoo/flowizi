@@ -74,7 +74,8 @@ def element_not_exists(env_id: int, elem_id: int, elem_type: str, name: str, url
         list[bool, str]: A list where the first element indicates success, and
         the second provides a status message.
     """
-    elem_id = database.insert_and_get_element_ID(name, url, elem_type)
+    database.insert_elem(elem_type, name, url)
+    elem_id = database.get_element_ID(name, elem_type)
     database.insert_env_elem(env_id, elem_id, elem_type, name, url)
     return [True, "insertion attempt"]
 
