@@ -1,5 +1,3 @@
-import os
-from urllib.parse import urlparse
 from core.database.validations import Validations
 
 
@@ -12,17 +10,6 @@ class Flowizi:
         """Gets the current environments in the database and updates
         the environment_list attribute"""
         self.environment_list = Validations.get_envs()
-
-    def verify_URL(self, url: str, element_type: str) -> bool:
-        "Checks if a URL is valid"
-        if element_type == "website":
-            parsed_url = urlparse(url)
-            if not(all([parsed_url.scheme, parsed_url.netloc])):
-                return False
-        elif element_type == "file":
-            if not os.path.exists(url):
-                return False
-        return True
 
 
 flowizi = Flowizi()

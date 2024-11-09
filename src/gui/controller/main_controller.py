@@ -1,5 +1,5 @@
 import sys
-from typing import Optional, Union
+from typing import Optional
 from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
                              QLabel, QTabWidget, QFileDialog)
 from PyQt5.QtGui import QFont, QPixmap
@@ -100,8 +100,8 @@ class Controller:
 
     def refresh_left_widget(self):
         """
-        Replaces the first widget in the environments section or the current tab
-        with an updated grid.
+        Replaces the first widget in the environments section or the current
+        tab with an updated grid.
 
         This method is called after creating or deleting an element to display
         the updated information on the screen.
@@ -172,7 +172,7 @@ class Controller:
             if ViewUtils.ELEM_LABEL_CLICKED_STYLE in label_style:
                 return i
 
-    def get_grid_widget(self, elem_type) -> Union[QWidget, QLabel]:
+    def get_grid_widget(self, elem_type) -> QWidget | QLabel:
         """Returns a QWidget containing a grid of elements.
 
         If there are no elements of the specified type, returns a QWidget with
@@ -335,7 +335,8 @@ class Controller:
         env_name (str): Name provided by the user for the environment.
 
         Returns:
-        bool: True if the environment was successfully created, False otherwise.
+        bool: True if the environment was successfully created,
+        False otherwise.
         """
         result: bool = Validations.add_env_validation(env_name)
         if not result:

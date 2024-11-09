@@ -1,6 +1,5 @@
 import winreg
 import os
-from typing import Union
 from winreg import HKEYType
 from fuzzywuzzy import fuzz
 from core.database import database

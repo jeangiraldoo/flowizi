@@ -1,4 +1,3 @@
-import textwrap
 from PyQt5.QtWidgets import (QPushButton, QLabel, QSizePolicy, QDialog,
                              QVBoxLayout, QHBoxLayout, QLineEdit, QListWidget,
                              QMessageBox)
@@ -114,7 +113,7 @@ class AppDialog(QDialog):
             self.app_double_clicked(name, item)
         elif self.current_view == "execs":
             self.exe_double_clicked(name)
-            
+
     def app_double_clicked(self, name: str, item):
         """Handles logic for when an application item is double-clicked. 
 
@@ -141,7 +140,6 @@ class AppDialog(QDialog):
               )
             self.show_error(msg)
         else:
-            pos = self.item_list.row(item)
             self.request_exec_confirmation(name)
 
     def exe_double_clicked(self, name):
@@ -173,15 +171,18 @@ class AppDialog(QDialog):
         self.close()
 
     def request_exec_confirmation(self, app_name: str):
-        """Prompts the user to confirm the detected executable file for an application.
+        """Prompts the user to confirm the detected executable file for an
+        application.
 
-        This method displays a dialog box with options for the user to either confirm the 
-        detected executable file or manually select a different one. The user's choice will 
-        determine whether the detected executable is accepted or if they are redirected to 
-        choose from alternative executables.
+        This method displays a dialog box with options for the user to either
+        confirm the detected executable file or manually select a
+        different one. The user's choice will determine whether the detected
+        executable is accepted or if they are redirected to choose from
+        alternative executables.
 
         Args:
-            app_name (str): The name of the application for which the executable file is being confirmed.
+            app_name (str): The name of the application for which the
+            executable file is being confirmed.
         """
         exe_name, path = app_validation.get_final_path(app_name, self.execs)
 
@@ -206,18 +207,21 @@ class AppDialog(QDialog):
     def accept_detected_exec(self, app_name: str, exe_name: str):
         """Attempts to add a detected executable to the application database.
 
-        This method tries to register a detected executable file for the specified application
-        within the designated environment. If an application with the same name or executable
-        file already exists in the environment, an error message is displayed. The method then 
-        emits a result signal and closes the dialog.
+        This method tries to register a detected executable file for the
+        specified application within the designated environment. If an
+        application with the same name or executable file already exists in
+        the environment, an error message is displayed. The method then emits
+        a result signal and closes the dialog.
 
         Args:
-            app_name (str): The name of the application for which the executable is being added.
+            app_name (str): The name of the application for which the
+            executable is being added.
             exe_name (str): The name of the executable file being added.
 
         Signals:
-            result_signal: Emits the result of the addition operation as a tuple.
-            user_close_signal: Emits a signal indicating the dialog was closed programmatically.
+            result_signal: Emits the result of the addition as a tuple.
+            user_close_signal: Emits a signal indicating the dialog was closed
+            programmatically.
 
         """
         result = app_validation.add_similar_app(self.env_name, app_name, self.apps, "GUI")
@@ -259,23 +263,29 @@ class AppDialog(QDialog):
         if event.spontaneous():
             self.user_close_signal.emit(True)
 
+
 class CustomMessageBox(QMessageBox):
     """
-    A customized QMessageBox to distinguish between programmatic and user-initiated closures.
+    A customized QMessageBox to distinguish between programmatic and
+    user-initiated closures.
 
-    This class overrides the "closeEvent" method to set a `user_closed` attribute, 
-    which allows other parts of the code to check whether the message box was closed 
-    by the user or programmatically. This behavior is especially useful in scenarios 
-    where validations or actions depend on how the window was closed.
+    This class overrides the "closeEvent" method to set a "user_closed"
+    attribute, which allows other parts of the code to check whether the
+    message box was closed by the user or programmatically. This behavior
+    is especially useful in scenarios where validations or actions depend
+    on how the window was closed.
 
     Attributes:
         user_closed (bool): Tracks if the message box was closed by the user.
-                            Defaults to False; set to True if the user closes the window.
+                            Defaults to False; set to True if the user closes
+                            the window.
 
     Methods:
-        closeEvent(event): Overrides the default close event to set "user_closed" to True if 
-                           closed by the user, then calls the parent class's closeEvent.
+        closeEvent(event): Overrides the default close event to set
+                           "user_closed" to True if closed by the user, then
+                           calls the parent class's closeEvent.
     """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_closed = False

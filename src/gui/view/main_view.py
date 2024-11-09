@@ -1,5 +1,5 @@
 import math
-from typing import List, Union
+from typing import List
 from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
                              QSplitter, QHBoxLayout, QGridLayout)
 from PyQt5.QtGui import QIcon
@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.sidebar_widget)
         central_widget.setLayout(self.vbox)
 
-    def get_grid(self, elem_type: str, elem_list: List[Element]) -> Union[QLabel, QWidget]:
+    def get_grid(self, elem_type: str, elem_list: List[Element]) -> QLabel | QWidget:
         """Returns a widget containing a grid layout if "elem_list" has
         elements, or a QLabel if "elem_list" is empty.
 
@@ -61,7 +61,7 @@ class MainWindow(QMainWindow):
             elem_list (List[Element]): List of elements to display in the grid.
 
         Returns:
-            Union[QLabel, QWidget]: A QWidget with a grid layout if elements
+            QLabel | QWidget: A QWidget with a grid layout if elements
             exist, or a QLabel indicating an empty grid otherwise.
         """
         if len(elem_list):
