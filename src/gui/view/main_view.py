@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
                              QSplitter, QHBoxLayout, QGridLayout)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
+from gui.view.custom_components import ClickableLabel
 from flowizi import flowizi
 from core.elements.element import Element
 from gui.view.view_utils import ViewUtils
@@ -167,13 +168,3 @@ class MainWindow(QMainWindow):
             pos: The position of the label that was double-clicked.
         """
         self.label_double_click_signal.emit(pos)
-
-
-class ClickableLabel(QLabel):
-    label_double_click_signal = pyqtSignal(int)
-
-    def set_pos(self, pos):
-        self.pos = pos
-
-    def mouseDoubleClickEvent(self, event):
-        self.label_double_click_signal.emit(self.pos)

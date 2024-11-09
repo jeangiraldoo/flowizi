@@ -6,7 +6,7 @@ from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt, QEventLoop
 from gui.view.main_view import MainWindow
 from gui.view.view_utils import ViewUtils
-from gui.view.view_utils import InputDialog, AppDialog
+from gui.view.custom_components import InputDialog, AppDialog
 from flowizi import flowizi
 from core.database.validations import Validations, ResultType
 
