@@ -96,17 +96,17 @@ def insert_env_elem(env_id: int, id: int, elem_type: str, name: str, url: str) -
         return False
 
 
-def delete_element(env_name, elem_type, elem_id, name):
-    cursor.execute(f"DELETE FROM environment_{elem_type} WHERE element_id = ?", (elem_id,))
+def delete_element(elem_type: str, env_id: int, elem_id: int):
+    cursor.execute(f"DELETE FROM environment_{elem_type} WHERE element_id = ? AND environment_id = ?", (elem_id, env_id))
     conn.commit()
 
 
-def get_element_ID(name, element_type) -> int:
+def get_element_ID(name: str, elem_type: str) -> int:
     try:
-        cursor.execute(f"SELECT id FROM {element_type} where name = ?", (name,))
-        element_result = cursor.fetchone()
-        element_id = element_result[0]
-        return element_id
+        cursor.execute(f"SELECT id FROM {elem_type} where name = ?", (name,))
+        result = cursor.fetchone()
+        id = result[0]
+        return id
     except:
         return 0
 

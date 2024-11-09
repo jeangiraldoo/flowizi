@@ -170,5 +170,5 @@ def delete_elem_validation(env_name: str, elem_type: str, name: str) -> list[boo
     if not elem_id:
         return [False, "no elem"]
 
-    database.delete_element(env_name, elem_type, elem_id, name)
+    database.delete_element(elem_type, env_id, elem_id)
     return [True, "success"]
