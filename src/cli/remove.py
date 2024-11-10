@@ -1,14 +1,15 @@
 from core.database.validations import Validations, ResultType
+from core.elements.element import ElementType
 
 
 def remove_command(args, parser):
     """Remove a link from the configuration file"""
     if args.w:
-        remove_element(parser, args.name, "websites", args.w)
+        remove_element(parser, args.name, ElementType.WEBSITE, args.w)
     elif args.f:
-        remove_element(parser, args.name, "files", args.f)
+        remove_element(parser, args.name, ElementType.FILE, args.f)
     elif args.a:
-        remove_element(parser, args.name, "applications", args.a)
+        remove_element(parser, args.name, ElementType.APP, args.a)
     else:
         remove_environment(parser, args.name)
 
@@ -27,16 +28,16 @@ def remove_environment(parser, name: str):
         parser.error(f"There is no environment called {name}")
 
 
-def remove_element(parser, env_name: str, elem_type: str, name: str):
+def remove_element(parser, env_name: str, elem_type: ElementType, name: str):
     """Removes an element from the database through the CLI.
 
     Args:
         parser: Subparser object used for the remove command, used to show errors.
         env_name (str): Name of the environment that contains the element to remove.
-        elem_type (str): Element type ("website", "file", or "application").
+        elem_type (ElementType): Element type (WEBSITE, FILE, or APP).
         name (str): Name of the element to remove.
     """
-    singular_type = elem_type[:len(elem_type) - 1]
+    singular_type = elem_type.value[:len(elem_type.value) - 1]
 
     result = Validations.delete_elem_validation(env_name, elem_type, name)
     if result == ResultType.ENV_NOT_EXISTS:

@@ -1,5 +1,6 @@
 from flowizi import flowizi
 from core.database.validations import Validations
+from core.elements.element import ElementType
 
 
 def list_command(parser, args):
@@ -8,15 +9,15 @@ def list_command(parser, args):
     elif args.name and not Validations.env_exists(args.name):
         parser.error("The environment specified does not exist")
     elif args.w:
-        list_contained_elements(args.name, "websites")
+        list_contained_elements(args.name, ElementType.WEBSITE)
     elif args.f:
-        list_contained_elements(args.name, "files")
+        list_contained_elements(args.name, ElementType.FILE)
     elif args.a:
-        list_contained_elements(args.name, "applications")
+        list_contained_elements(args.name, ElementType.APP)
     elif args.name:
-        list_contained_elements(args.name, "websites")
-        list_contained_elements(args.name, "files")
-        list_contained_elements(args.name, "applications")
+        list_contained_elements(args.name, ElementType.WEBSITE)
+        list_contained_elements(args.name, ElementType.FILE)
+        list_contained_elements(args.name, ElementType.APP)
     else:
         list_environments()
 
@@ -30,18 +31,18 @@ def list_environments():
               f"record screen: {environment.record}]")
 
 
-def list_contained_elements(env_name, element_type):
+def list_contained_elements(env_name: str, element_type: ElementType):
     env = ""
     for environment in flowizi.environment_list:
         if environment.name == env_name:
             env = environment
             break
 
-    elements = getattr(env, element_type)
+    elements = getattr(env, element_type.value)
 
     if len(elements) == 0:
-        print(f"No {element_type} in the {env_name} environment")
+        print(f"No {element_type.value} in the {env_name} environment")
     else:
-        print(f"\n{element_type.capitalize()} in the {env_name} environment:")
+        print(f"\n{element_type.value.capitalize()} in the {env_name} environment:")
         for element in elements:
             print(f"{element.name} -> {element.url}")

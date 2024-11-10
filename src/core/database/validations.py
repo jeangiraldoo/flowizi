@@ -4,6 +4,7 @@ from enum import Enum
 from tld import get_tld
 from urllib.parse import urlparse
 from core.elements.environment import Environment
+from core.elements.element import ElementType
 from core.database import database
 
 
@@ -30,21 +31,20 @@ class Validations():
             bool: True if the environment was successfully added.
                   False if there's already an environment with the same name.
         """
-        env_id = database.get_element_ID("environments", env_name)
+        env_id = database.get_element_ID(ElementType.ENV, env_name)
         if env_id:
             return False
 
         database.add_environment(env_name)
         return True
 
-
     @staticmethod
-    def add_elem_validation(env_name: str, elem_type: str, url: str) -> ResultType:
+    def add_elem_validation(env_name: str, elem_type: ElementType, url: str) -> ResultType:
         """Validates if an element can be inserted into the database based or not.
 
         Args:
             env_name (str): Name of the environment to add the element to.
-            elem_type (str): Type of element (e.g., "websites" or "files").
+            elem_type (ElementType): Type of element (e.g., WEBSITE or FILE).
             url (str): URL or path of the element.
 
         Returns:
@@ -52,42 +52,41 @@ class Validations():
                         whether the element was successfully inserted or if
                         errors occurred.
         """
-        env_id = database.get_element_ID("environments", env_name)
+        env_id = database.get_element_ID(ElementType.ENV.value, env_name)
         if not env_id:
             return ResultType.ENV_NOT_EXISTS
 
-        if elem_type == "websites":
-            if not Validations.verify_URL(url, "website"):
+        if elem_type == ElementType.WEBSITE:
+            if not Validations.verify_URL(url, ElementType.WEBSITE):
                 url = f"https://{url}"
-                if not Validations.verify_URL(url, "website"):
+                if not Validations.verify_URL(url, ElementType.WEBSITE):
                     return ResultType.INVALID_URL
         else:
             url = url.replace("\\", "/")
-            if not Validations.verify_URL(url, "file"):
+            if not Validations.verify_URL(url, ElementType.FILE):
                 return ResultType.INVALID_URL
 
         name = url[url.rfind("/") + 1:]
 
-        elem_id = database.get_element_ID(elem_type, name)
+        elem_id = database.get_element_ID(elem_type.value, name)
 
         if not elem_id:
             return Validations.element_not_exists(elem_type, env_id, elem_id, name, url)
         else:
-            if database.insert_env_elem(elem_type, env_id, elem_id):
+            if database.insert_env_elem(elem_type.value, env_id, elem_id):
                 return ResultType.SUCCESSFUL_OPERATION
             else:
                 return ResultType.UNSUCCESSFUL_OPERATION
 
-
     @staticmethod
-    def element_not_exists(elem_type: str, env_id: int, elem_id: int, name: str, url: str) -> ResultType:
+    def element_not_exists(elem_type: ElementType, env_id: int, elem_id: int, name: str, url: str) -> ResultType:
         """Inserts an element into the specified environment if it does not
         already exist.
 
         Args:
             env_id (int): ID of the environment in the database.
             elem_id (int): ID of the element in the database.
-            elem_type (str): Element type ("files" or "websites").
+            elem_type (ElementType): Element type (FILE or WEBSITE).
             name (str): Name of the element to insert.
             url (str): URL or path of the element.
 
@@ -95,20 +94,18 @@ class Validations():
             ResultType: Enum indicating that the operation was successful.
 
         """
-        database.insert_elem(elem_type, name, url)
-        elem_id = database.get_element_ID(elem_type, name)
-        database.insert_env_elem(elem_type, env_id, elem_id)
+        database.insert_elem(elem_type.value, name, url)
+        elem_id = database.get_element_ID(elem_type.value, name)
+        database.insert_env_elem(elem_type.value, env_id, elem_id)
         return ResultType.SUCCESSFUL_OPERATION
 
-
     @staticmethod
-    def verify_URL(url: str, element_type: str) -> bool:
+    def verify_URL(url: str, element_type: ElementType) -> bool:
         "Checks if a URL is valid"
-        if element_type == "website":
+        if element_type == ElementType.WEBSITE:
             return Validations.verify_website_url(url)
-        elif element_type == "file":
+        elif element_type == ElementType.FILE:
             return Validations.verify_file_url(url)
-
 
     @staticmethod
     def verify_website_url(url) -> bool:
@@ -135,7 +132,6 @@ class Validations():
 
         return True
 
-
     @staticmethod
     def has_valid_tld(url: str) -> bool:
         # If the URL doesn't have a scheme (protocol), add "http://"
@@ -145,13 +141,11 @@ class Validations():
         except ValueError:
             return False
 
-
     @staticmethod
     def verify_file_url(url) -> bool:
         if not os.path.exists(url):
             return False
         return True
-
 
     @staticmethod
     def delete_env_validation(env_name: str) -> bool:
@@ -165,7 +159,7 @@ class Validations():
             bool: Returns True if the environment was successfully deleted.
                   Returns False if the environment does not exist.
         """
-        env_id = database.get_element_ID("environments", env_name)
+        env_id = database.get_element_ID(ElementType.ENV.value, env_name)
 
         if not env_id:
             return False
@@ -173,15 +167,14 @@ class Validations():
         database.delete_environment(env_id)
         return True
 
-
     @staticmethod
-    def delete_elem_validation(env_name: str, elem_type: str, name: str) -> ResultType:
+    def delete_elem_validation(env_name: str, elem_type: ElementType, name: str) -> ResultType:
         """Validates that an element exists in a specific environment before
         deleting it from the database.
 
         Args:
             env_name (str): Name of the environment.
-            elem_type (str): Element type ("websites", "applications", or "files").
+            elem_type (ElementType): Element type (WEBSITE, APP, or FILE).
             name (str): Name of the element.
 
         Returns:
@@ -189,17 +182,16 @@ class Validations():
                         whether the element was successfully inserted or if
                         errors occurred.
         """
-        env_id = database.get_element_ID("environments", env_name)
+        env_id = database.get_element_ID(elem_type.ENV.value, env_name)
         if not env_id:
             return ResultType.ENV_NOT_EXISTS
 
-        elem_id = database.get_element_ID(elem_type, name)
+        elem_id = database.get_element_ID(elem_type.value, name)
         if not elem_id:
             return ResultType.ELEM_NOT_EXISTS
 
-        database.delete_element(elem_type, env_id, elem_id)
+        database.delete_element(elem_type.value, env_id, elem_id)
         return ResultType.SUCCESSFUL_OPERATION
-
 
     @staticmethod
     def env_exists(env_name: str) -> bool:
@@ -214,10 +206,9 @@ class Validations():
         Returns:
             bool: True if the environment exists, False otherwise.
         """
-        if database.get_element_ID("environments", env_name):
+        if database.get_element_ID(ElementType.ENV.value, env_name):
             return True
         return False
-
 
     @staticmethod
     def get_envs() -> list[Environment]:

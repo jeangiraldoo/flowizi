@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt, QEventLoop
 from gui.view.main_view import MainWindow
 from gui.view.view_utils import ViewUtils
 from gui.view.custom_components import InputDialog, AppDialog
+from core.elements.element import ElementType
 from flowizi import flowizi
 from core.database.validations import Validations, ResultType
 
@@ -16,7 +17,7 @@ class Controller:
         app = QApplication(sys.argv)
         self.main_view = MainWindow()
         self.main_view.show()
-        self.current_view = "environments"
+        self.current_view = ElementType.ENV
         self.current_env = None
         self.update_current_grid()
         self.current_tab_pos = None
@@ -91,7 +92,7 @@ class Controller:
         """
         self.disable_buttons()
 
-        if self.current_view == "environments":
+        if self.current_view == ElementType.ENV:
             self.start_btn.show()
             self.back_btn.hide()
         else:
@@ -109,8 +110,8 @@ class Controller:
         flowizi.update_environments()
         self.remove_left_widget()
 
-        if self.current_view == "environments":
-            updated_grid = self.get_grid_widget("environments")
+        if self.current_view == ElementType.ENV:
+            updated_grid = self.get_grid_widget(ElementType.ENV)
             self.main_view.splitter.insertWidget(0, updated_grid)
         else:
             updated_grid = self.get_grid_widget(self.current_view)
@@ -125,7 +126,7 @@ class Controller:
         while unhighlighting any previously selected elements.
         """
 
-        if self.current_view == "environments":
+        if self.current_view == ElementType.ENV:
             self.current_env = pos
         self.refresh_sidebar(pos)
         self.style_clicked_elem(pos)
@@ -133,7 +134,7 @@ class Controller:
     def elem_double_clicked(self, pos):
         """Slot triggered when an environment is double clicked,
         revealing the websites, apps and files it holds."""
-        if self.current_view == "environments":
+        if self.current_view == ElementType.ENV:
             self.hide_sidebar()
             self.remove_left_widget()
             self.show_contained_elems()
@@ -172,17 +173,17 @@ class Controller:
             if ViewUtils.ELEM_LABEL_CLICKED_STYLE in label_style:
                 return i
 
-    def get_grid_widget(self, elem_type) -> QWidget | QLabel:
+    def get_grid_widget(self, elem_type: ElementType) -> QWidget | QLabel:
         """Returns a QWidget containing a grid of elements.
 
         If there are no elements of the specified type, returns a QWidget with
         a single label.
         """
-        if elem_type == "environments":
+        if elem_type == ElementType.ENV:
             elems = flowizi.environment_list
         else:
             env = flowizi.environment_list[self.current_env]
-            elems = getattr(env, elem_type)
+            elems = getattr(env, elem_type.value)
 
         return self.main_view.get_grid(elem_type, elems)
 
@@ -194,7 +195,7 @@ class Controller:
         to ensure that the updated grid can be inserted into the appropriate
         position.
         """
-        if self.current_view == "environments":
+        if self.current_view == ElementType.ENV:
             self.main_view.splitter.widget(0).deleteLater()
         else:
             self.tab_widget.widget(self.current_tab_pos).deleteLater()
@@ -213,9 +214,9 @@ class Controller:
         self.tab_widget.setStyleSheet("""QTabBar::tab::selected{
                                         background-color: #f19600;
                                  }""")
-        self.tab_widget.addTab(self.get_grid_widget("websites"), "Websites")
-        self.tab_widget.addTab(self.get_grid_widget("applications"), "Apps")
-        self.tab_widget.addTab(self.get_grid_widget("files"), "Files")
+        self.tab_widget.addTab(self.get_grid_widget(ElementType.WEBSITE), "Websites")
+        self.tab_widget.addTab(self.get_grid_widget(ElementType.APP), "Apps")
+        self.tab_widget.addTab(self.get_grid_widget(ElementType.FILE), "Files")
         font = QFont()
         font.setPointSize(12)
         self.tab_widget.tabBar().setFont(font)
@@ -232,11 +233,11 @@ class Controller:
         self.current_tab_pos = self.tab_widget.currentIndex()
 
         if self.current_tab_pos == 0:
-            self.current_view = "websites"
+            self.current_view = ElementType.WEBSITE
         elif self.current_tab_pos == 1:
-            self.current_view = "applications"
+            self.current_view = ElementType.APP
         else:
-            self.current_view = "files"
+            self.current_view = ElementType.FILE
 
         self.update_current_grid()
 
@@ -244,11 +245,11 @@ class Controller:
         """Updates the "current_grid" attribute to reflect the grid of the
         currently displayed view.
         """
-        if self.current_view == "environments":
+        if self.current_view == ElementType.ENV:
             self.current_grid = self.main_view.splitter.widget(0).layout()
-        elif self.current_view == "websites":
+        elif self.current_view == ElementType.WEBSITE:
             self.current_grid = self.tab_widget.widget(0).layout()
-        elif self.current_view == "applications":
+        elif self.current_view == ElementType.APP:
             self.current_grid = self.tab_widget.widget(1).layout()
         else:
             self.current_grid = self.tab_widget.widget(2).layout()
@@ -258,7 +259,7 @@ class Controller:
         tab position, and environment. This restores the application state to
         the initial view  or the state before double-clicking an environment.
         """
-        self.current_view = "environments"
+        self.current_view = ElementType.ENV
         self.current_tab_pos = None
         self.current_env = None
         self.refresh_window()
@@ -274,30 +275,30 @@ class Controller:
     def delete_btn_clicked(self):
         """Deletes the element associated with the clicked label"""
         elem_pos = self.get_clicked_elem_pos()
-        if self.current_view == "environments" and elem_pos is not None:
+        if self.current_view == ElementType.ENV and elem_pos is not None:
             env_name = flowizi.environment_list[elem_pos].name
             Validations.delete_env_validation(env_name)
         elif self.current_tab_pos == 0 and elem_pos is not None:
             env = flowizi.environment_list[self.current_env]
             website_name = env.websites[elem_pos].name
-            Validations.delete_elem_validation(env.name, "websites", website_name)
+            Validations.delete_elem_validation(env.name, ElementType.WEBSITE, website_name)
         elif self.current_tab_pos == 2 and elem_pos is not None:
             env = flowizi.environment_list[self.current_env]
             file_name = env.files[elem_pos].name
-            Validations.delete_elem_validation(env.name, "files", file_name)
+            Validations.delete_elem_validation(env.name, ElementType.FILE, file_name)
         else:
             env = flowizi.environment_list[self.current_env]
             app_name = env.applications[elem_pos].name
-            Validations.delete_elem_validation(env.name, "applications", app_name)
+            Validations.delete_elem_validation(env.name, ElementType.APP, app_name)
         self.refresh_window()
 
     def create_btn_clicked(self):
         """Calls a method to create an element based on the current view"""
-        if ((self.current_view == "applications" and self.add_application())
-           or (self.current_view == "files" and self.add_file())):
+        if ((self.current_view == ElementType.APP and self.add_application())
+           or (self.current_view == ElementType.FILE and self.add_file())):
             self.refresh_window()
-        elif self.current_view == "websites" or self.current_view == "environments":
-            singular_name = self.current_view[: len(self.current_view) - 1]
+        elif self.current_view == ElementType.WEBSITE or self.current_view == ElementType.ENV:
+            singular_name = self.current_view.value[: len(self.current_view.value) - 1]
             title = f"Create {singular_name}"
             message = f"Enter the name of the new {singular_name}"
             self.get_input(title, message)
@@ -319,7 +320,7 @@ class Controller:
         """Validates the user's input. If the input is valid, refreshes
         the window to display the updated information.
         """
-        if self.current_view == "environments":
+        if self.current_view == ElementType.ENV:
             result = self.add_environment(input)
         else:
             result = self.add_website(input)
@@ -357,7 +358,7 @@ class Controller:
         bool: True if the website was successfully created, False otherwise.
         """
         env_name = flowizi.environment_list[self.current_env].name
-        result = Validations.add_elem_validation(env_name, "websites", url)
+        result = Validations.add_elem_validation(env_name, ElementType.WEBSITE, url)
         if not result == ResultType.SUCCESSFUL_OPERATION:
             self.show_add_website_error(result, url)
 
@@ -380,7 +381,7 @@ class Controller:
         if dialog.exec_():
             file_path = dialog.selectedFiles()[0]
             env_name = flowizi.environment_list[self.current_env].name
-            result = Validations.add_elem_validation(env_name, "files", file_path)
+            result = Validations.add_elem_validation(env_name, ElementType.FILE, file_path)
 
             if not result == ResultType.SUCCESSFUL_OPERATION:
                 self.show_error_message("The selected file is already in the environment")
@@ -437,7 +438,7 @@ class Controller:
             pos (int): The index position of the clicked label.
         """
         self.main_view.sidebar_widget.show()
-        if self.current_view == "environments":
+        if self.current_view == ElementType.ENV:
             env = flowizi.environment_list[pos]
             self.sidebar_name_label.setText(f"Name: {env.name}")
 
@@ -453,7 +454,7 @@ class Controller:
             self.sidebar_files_label.setText(f"Files: {len(env.files)}")
         else:
             env = flowizi.environment_list[self.current_env]
-            elems = getattr(env, self.current_view)
+            elems = getattr(env, self.current_view.value)
             elem = elems[pos]
             self.sidebar_name_label.setText(f"Name: {elem.name}")
             self.sidebar_elem_info_label.setText(f"URL: {elem.url}")

@@ -1,5 +1,6 @@
 from core.database import app_validation
 from core.database.validations import Validations, ResultType
+from core.elements.element import ElementType
 
 
 def add_command(args, parser):
@@ -29,7 +30,7 @@ def add_environment(parser, env_name):
 
 
 def add_website(parser, env_name, url):
-    result = Validations.add_elem_validation(env_name, "websites", url)
+    result = Validations.add_elem_validation(env_name, ElementType.WEBSITE, url)
 
     if result == ResultType.INVALID_URL:
         parser.error("The URL is not valid")
@@ -46,7 +47,7 @@ def add_website(parser, env_name, url):
 
 
 def add_file(parser, env_name, url):
-    result = Validations.add_elem_validation(env_name, "files", url)
+    result = Validations.add_elem_validation(env_name, ElementType.FILE, url)
 
     if result == ResultType.ENV_NOT_EXISTS:
         parser.error("The environment specified does not exist")
@@ -73,7 +74,7 @@ def add_application(parser, env_name):
 
     if result == ResultType.ENV_NOT_EXISTS:
         parser.error("The environment specified does not exist")
-    if result == ResultType.UNSUCCESSFUL_OPERATION:
+    elif result == ResultType.UNSUCCESSFUL_OPERATION:
         parser.error(f"The chosen application is already in the {env_name} environment")
     elif result == ResultType.APP_NOT_EXISTS:
         parser.error(f"There is no app with a name similar to {input_app_name}")

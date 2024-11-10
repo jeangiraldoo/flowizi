@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 from gui.view.custom_components import ClickableLabel
 from flowizi import flowizi
-from core.elements.element import Element
+from core.elements.element import Element, ElementType
 from gui.view.view_utils import ViewUtils
 
 
@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
 
-        grid_widget = self.get_grid("environments", flowizi.environment_list)
+        grid_widget = self.get_grid(ElementType.ENV, flowizi.environment_list)
 
         self.splitter.addWidget(grid_widget)
         self.vbox.addLayout(self.toolbar)
@@ -52,12 +52,12 @@ class MainWindow(QMainWindow):
         self.splitter.addWidget(self.sidebar_widget)
         central_widget.setLayout(self.vbox)
 
-    def get_grid(self, elem_type: str, elem_list: List[Element]) -> QLabel | QWidget:
+    def get_grid(self, elem_type: ElementType, elem_list: List[Element]) -> QLabel | QWidget:
         """Returns a widget containing a grid layout if "elem_list" has
         elements, or a QLabel if "elem_list" is empty.
 
         Args:
-            elem_type (str): The type of elements in the grid (used for label
+            elem_type (ElementType): The type of elements in the grid (used for label
             display).
             elem_list (List[Element]): List of elements to display in the grid.
 
@@ -120,19 +120,19 @@ class MainWindow(QMainWindow):
 
         return grid_widget
 
-    def generate_empty_grid_label(self, elem_type) -> QLabel:
+    def generate_empty_grid_label(self, elem_type: ElementType) -> QLabel:
         """Creates and returns a QLabel indicating that there are no elements
         of the specified type.
 
         Args:
-            elem_type (str): The type of element to mention in the label text
+            elem_type (ElementType): The type of element to mention in the label text
             (e.g., "files").
 
         Returns:
             QLabel: A centered label prompting the user to create a new
             element.
         """
-        label_text = f"No {elem_type} have been created yet. Use the 'Create' button to create one"
+        label_text = f"No {elem_type.value} have been created yet. Use the 'Create' button to create one"
         label = QLabel(label_text)
         label.setWordWrap(True)
         label.setAlignment(Qt.AlignCenter)
