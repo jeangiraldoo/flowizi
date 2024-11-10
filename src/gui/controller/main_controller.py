@@ -1,5 +1,4 @@
 import sys
-from typing import Optional
 from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
                              QLabel, QTabWidget, QFileDialog)
 from PyQt5.QtGui import QFont, QPixmap
@@ -159,7 +158,7 @@ class Controller:
             new_label.setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
             self.enable_buttons()
 
-    def get_clicked_elem_pos(self) -> Optional[int]:
+    def get_clicked_elem_pos(self) -> int | None:
         """Returns the index position of the clicked label in the currently
         displayed grid. If no label is selected, returns None.
 
