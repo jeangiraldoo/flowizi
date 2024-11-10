@@ -3,8 +3,7 @@ import re
 from enum import Enum
 from tld import get_tld
 from urllib.parse import urlparse
-from core.elements.environment import Environment
-from core.elements.element import ElementType
+from core.elements.element import ElementType, Environment
 from core.database import database
 
 

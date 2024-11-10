@@ -1,5 +1,6 @@
 from abc import ABC
 from enum import Enum
+from core.elements.element_features.screen_recorder import ScreenRecorder
 
 
 class ElementType(Enum):
@@ -12,3 +13,25 @@ class ElementType(Enum):
 class Element(ABC):
     def __init__(self, name):
         self.name = name
+
+
+class Environment():
+    def __init__(self, name):
+        self.name = name
+        self.record = False
+        self.applications = []
+        self.websites = []
+        self.files = []
+
+    def set_record(self, setting):
+        self.record = setting
+
+    def start(self):
+        for website in self.websites:
+            website.start()
+        for file in self.files:
+            file.start()
+        for app in self.applications:
+            app.start()
+        if self.record:
+            ScreenRecorder.start_recording(self.name)

@@ -1,9 +1,7 @@
 import sqlite3
 from core.system_detection.system_information import database_path
-from core.elements.environment import Environment
-from core.elements.website import Website
-from core.elements.file import File
-from core.elements.application import Application
+from core.elements.element import Environment
+from core.elements.contained_element import Website, File, Application
 
 conn = sqlite3.connect(database_path)
 cursor = conn.cursor()
