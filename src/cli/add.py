@@ -1,6 +1,7 @@
 from core.system_detection import application_detection
 from core.database.validations import Validations, ResultType
 from core.elements.element import ElementType
+from cli.utils import display_items, get_pos
 
 
 def add_command(args, parser):
@@ -67,27 +68,14 @@ def add_file(parser, env_name, url):
 
 def add_application(parser, env_name: str):
     apps = application_detection.get_apps()
-    display_apps(apps)
-    input_name = ask_app_name()
+    display_items(ElementType.APP.value, apps, "no index")
+    input_name = input("\nType the name/part of the name of any app: ")
     similar_names = application_detection.get_similar_names(input_name, apps)
 
     if len(similar_names) == 0:
         parser.error(f"There is no app with a name similar to {input_name}")
     elif len(similar_names) == 1:
-        app_name = similar_names[0]
-        execs = application_detection.get_execs(apps[app_name])
-        if len(execs) == 0:
-            msg = ("There are no executable files in the detected directory:"
-                   f"\n{apps[app_name]}\n\n"
-                   "If this is not the correct installation directory, you can go to"
-                   " the correct directory and add the executable file as a file"
-                   " instead of an application."
-                   )
-            parser.error(msg)
-        else:
-            exe_name, exe_path = application_detection.detect_exe(app_name, execs)
-            result = choose_exe(parser, env_name, execs, exe_name, exe_path)
-            show_feedback(parser, env_name, result)
+        add_one_similar_app(parser, env_name, similar_names[0], apps)
     else:
         result = add_multiple_similar_apps(parser, env_name, apps, similar_names)
         show_feedback(parser, env_name, result)
@@ -102,6 +90,22 @@ def choose_exe(parser, env_name: str, execs, exe_name: str, exe_path: str):
         result = Validations.add_elem_validation(env_name, ElementType.APP, exe_path)
 
     return result
+
+
+def add_one_similar_app(parser, env_name, app_name, apps):
+    execs = application_detection.get_execs(apps[app_name])
+    if len(execs) == 0:
+        msg = ("There are no executable files in the detected directory:"
+               f"\n{apps[app_name]}\n\n"
+               "If this is not the correct installation directory, you can go to"
+               " the correct directory and add the executable file as a file"
+               " instead of an application."
+               )
+        parser.error(msg)
+    else:
+        exe_name, exe_path = application_detection.detect_exe(app_name, execs)
+        result = choose_exe(parser, env_name, execs, exe_name, exe_path)
+        show_feedback(parser, env_name, result)
 
 
 def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: list) -> ResultType:
@@ -124,8 +128,8 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
     Returns:
         ResultType: Enum that indicates the result of the operation.
     """
-    list_items("\nThere's multiple apps with that name:", similar_names)
-    pos = ask_pos(1, len(similar_names))
+    display_items(ElementType.APP.value, similar_names, "index")
+    pos = get_pos(1, len(similar_names))
 
     if pos == ResultType.INVALID_NUMBER:
         return ResultType.INVALID_NUMBER
@@ -210,9 +214,9 @@ def manually_choose_exe(final_list: dict) -> ResultType | str:
         str: The path to the selected executable file.
         ResultType: Enum that indicates the result of the operation.
     """
-    list_items("\nExecutable files found: ", final_list)
+    display_items("executables", final_list, "index")
 
-    pos = ask_pos(1, len(final_list))
+    pos = get_pos(1, len(final_list))
 
     if pos == ResultType.INVALID_NUMBER:
         return pos
@@ -220,40 +224,6 @@ def manually_choose_exe(final_list: dict) -> ResultType | str:
     for idx, file in enumerate(final_list):
         if idx == pos - 1:
             return final_list[file]
-
-
-def ask_app_name() -> str:
-    """Prompts the user to input the name of an app from the options shown
-    on the screen.
-
-    This function is only called when using the CLI.
-
-    Returns:
-        str: The user's choice as a non-empty string.
-    """
-    input_name = input("\nType the name/part of the name of any app: ")
-    return input_name
-
-
-def ask_pos(lower_range: int, upper_range: int) -> ResultType | int:
-    """Prompts the user to input a number that matches one of the items being
-    shown on the screen.
-
-    This function is only called when using the CLI.
-
-    Returns:
-        int: The user's choice as an integer.
-        ResultType: Enum that indicates the result of the operation.
-    """
-    try:
-        pos = int(input("\nChoose one: "))
-    except:
-        print("You must type a number")
-        exit(1)
-
-    if pos < lower_range or pos > upper_range:
-        return ResultType.INVALID_NUMBER
-    return pos
 
 
 def request_exe_confirmation(exe_name: str) -> bool:
@@ -286,32 +256,3 @@ def request_exe_confirmation(exe_name: str) -> bool:
             return True
         elif value == "n":
             return False
-
-
-def display_apps(app_dict: dict):
-    """Lists items from a dictionary.
-
-    Args:
-        app_dict dict[str, str]): A dictionary in which the keys
-        are application names to be displayed.
-    """
-    if not app_dict:
-        print("No installed applications found.")
-        return
-
-    print("Detected Applications:\n")
-    for app_name in app_dict:
-        print(app_name)
-
-
-def list_items(message: str, similar_apps: list[str]):
-    """Lists items from a list with indexes.
-
-    Args:
-        message (str): The message to be displayed before listing the items.
-        similar_apps (list[str]): A list of application names to be displayed
-        with their indexes.
-    """
-    print(message)
-    for idx, name in enumerate(similar_apps, start = 1):
-        print(f"{idx}. {name}")
