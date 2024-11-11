@@ -407,7 +407,7 @@ class Controller:
         app_window.exec_()
 
         if not self.user_app_close:
-            return self.app_result[0]
+            return self.app_result
 
     def handle_app_signal(self, value):
         self.app_result = value

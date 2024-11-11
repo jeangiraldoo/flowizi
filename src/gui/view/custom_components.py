@@ -2,7 +2,9 @@ from PyQt5.QtWidgets import (QPushButton, QLabel, QDialog,
                              QVBoxLayout, QHBoxLayout, QLineEdit,
                              QMessageBox, QListWidget)
 from PyQt5.QtCore import pyqtSignal
-from core.database import app_validation
+from core.system_detection import application_detection
+from core.database.validations import Validations, ResultType
+from core.elements.element import ElementType
 from flowizi import flowizi
 
 
@@ -80,7 +82,7 @@ class ClickableLabel(QLabel):
 
 
 class AppDialog(QDialog):
-    result_signal = pyqtSignal(list)
+    result_signal = pyqtSignal(bool)
     user_close_signal = pyqtSignal(bool)
 
     def __init__(self, env_name: str):
@@ -89,7 +91,7 @@ class AppDialog(QDialog):
         self.current_view = "app"
         self.execs = None
         self.env_name = flowizi.environment_list[self.current_env_name].name
-        self.apps = app_validation.get_installed_apps()
+        self.apps = application_detection.get_apps()
         self.message_label = QLabel()
         self.message_label.setStyleSheet("font-size: 17px")
         self.item_list = QListWidget(self)
@@ -125,7 +127,7 @@ class AppDialog(QDialog):
         """
         self.app_name = name
         app_path = self.apps[name]
-        self.execs = app_validation.get_all_execs(app_path)
+        self.execs = application_detection.get_execs(app_path)
 
         if len(self.execs) == 0:
             msg = (
@@ -159,15 +161,17 @@ class AppDialog(QDialog):
             programmatically.
         """
         path = self.execs[name]
-        result = app_validation.finish_add_app(self.env_name, self.app_name, path)
+        result = Validations.add_elem_validation(self.env_name, ElementType.APP, path)
 
-        if not result:
+        if result == ResultType.UNSUCCESSFUL_OPERATION:
             msg = (
               f"There is already an application called {self.app_name} or that uses {name} as an executable file in the {self.env_name} environment"
               )
 
             self.show_error(msg)
-        self.result_signal.emit([result, ""])
+            self.result_signal.emit(False)
+        else:
+            self.result_signal.emit(True)
         self.user_close_signal.emit(False)
         self.close()
 
@@ -185,7 +189,7 @@ class AppDialog(QDialog):
             app_name (str): The name of the application for which the
             executable file is being confirmed.
         """
-        exe_name, path = app_validation.get_final_path(app_name, self.execs)
+        exe_name, path = application_detection.detect_exe(app_name, self.execs)
 
         msg_box = CustomMessageBox()
         msg_box.setWindowTitle("App confirmation")
@@ -201,11 +205,11 @@ class AppDialog(QDialog):
         response = msg_box.exec()
 
         if not msg_box.user_closed and response == QMessageBox.Yes:
-            self.accept_detected_exec(app_name, exe_name)
+            self.accept_detected_exec(app_name, exe_name, path)
         elif not msg_box.user_closed and response == QMessageBox.No:
             self.set_exec_view()
 
-    def accept_detected_exec(self, app_name: str, exe_name: str):
+    def accept_detected_exec(self, app_name: str, exe_name, path: str):
         """Attempts to add a detected executable to the application database.
 
         This method tries to register a detected executable file for the
@@ -225,14 +229,16 @@ class AppDialog(QDialog):
             programmatically.
 
         """
-        result = app_validation.add_similar_app(self.env_name, app_name, self.apps, "GUI")
-        if not result[0]:
+        result = Validations.add_elem_validation(self.env_name, ElementType.APP, path)
+        if result == ResultType.UNSUCCESSFUL_OPERATION:
             msg = (
               f"There is already an application called {app_name} or that uses {exe_name} as an executable file in the {self.env_name} environment"
               )
 
             self.show_error(msg)
-        self.result_signal.emit(result)
+            self.result_signal.emit(False)
+        else:
+            self.result_signal.emit(True)
         self.user_close_signal.emit(False)
         self.close()
 
