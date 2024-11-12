@@ -1,4 +1,4 @@
-from core.system_detection import application_detection
+from core.platform import sys_apps
 from core.database.validations import Validations, ResultType
 from core.elements.element import ElementType
 from cli._utils import display_items, get_pos
@@ -67,10 +67,10 @@ def add_file(parser, env_name, url):
 
 
 def add_application(parser, env_name: str):
-    apps = application_detection.get_apps()
+    apps = sys_apps.get_apps()
     display_items(ElementType.APP.value, apps, "no index")
     input_name = input("\nType the name/part of the name of any app: ")
-    similar_names = application_detection.get_similar_names(input_name, apps)
+    similar_names = sys_apps.get_similar_names(input_name, apps)
 
     if len(similar_names) == 0:
         parser.error(f"There is no app with a name similar to {input_name}")
@@ -93,7 +93,7 @@ def choose_exe(parser, env_name: str, execs, exe_name: str, exe_path: str):
 
 
 def add_one_similar_app(parser, env_name, app_name, apps):
-    execs = application_detection.get_execs(apps[app_name])
+    execs = sys_apps.get_execs(apps[app_name])
     if len(execs) == 0:
         msg = ("There are no executable files in the detected directory:"
                f"\n{apps[app_name]}\n\n"
@@ -103,7 +103,7 @@ def add_one_similar_app(parser, env_name, app_name, apps):
                )
         parser.error(msg)
     else:
-        exe_name, exe_path = application_detection.detect_exe(app_name, execs)
+        exe_name, exe_path = sys_apps.detect_exe(app_name, execs)
         result = choose_exe(parser, env_name, execs, exe_name, exe_path)
         show_feedback(parser, env_name, result)
 
@@ -136,12 +136,12 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
 
     app_name = similar_names[pos - 1]
     app_path = apps[app_name]
-    exec_files = application_detection.get_execs(app_path)
+    exec_files = sys_apps.get_execs(app_path)
 
     if len(exec_files) == 0:
         return ResultType.NO_EXECUTABLES
 
-    exe_name, path = application_detection.detect_exe(app_name, exec_files)
+    exe_name, path = sys_apps.detect_exe(app_name, exec_files)
     answer = request_exe_confirmation(exe_name)
     if answer:
         result = Validations.add_elem_validation(env_name, "applications", path)

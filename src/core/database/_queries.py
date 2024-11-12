@@ -1,5 +1,5 @@
 import sqlite3
-from core.system_detection.system_information import database_path
+from core.platform.info import database_path
 from core.elements.element import Environment
 from core.elements.contained_element import Website, File, Application
 from core.database._schema import DatabaseSchema

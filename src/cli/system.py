@@ -1,4 +1,4 @@
-from core.system_detection.system_information import operating_system, user
+from core.platform.info import operating_system, user
 
 
 def show_system_info_command(args):

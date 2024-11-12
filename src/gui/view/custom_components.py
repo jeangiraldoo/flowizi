@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QPushButton, QLabel, QDialog,
                              QVBoxLayout, QHBoxLayout, QLineEdit,
                              QMessageBox, QListWidget)
 from PyQt5.QtCore import pyqtSignal
-from core.system_detection import application_detection
+from core.platform import sys_apps
 from core.database.validations import Validations, ResultType
 from core.elements.element import ElementType
 from flowizi import flowizi
@@ -91,7 +91,7 @@ class AppDialog(QDialog):
         self.current_view = "app"
         self.execs = None
         self.env_name = flowizi.environment_list[self.current_env_name].name
-        self.apps = application_detection.get_apps()
+        self.apps = sys_apps.get_apps()
         self.message_label = QLabel()
         self.message_label.setStyleSheet("font-size: 17px")
         self.item_list = QListWidget(self)
@@ -127,7 +127,7 @@ class AppDialog(QDialog):
         """
         self.app_name = name
         app_path = self.apps[name]
-        self.execs = application_detection.get_execs(app_path)
+        self.execs = sys_apps.get_execs(app_path)
 
         if len(self.execs) == 0:
             msg = (
@@ -189,7 +189,7 @@ class AppDialog(QDialog):
             app_name (str): The name of the application for which the
             executable file is being confirmed.
         """
-        exe_name, path = application_detection.detect_exe(app_name, self.execs)
+        exe_name, path = sys_apps.detect_exe(app_name, self.execs)
 
         msg_box = CustomMessageBox()
         msg_box.setWindowTitle("App confirmation")
