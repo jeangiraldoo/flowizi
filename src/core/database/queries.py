@@ -2,66 +2,12 @@ import sqlite3
 from core.system_detection.system_information import database_path
 from core.elements.element import Environment
 from core.elements.contained_element import Website, File, Application
+from core.database.schema import DatabaseSchema
 
 conn = sqlite3.connect(database_path)
 cursor = conn.cursor()
-
 cursor.execute("PRAGMA foreign_keys = ON;")
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS environments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
-        record INTEGER NOT NULL
-)''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS applications (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
-        url TEXT UNIQUE NOT NULL
-)''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS websites (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
-        url TEXT UNIQUE NOT NULL
-)''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS files (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT UNIQUE NOT NULL,
-        url TEXT UNIQUE NOT NULL
-)''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS environment_applications (
-        environment_id INTEGER,
-        element_id INTEGER,
-        PRIMARY KEY (environment_id, element_id),
-        FOREIGN KEY (environment_id) REFERENCES environments(id) ON DELETE CASCADE,
-        FOREIGN KEY (element_id) REFERENCES applications(id) ON DELETE CASCADE
-)''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS environment_websites (
-        environment_id INTEGER,
-        element_id INTEGER,
-        PRIMARY KEY (environment_id, element_id),
-        FOREIGN KEY (environment_id) REFERENCES environments(id) ON DELETE CASCADE,
-        FOREIGN KEY (element_id) REFERENCES websites(id) ON DELETE CASCADE
-)''')
-
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS environment_files (
-        environment_id INTEGER,
-        element_id INTEGER,
-        PRIMARY KEY (environment_id, element_id),
-        FOREIGN KEY (environment_id) REFERENCES environments(id) ON DELETE CASCADE,
-        FOREIGN KEY (element_id) REFERENCES files(id) ON DELETE CASCADE
-)''')
+DatabaseSchema.init(cursor)
 
 
 def add_environment(name: str):
