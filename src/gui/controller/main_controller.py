@@ -7,6 +7,7 @@ from gui.view.main_view import MainWindow
 from gui.view.view_utils import ViewUtils
 from gui.view.custom_components import InputDialog, AppDialog
 from core.elements.element import ElementType
+from core.text_res.feedback import Feedback
 from flowizi import flowizi
 from core.database.validations import Validations, ResultType
 
@@ -340,8 +341,7 @@ class Controller:
         """
         result: bool = Validations.add_env_validation(env_name)
         if not result:
-            message = f"There is already an environment called {env_name}"
-            self.show_error_message(message)
+            self.show_error_message(Feedback.ENV_ALREADY_EXISTS.value)
 
         return result
 
@@ -383,7 +383,7 @@ class Controller:
             result = Validations.add_elem_validation(env_name, ElementType.FILE, file_path)
 
             if not result == ResultType.SUCCESSFUL_OPERATION:
-                self.show_error_message("The selected file is already in the environment")
+                self.show_error_message(Feedback.FILE_ALREADY_EXISTS.value)
             return result
 
     def add_application(self) -> bool:
@@ -418,9 +418,9 @@ class Controller:
     def show_add_website_error(self, result, url):
         """Launches a window that displays an error message"""
         if result == ResultType.INVALID_URL:
-            message = f"{url} is not a valid URL"
+            message = Feedback.WEBSITE_INVALID_URL.value
         else:
-            message = f"There is already a website with the url {url}"
+            message = Feedback.WEBSITE_ALREADY_EXISTS.value
 
         self.show_error_message(message)
 

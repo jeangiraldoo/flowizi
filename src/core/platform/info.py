@@ -1,8 +1,13 @@
 import platform
 import os
+import locale
 from ctypes import windll, byref, c_wchar_p
 from uuid import UUID
 from pathlib import Path
+
+
+lang = locale.getdefaultlocale()[0]
+lang = lang[: len(lang) - 3]
 
 operating_system = platform.system()
 user = os.getlogin()

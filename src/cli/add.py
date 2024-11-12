@@ -1,4 +1,5 @@
 from core.platform import sys_apps
+from core.text_res.feedback import Feedback
 from core.database.validations import Validations, ResultType
 from core.elements.element import ElementType
 from cli._utils import display_items, get_pos
@@ -25,45 +26,35 @@ def add_environment(parser, env_name):
     env_name (Str): Name of the environment to add'''
     result = Validations.add_env_validation(env_name)
     if not result:
-        parser.error("The environment specified already exists")
+        parser.error(Feedback.ENV_ALREADY_EXISTS.value)
 
-    print(f"The {env_name} environment has been added!")
+    print(Feedback.ENV_SUCCESS)
 
 
 def add_website(parser, env_name, url):
     result = Validations.add_elem_validation(env_name, ElementType.WEBSITE, url)
 
     if result == ResultType.INVALID_URL:
-        parser.error("The URL is not valid")
+        parser.error(Feedback.WEBSITE_INVALID_URL.value)
     elif result == ResultType.ENV_NOT_EXISTS:
-        parser.error("The environment specified does not exist")
+        parser.error(Feedback.ENV_NOT_EXISTS.value)
     elif result == ResultType.UNSUCCESSFUL_OPERATION:
-        error_message = (
-                "There is already a website with that URL"
-                f" in the {env_name} environment"
-                )
-        parser.error(error_message)
+        parser.error(Feedback.WEBSITE_ALREADY_EXISTS)
     else:
-        print(f"The website was successfully added to the {env_name} environment!")
+        print(Feedback.WEBSITE_SUCCESS.value)
 
 
 def add_file(parser, env_name, url):
     result = Validations.add_elem_validation(env_name, ElementType.FILE, url)
 
     if result == ResultType.ENV_NOT_EXISTS:
-        parser.error("The environment specified does not exist")
+        parser.error(Feedback.ENV_NOT_EXISTS.value)
     elif result == ResultType.INVALID_URL:
-        parser.error(
-            "There's no file in your system associated"
-            " with the path you typed"
-        )
+        parser.error(Feedback.FILE_NOT_FOUND.value)
     elif result == ResultType.UNSUCCESSFUL_OPERATION:
-        parser.error(
-                "There is already file with that path"
-                f" in the {env_name} environment"
-                )
+        parser.error(Feedback.FILE_ALREADY_EXISTS.value)
     else:
-        print(f"The file was successfully added to the {env_name} environment!")
+        print(Feedback.FILE_SUCCESS)
 
 
 def add_application(parser, env_name: str):
@@ -165,7 +156,7 @@ def show_feedback(parser, env_name, result: ResultType):
     """
 
     if result == ResultType.ENV_NOT_EXISTS:
-        parser.error("The environment specified does not exist")
+        parser.error(Feedback.ENV_NOT_EXISTS)
     elif result == ResultType.UNSUCCESSFUL_OPERATION:
         parser.error(f"The chosen application is already in the {env_name} environment")
     elif result == ResultType.NO_EXECUTABLES:
