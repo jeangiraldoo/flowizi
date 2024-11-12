@@ -4,7 +4,7 @@ from enum import Enum
 from tld import get_tld
 from urllib.parse import urlparse
 from core.elements.element import ElementType, Environment
-from core.database import queries
+from core.database._queries import Query
 
 
 class ResultType(Enum):
@@ -30,11 +30,11 @@ class Validations():
             bool: True if the environment was successfully added.
                   False if there's already an environment with the same name.
         """
-        env_id = queries.get_element_ID(ElementType.ENV, env_name)
+        env_id = Query.get_element_ID(ElementType.ENV, env_name)
         if env_id:
             return False
 
-        queries.add_environment(env_name)
+        Query.add_environment(env_name)
         return True
 
     @staticmethod
@@ -51,7 +51,7 @@ class Validations():
                         whether the element was successfully inserted or if
                         errors occurred.
         """
-        env_id = queries.get_element_ID(ElementType.ENV.value, env_name)
+        env_id = Query.get_element_ID(ElementType.ENV.value, env_name)
         if not env_id:
             return ResultType.ENV_NOT_EXISTS
 
@@ -67,12 +67,12 @@ class Validations():
 
         name = url[url.rfind("/") + 1:]
 
-        elem_id = queries.get_element_ID(elem_type.value, name)
+        elem_id = Query.get_element_ID(elem_type.value, name)
 
         if not elem_id:
             return Validations.element_not_exists(elem_type, env_id, elem_id, name, url)
         else:
-            if queries.insert_env_elem(elem_type.value, env_id, elem_id):
+            if Query.insert_env_elem(elem_type.value, env_id, elem_id):
                 return ResultType.SUCCESSFUL_OPERATION
             else:
                 return ResultType.UNSUCCESSFUL_OPERATION
@@ -93,9 +93,9 @@ class Validations():
             ResultType: Enum indicating that the operation was successful.
 
         """
-        queries.insert_elem(elem_type.value, name, url)
-        elem_id = queries.get_element_ID(elem_type.value, name)
-        queries.insert_env_elem(elem_type.value, env_id, elem_id)
+        Query.insert_elem(elem_type.value, name, url)
+        elem_id = Query.get_element_ID(elem_type.value, name)
+        Query.insert_env_elem(elem_type.value, env_id, elem_id)
         return ResultType.SUCCESSFUL_OPERATION
 
     @staticmethod
@@ -158,12 +158,12 @@ class Validations():
             bool: Returns True if the environment was successfully deleted.
                   Returns False if the environment does not exist.
         """
-        env_id = queries.get_element_ID(ElementType.ENV.value, env_name)
+        env_id = Query.get_element_ID(ElementType.ENV.value, env_name)
 
         if not env_id:
             return False
 
-        queries.delete_environment(env_id)
+        Query.delete_environment(env_id)
         return True
 
     @staticmethod
@@ -181,15 +181,15 @@ class Validations():
                         whether the element was successfully inserted or if
                         errors occurred.
         """
-        env_id = queries.get_element_ID(elem_type.ENV.value, env_name)
+        env_id = Query.get_element_ID(elem_type.ENV.value, env_name)
         if not env_id:
             return ResultType.ENV_NOT_EXISTS
 
-        elem_id = queries.get_element_ID(elem_type.value, name)
+        elem_id = Query.get_element_ID(elem_type.value, name)
         if not elem_id:
             return ResultType.ELEM_NOT_EXISTS
 
-        queries.delete_element(elem_type.value, env_id, elem_id)
+        Query.delete_element(elem_type.value, env_id, elem_id)
         return ResultType.SUCCESSFUL_OPERATION
 
     @staticmethod
@@ -205,7 +205,7 @@ class Validations():
         Returns:
             bool: True if the environment exists, False otherwise.
         """
-        if queries.get_element_ID(ElementType.ENV.value, env_name):
+        if Query.get_element_ID(ElementType.ENV.value, env_name):
             return True
         return False
 
@@ -220,4 +220,4 @@ class Validations():
         Returns:
             list[Environment]: A list of deserialized Environment instances.
         """
-        return queries.deserialize_elems()
+        return Query.deserialize_elems()
