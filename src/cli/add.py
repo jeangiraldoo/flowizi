@@ -81,18 +81,7 @@ def add_application(parser, env_name: str):
         show_feedback(parser, env_name, result)
 
 
-def choose_exe(parser, env_name: str, execs, exe_name: str, exe_path: str):
-    confirmation = request_exe_confirmation(exe_name)
-    if confirmation:
-        result = Validations.add_elem_validation(env_name, ElementType.APP, exe_path)
-    else:
-        exe_path = manually_choose_exe(execs)
-        result = Validations.add_elem_validation(env_name, ElementType.APP, exe_path)
-
-    return result
-
-
-def add_one_similar_app(parser, env_name, app_name, apps):
+def add_one_similar_app(parser, env_name: str, app_name: str, apps):
     execs = sys_apps.get_execs(apps[app_name])
     if len(execs) == 0:
         msg = ("There are no executable files in the detected directory:"
@@ -146,35 +135,24 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
     if answer:
         result = Validations.add_elem_validation(env_name, "applications", path)
     else:
-        result = reject_detected_exec(env_name, app_name, exec_files)
+        exe_result = manually_choose_exe(exec_files)
+        if exe_result == ResultType.INVALID_NUMBER:
+            result = ResultType.INVALID_NUMBER
+        else:
+            result = Validations.add_elem_validation(env_name, ElementType.APP, exe_result)
 
     return result
 
 
-def reject_detected_exec(env_name: str, app_name: str, exec_files: dict[str, str]) -> ResultType:
-    """Allows the user to manually select an executable file if the detected
-    one is not preferred.
+def choose_exe(parser, env_name: str, execs, exe_name: str, exe_path: str):
+    confirmation = request_exe_confirmation(exe_name)
+    if confirmation:
+        result = Validations.add_elem_validation(env_name, ElementType.APP, exe_path)
+    else:
+        exe_path = manually_choose_exe(execs)
+        result = Validations.add_elem_validation(env_name, ElementType.APP, exe_path)
 
-    This function provides an option to manually choose an executable file from
-    the given "exec_files". If a valid executable is selected, it attempts to
-    add this executable to the specified environment by calling
-    "finish_add_app".
-
-    This function is only used by the CLI.
-
-    Args:
-        env_name (str): The name of the environment.
-        app_name (str): The name of the application.
-        exec_files (dict[str, str]): A dictionary where keys are executable
-            names and values are paths to these executables.
-
-    Returns:
-        ResultType: Enum that indicates the result of the operation.
-    """
-    exe_result = manually_choose_exe(exec_files)
-    if exe_result == ResultType.INVALID_NUMBER:
-        return ResultType.INVALID_NUMBER
-    return Validations.add_elem_validation(env_name, ElementType.APP, exe_result)
+    return result
 
 
 def show_feedback(parser, env_name, result: ResultType):
@@ -230,12 +208,6 @@ def request_exe_confirmation(exe_name: str) -> bool:
     """
     Asks the user whether to use the detected executable file or manually
     select another.
-
-    This function prompts the user to confirm the automatically detected
-    executable file or to choose a different one.
-
-    It is only used in the CLI; in the GUI, a similar confirmation is provided
-    through a graphical interface.
 
     Args:
         exe_name (str): The name of the detected executable file.
