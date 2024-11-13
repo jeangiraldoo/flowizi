@@ -7,54 +7,21 @@ from cli._utils import display_items, get_pos
 
 def add_command(args, parser):
     if args.w:
-        website_url = args.w[0]
-        add_website(parser, args.name, website_url)
+        elem_type = ElementType.WEBSITE
+        url = args.w[0]
+        result = Validations.add_elem_validation(args.name, ElementType.WEBSITE, url)
     elif args.f:
-        file_url = args.f[0]
-        add_file(parser, args.name, file_url)
+        elem_type = ElementType.FILE
+        url = args.f[0]
+        result = Validations.add_elem_validation(args.name, ElementType.FILE, url)
     elif args.a:
-        add_application(parser, args.name)
+        elem_type = ElementType.APP
+        result = add_application(parser, args.name)
     else:
-        add_environment(parser, args.name)
+        elem_type = ElementType.ENV
+        result = Validations.add_env_validation(args.name)
 
-
-def add_environment(parser, env_name):
-    '''Calls the function that inserts environments into the database
-
-    Parameters:
-    parser ("" or ArgumentParser): Defines how the feedback will be shown (CLI/GUI)
-    env_name (Str): Name of the environment to add'''
-    result = Validations.add_env_validation(env_name)
-    if not result:
-        parser.error(Feedback.ENV_ALREADY_EXISTS.value)
-
-    print(Feedback.ENV_SUCCESS)
-
-
-def add_website(parser, env_name, url):
-    result = Validations.add_elem_validation(env_name, ElementType.WEBSITE, url)
-
-    if result == ResultType.INVALID_URL:
-        parser.error(Feedback.WEBSITE_INVALID_URL.value)
-    elif result == ResultType.ENV_NOT_EXISTS:
-        parser.error(Feedback.ENV_NOT_EXISTS.value)
-    elif result == ResultType.UNSUCCESSFUL_OPERATION:
-        parser.error(Feedback.WEBSITE_ALREADY_EXISTS)
-    else:
-        print(Feedback.WEBSITE_SUCCESS.value)
-
-
-def add_file(parser, env_name, url):
-    result = Validations.add_elem_validation(env_name, ElementType.FILE, url)
-
-    if result == ResultType.ENV_NOT_EXISTS:
-        parser.error(Feedback.ENV_NOT_EXISTS.value)
-    elif result == ResultType.INVALID_URL:
-        parser.error(Feedback.FILE_NOT_FOUND.value)
-    elif result == ResultType.UNSUCCESSFUL_OPERATION:
-        parser.error(Feedback.FILE_ALREADY_EXISTS.value)
-    else:
-        print(Feedback.FILE_SUCCESS)
+    show_feedback(parser, args.name, elem_type, result)
 
 
 def add_application(parser, env_name: str):
@@ -64,12 +31,13 @@ def add_application(parser, env_name: str):
     similar_names = sys_apps.get_similar_names(input_name, apps)
 
     if len(similar_names) == 0:
-        parser.error(f"There is no app with a name similar to {input_name}")
+        result = Feedback.NO_SIMILAR_APP_NAME
     elif len(similar_names) == 1:
-        add_one_similar_app(parser, env_name, similar_names[0], apps)
+        result = add_one_similar_app(parser, env_name, similar_names[0], apps)
     else:
         result = add_multiple_similar_apps(parser, env_name, apps, similar_names)
-        show_feedback(parser, env_name, result)
+
+    return result
 
 
 def add_one_similar_app(parser, env_name: str, app_name: str, apps):
@@ -84,8 +52,7 @@ def add_one_similar_app(parser, env_name: str, app_name: str, apps):
         parser.error(msg)
     else:
         exe_name, exe_path = sys_apps.detect_exe(app_name, execs)
-        result = choose_exe(parser, env_name, execs, exe_name, exe_path)
-        show_feedback(parser, env_name, result)
+        return choose_exe(parser, env_name, execs, exe_name, exe_path)
 
 
 def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: list) -> ResultType:
@@ -119,7 +86,13 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
     exec_files = sys_apps.get_execs(app_path)
 
     if len(exec_files) == 0:
-        return ResultType.NO_EXECUTABLES
+        msg = ("There are no executable files in the detected directory:"
+               f"\n{apps[app_name]}\n\n"
+               "If this is not the correct installation directory, you can go to"
+               " the correct directory and add the executable file as a file"
+               " instead of an application."
+               )
+        parser.error(msg)
 
     exe_name, path = sys_apps.detect_exe(app_name, exec_files)
     answer = request_exe_confirmation(exe_name)
@@ -146,7 +119,7 @@ def choose_exe(parser, env_name: str, execs, exe_name: str, exe_path: str):
     return result
 
 
-def show_feedback(parser, env_name, result: ResultType):
+def show_feedback(parser, env_name, elem_type, result: ResultType):
     """Displays feedback to the user based on the ResultType from validation.
 
     Args:
@@ -154,17 +127,25 @@ def show_feedback(parser, env_name, result: ResultType):
         env_name (str): Name of the environment.
         result (ResultType): Result type obtained.
     """
+    sing_type = elem_type.value[:len(elem_type.value) - 1]  # string without the last 's'
 
-    if result == ResultType.ENV_NOT_EXISTS:
-        parser.error(Feedback.ENV_NOT_EXISTS)
+    if result == ResultType.ENV_CREATED:
+        print(Feedback.ENVIRONMENT_SUCCESS.value.format(env_name=env_name)) 
+    elif result == ResultType.ENV_ALREADY_EXISTS:
+        print(Feedback.ENV_ALREADY_EXISTS)
+    elif result == ResultType.ENV_NOT_EXISTS:
+        parser.error(Feedback.ENV_NOT_EXISTS.value)
     elif result == ResultType.UNSUCCESSFUL_OPERATION:
-        parser.error(f"The chosen application is already in the {env_name} environment")
-    elif result == ResultType.NO_EXECUTABLES:
-        parser.error("There are no executable files in the installation directory for this app")
+        parser.error(Feedback.ELEMENT_ALREADY_EXISTS.value.format(elem_type=sing_type, env_name=env_name))
     elif result == ResultType.INVALID_NUMBER:
-        parser.error("The number is out of bounds")
+        parser.error(Feedback.NUMBER_OUT_OF_BOUNDS.value)
+    elif result == ResultType.INVALID_URL:
+        parser.error(Feedback.WEBSITE_INVALID_URL.value)
+    elif result == ResultType.INVALID_FILE_PATH:
+        parser.error(Feedback.FILE_NOT_FOUND.value)
     else:
-        print(f"The application was successfully added to the {env_name} environment!")
+        print(f"The {sing_type} was successfully added to the {env_name} environment!")
+
 
 
 def manually_choose_exe(final_list: dict) -> ResultType | str:

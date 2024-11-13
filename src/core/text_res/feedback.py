@@ -22,7 +22,10 @@ class Feedback(Enum):
     FILE_SUCCESS = _get_feedback("File success")
 
     APP_SUCCESS = _get_feedback("App success")
+    NO_SIMILAR_APP_NAME = _get_feedback("No similar app name")
 
     NO_EXECUTABLES = _get_feedback("No executables")
 
     NUMBER_OUT_OF_BOUNDS = _get_feedback("Number out of bounds")
+
+    ELEMENT_ALREADY_EXISTS = _get_feedback("Element already exists")

@@ -11,31 +11,34 @@ class ResultType(Enum):
     INVALID_NUMBER = 1
     SUCCESSFUL_OPERATION = 2
     UNSUCCESSFUL_OPERATION = 3
-    ENV_EXISTS = 4
+    ENV_ALREADY_EXISTS = 4
     ENV_NOT_EXISTS = 5
     ELEM_NOT_EXISTS = 6
     APP_NOT_EXISTS = 7
     INVALID_URL = 8
     NO_EXECUTABLES = 9
+    INVALID_FILE_PATH = 10
+    ENV_CREATED = 11
 
 
 class Validations():
     @staticmethod
-    def add_env_validation(env_name: str) -> bool:
+    def add_env_validation(env_name: str) -> ResultType:
         """Validates if an environment can be inserted into the database.
 
         Args:
             env_name (Str): Name of the environment to add.
         Returns:
-            bool: True if the environment was successfully added.
-                  False if there's already an environment with the same name.
+            ResultType: Enum indicating the result of the validation, such as
+                        whether the element was successfully inserted or if
+                        errors occurred.
         """
         env_id = Query.get_element_ID(ElementType.ENV, env_name)
         if env_id:
-            return False
+            return ResultType.ENV_ALREADY_EXISTS
 
         Query.add_environment(env_name)
-        return True
+        return ResultType.ENV_CREATED
 
     @staticmethod
     def add_elem_validation(env_name: str, elem_type: ElementType, url: str) -> ResultType:
@@ -63,7 +66,7 @@ class Validations():
         else:
             url = url.replace("\\", "/")
             if not Validations.verify_URL(url, ElementType.FILE):
-                return ResultType.INVALID_URL
+                return ResultType.INVALID_FILE_PATH
 
         name = url[url.rfind("/") + 1:]
 
