@@ -73,7 +73,6 @@ class Validations():
         else:
             return ResultType.UNSUCCESSFUL_OPERATION
 
-
     @staticmethod
     def _validate_url(elem_type: ElementType, url: str) -> tuple[str, ResultType]:
         if elem_type == ElementType.WEBSITE:
@@ -113,17 +112,18 @@ class Validations():
     def _verify_website_url(url: str) -> bool:
         """
         Validates if the provided URL follows the appropriate format for a website URL.
-        
+
         Args:
             url (str): The URL string to validate.
-            
+
         Returns:
             bool: True if the URL follows a valid website format, False otherwise.
         """
         parsed_url = urlparse(url)
-        scheme = parsed_url.scheme
-        netloc = parsed_url.netloc
-        if not scheme and not netloc:
+        protocol: str = parsed_url.scheme  # The protocol is necessary to properly parse the URL
+        domain: str = parsed_url.netloc
+
+        if not protocol and not domain:
             return False
 
         try:
@@ -131,16 +131,10 @@ class Validations():
         except ValueError:
             return False
 
-        if not re.match("[a-z]", netloc[0]):
+        if not re.match("[a-z]", domain[0]) or not re.match("[a-z]", domain[-1]):
             return False
 
-        if not re.match("[a-z]", netloc[len(netloc) - 1]):
-            return False
-
-        if "." not in netloc:
-            return False
-
-        if ".." in netloc:
+        if "." not in domain or ".." in domain:
             return False
 
         return True
