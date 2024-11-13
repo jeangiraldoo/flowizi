@@ -58,15 +58,9 @@ class Validations():
         if not env_id:
             return ResultType.ENV_NOT_EXISTS
 
-        if elem_type == ElementType.WEBSITE:
-            if not Validations.verify_URL(url, ElementType.WEBSITE):
-                url = f"https://{url}"
-                if not Validations.verify_URL(url, ElementType.WEBSITE):
-                    return ResultType.INVALID_URL
-        else:
-            url = url.replace("\\", "/")
-            if not Validations.verify_URL(url, ElementType.FILE):
-                return ResultType.INVALID_FILE_PATH
+        url, result = Validations._validate_url(elem_type, url)
+        if not result == ResultType.SUCCESSFUL_OPERATION:
+            return result
 
         name = url[url.rfind("/") + 1:]
 
@@ -74,11 +68,25 @@ class Validations():
 
         if not elem_id:
             return Validations.element_not_exists(elem_type, env_id, elem_id, name, url)
+        elif Query.insert_env_elem(elem_type.value, env_id, elem_id):
+            return ResultType.SUCCESSFUL_OPERATION
         else:
-            if Query.insert_env_elem(elem_type.value, env_id, elem_id):
-                return ResultType.SUCCESSFUL_OPERATION
-            else:
-                return ResultType.UNSUCCESSFUL_OPERATION
+            return ResultType.UNSUCCESSFUL_OPERATION
+
+
+    @staticmethod
+    def _validate_url(elem_type, url):
+        if elem_type == ElementType.WEBSITE:
+            if not Validations._verify_website_url(url, ElementType.WEBSITE):
+                url = f"https://{url}"
+                if not Validations._verify_website_url(url):
+                    return url, ResultType.INVALID_URL
+        else:
+            url = url.replace("\\", "/")
+            if not Validations.verify_file_url(url):
+                return url, ResultType.INVALID_FILE_PATH
+
+        return url, ResultType.SUCCESSFUL_OPERATION
 
     @staticmethod
     def element_not_exists(elem_type: ElementType, env_id: int, elem_id: int, name: str, url: str) -> ResultType:
@@ -102,15 +110,7 @@ class Validations():
         return ResultType.SUCCESSFUL_OPERATION
 
     @staticmethod
-    def verify_URL(url: str, element_type: ElementType) -> bool:
-        "Checks if a URL is valid"
-        if element_type == ElementType.WEBSITE:
-            return Validations.verify_website_url(url)
-        elif element_type == ElementType.FILE:
-            return Validations.verify_file_url(url)
-
-    @staticmethod
-    def verify_website_url(url) -> bool:
+    def _verify_website_url(url) -> bool:
         parsed_url = urlparse(url)
         scheme = parsed_url.scheme
         netloc = parsed_url.netloc
@@ -144,7 +144,7 @@ class Validations():
             return False
 
     @staticmethod
-    def verify_file_url(url) -> bool:
+    def _verify_file_url(url) -> bool:
         if not os.path.exists(url):
             return False
         return True
