@@ -75,9 +75,9 @@ class Validations():
 
 
     @staticmethod
-    def _validate_url(elem_type, url):
+    def _validate_url(elem_type: ElementType, url: str) -> tuple[str, ResultType]:
         if elem_type == ElementType.WEBSITE:
-            if not Validations._verify_website_url(url, ElementType.WEBSITE):
+            if not Validations._verify_website_url(url):
                 url = f"https://{url}"
                 if not Validations._verify_website_url(url):
                     return url, ResultType.INVALID_URL
@@ -110,14 +110,25 @@ class Validations():
         return ResultType.SUCCESSFUL_OPERATION
 
     @staticmethod
-    def _verify_website_url(url) -> bool:
+    def _verify_website_url(url: str) -> bool:
+        """
+        Validates if the provided URL follows the appropriate format for a website URL.
+        
+        Args:
+            url (str): The URL string to validate.
+            
+        Returns:
+            bool: True if the URL follows a valid website format, False otherwise.
+        """
         parsed_url = urlparse(url)
         scheme = parsed_url.scheme
         netloc = parsed_url.netloc
         if not scheme and not netloc:
             return False
 
-        if not Validations.has_valid_tld(url):
+        try:
+            get_tld(url, fail_silently=False)  # Attempt to parse the Top Level Domain
+        except ValueError:
             return False
 
         if not re.match("[a-z]", netloc[0]):
@@ -133,15 +144,6 @@ class Validations():
             return False
 
         return True
-
-    @staticmethod
-    def has_valid_tld(url: str) -> bool:
-        # If the URL doesn't have a scheme (protocol), add "http://"
-        try:
-            get_tld(url, fail_silently=False)  # Attempt to parse the TLD
-            return True
-        except ValueError:
-            return False
 
     @staticmethod
     def _verify_file_url(url) -> bool:
