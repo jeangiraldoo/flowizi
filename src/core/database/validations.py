@@ -77,8 +77,8 @@ class Validations():
     def _validate_url(elem_type: ElementType, url: str) -> tuple[str, ResultType]:
         url = url.replace("\\", "/")
         if elem_type == ElementType.WEBSITE and not (
-            Validations._verify_website_url(url) or
-            Validations._verify_website_url(f"https://{url}")
+            Validations._is_valid_website_url(url) or
+            Validations._is_valid_website_url(f"https://{url}")
         ):
             return url, ResultType.INVALID_URL
 
@@ -108,15 +108,17 @@ class Validations():
         return ResultType.SUCCESSFUL_OPERATION
 
     @staticmethod
-    def _verify_website_url(url: str) -> bool:
+    def _is_valid_website_url(url: str) -> bool:
         """
-        Validates if the provided URL follows the appropriate format for a website URL.
+        Validates if the provided URL follows the appropriate format for
+        a website URL.
 
         Args:
             url (str): The URL string to validate.
 
         Returns:
-            bool: True if the URL follows a valid website format, False otherwise.
+            bool: True if the URL follows a valid website format,
+                  False otherwise.
         """
         parsed_url = urlparse(url)
         protocol: str = parsed_url.scheme  # The protocol is necessary to properly parse the URL
