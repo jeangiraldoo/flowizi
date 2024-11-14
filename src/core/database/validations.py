@@ -75,15 +75,15 @@ class Validations():
 
     @staticmethod
     def _validate_url(elem_type: ElementType, url: str) -> tuple[str, ResultType]:
-        if elem_type == ElementType.WEBSITE:
-            if not Validations._verify_website_url(url):
-                url = f"https://{url}"
-                if not Validations._verify_website_url(url):
-                    return url, ResultType.INVALID_URL
-        else:
-            url = url.replace("\\", "/")
-            if not Validations.verify_file_url(url):
-                return url, ResultType.INVALID_FILE_PATH
+        url = url.replace("\\", "/")
+        if elem_type == ElementType.WEBSITE and not (
+            Validations._verify_website_url(url) or
+            Validations._verify_website_url(f"https://{url}")
+        ):
+            return url, ResultType.INVALID_URL
+
+        if elem_type != ElementType.WEBSITE and not Validations._verify_file_url(url):
+            return url, ResultType.INVALID_FILE_PATH
 
         return url, ResultType.SUCCESSFUL_OPERATION
 
