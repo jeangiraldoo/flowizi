@@ -82,7 +82,7 @@ class Validations():
         ):
             return url, ResultType.INVALID_URL
 
-        if elem_type != ElementType.WEBSITE and not Validations._verify_file_url(url):
+        if elem_type != ElementType.WEBSITE and not Validations._is_valid_file_path(url):
             return url, ResultType.INVALID_FILE_PATH
 
         return url, ResultType.SUCCESSFUL_OPERATION
@@ -139,7 +139,18 @@ class Validations():
         return True
 
     @staticmethod
-    def _verify_file_url(url) -> bool:
+    def _is_valid_file_path(url: str) -> bool:
+        """
+        Checks if the provided URL corresponds to an existing path in the
+        file system.
+
+        Args:
+            url (str): The URL or file system path to validate.
+
+        Returns:
+            bool: True if the URL corresponds to an existing file path,
+                  False otherwise.
+        """
         if not os.path.exists(url):
             return False
         return True
