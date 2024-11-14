@@ -67,7 +67,7 @@ class Validations():
         elem_id = Query.get_element_ID(elem_type.value, name)
 
         if not elem_id:
-            return Validations._insert_if_elem_not_exists(elem_type, env_id, elem_id, name, url)
+            return Validations._insert_if_elem_not_exists(elem_type, env_id, name, url)
         elif Query.insert_env_elem(elem_type.value, env_id, elem_id):
             return ResultType.SUCCESSFUL_OPERATION
         else:
@@ -88,13 +88,12 @@ class Validations():
         return url, ResultType.SUCCESSFUL_OPERATION
 
     @staticmethod
-    def _insert_if_elem_not_exists(elem_type: ElementType, env_id: int, elem_id: int, name: str, url: str) -> ResultType:
+    def _insert_if_elem_not_exists(elem_type: ElementType, env_id: int, name: str, url: str) -> ResultType:
         """Inserts an element into the specified environment if it does not
         already exist.
 
         Args:
             env_id (int): ID of the environment in the database.
-            elem_id (int): ID of the element in the database.
             elem_type (ElementType): Element type (FILE or WEBSITE).
             name (str): Name of the element to insert.
             url (str): URL or path of the element.
