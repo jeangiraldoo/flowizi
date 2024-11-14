@@ -15,7 +15,7 @@ def remove_command(args, parser):
 
 
 def remove_environment(parser, name: str):
-    """Removes an environment from the database through the CLI.
+    """Removes an environment from the database.
 
     Args:
         name (str): Name of the environment to remove.
@@ -29,11 +29,13 @@ def remove_environment(parser, name: str):
 
 
 def remove_element(parser, env_name: str, elem_type: ElementType, name: str):
-    """Removes an element from the database through the CLI.
+    """Removes an element from the database.
 
     Args:
-        parser: Subparser object used for the remove command, used to show errors.
-        env_name (str): Name of the environment that contains the element to remove.
+        parser: Subparser object used for the remove command, used to show
+                errors.
+        env_name (str): Name of the environment that contains the element to
+                remove.
         elem_type (ElementType): Element type (WEBSITE, FILE, or APP).
         name (str): Name of the element to remove.
     """
