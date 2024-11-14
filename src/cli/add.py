@@ -2,7 +2,7 @@ from core.platform import sys_apps
 from core.text_res.feedback import Feedback
 from core.database.validations import Validations, ResultType
 from core.elements.element import ElementType
-from cli._utils import display_items, get_pos
+from cli.common._utils import display_items, get_pos
 
 
 def add_command(args, parser):
