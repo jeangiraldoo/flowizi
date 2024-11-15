@@ -3,9 +3,9 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
                              QLabel, QTabWidget, QFileDialog)
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt, QEventLoop
-from gui.view.main_view import MainWindow
-from gui.view.view_utils import ViewUtils
-from gui.view.custom_components import InputDialog, AppDialog
+from gui.views.view import MainWindow
+from gui.views.view_utils import ViewUtils
+from gui.views.custom_comps import InputDialog, AppDialog
 from core.elements.element import ElementType
 from core.text_res.feedback import Feedback
 from flowizi import flowizi
@@ -15,8 +15,8 @@ from core.database.validations import Validations, ResultType
 class Controller:
     def main(self):
         app = QApplication(sys.argv)
-        self.main_view = MainWindow()
-        self.main_view.show()
+        self.view = MainWindow()
+        self.view.show()
         self.current_view = ElementType.ENV
         self.current_env = None
         self.update_current_grid()
@@ -24,8 +24,8 @@ class Controller:
         self.selected_app = None
 
         # Connect label signals to slots
-        self.main_view.label_signal.connect(self.elem_clicked)
-        self.main_view.label_double_click_signal.connect(self.elem_double_clicked)
+        self.view.label_signal.connect(self.elem_clicked)
+        self.view.label_double_click_signal.connect(self.elem_double_clicked)
 
         # Create toolbar buttons
         self.start_btn = ViewUtils.create_btn("Start")
@@ -41,12 +41,12 @@ class Controller:
         self.back_btn.clicked.connect(self.back_btn_clicked)
 
         # Add buttons to toolbar
-        self.main_view.toolbar.addWidget(self.back_btn)
-        self.main_view.toolbar.addWidget(self.start_btn)
-        self.main_view.toolbar.addWidget(self.create_btn)
-        self.main_view.toolbar.addWidget(self.delete_btn)
+        self.view.toolbar.addWidget(self.back_btn)
+        self.view.toolbar.addWidget(self.start_btn)
+        self.view.toolbar.addWidget(self.create_btn)
+        self.view.toolbar.addWidget(self.delete_btn)
         self.back_btn.hide()
-        self.main_view.toolbar.addStretch()
+        self.view.toolbar.addStretch()
 
         # Create sidebar icon and labels
         self.sidebar_icon = ViewUtils.create_sidebar_label("")
@@ -60,13 +60,13 @@ class Controller:
         self.sidebar_files_label = ViewUtils.create_sidebar_label("")
 
         # Add icon and labels to the sidebar
-        self.main_view.sidebar_layout.addWidget(self.sidebar_icon)
-        self.main_view.sidebar_layout.addWidget(self.sidebar_name_label)
-        self.main_view.sidebar_layout.addWidget(self.sidebar_elem_info_label)
-        self.main_view.sidebar_layout.addWidget(self.sidebar_websites_label)
-        self.main_view.sidebar_layout.addWidget(self.sidebar_apps_label)
-        self.main_view.sidebar_layout.addWidget(self.sidebar_files_label)
-        self.main_view.sidebar_layout.addStretch()
+        self.view.sidebar_layout.addWidget(self.sidebar_icon)
+        self.view.sidebar_layout.addWidget(self.sidebar_name_label)
+        self.view.sidebar_layout.addWidget(self.sidebar_elem_info_label)
+        self.view.sidebar_layout.addWidget(self.sidebar_websites_label)
+        self.view.sidebar_layout.addWidget(self.sidebar_apps_label)
+        self.view.sidebar_layout.addWidget(self.sidebar_files_label)
+        self.view.sidebar_layout.addStretch()
         self.hide_sidebar()
 
         sys.exit(app.exec_())
@@ -112,7 +112,7 @@ class Controller:
 
         if self.current_view == ElementType.ENV:
             updated_grid = self.get_grid_widget(ElementType.ENV)
-            self.main_view.splitter.insertWidget(0, updated_grid)
+            self.view.splitter.insertWidget(0, updated_grid)
         else:
             updated_grid = self.get_grid_widget(self.current_view)
             self.tab_widget.insertTab(self.current_tab_pos, updated_grid, self.tab_widget.tabText(self.current_tab_pos))
@@ -185,7 +185,7 @@ class Controller:
             env = flowizi.environment_list[self.current_env]
             elems = getattr(env, elem_type.value)
 
-        return self.main_view.get_grid(elem_type, elems)
+        return self.view.get_grid(elem_type, elems)
 
     def remove_left_widget(self):
         """Removes the widget at index 0 of the splitter if the current view
@@ -196,7 +196,7 @@ class Controller:
         position.
         """
         if self.current_view == ElementType.ENV:
-            self.main_view.splitter.widget(0).deleteLater()
+            self.view.splitter.widget(0).deleteLater()
         else:
             self.tab_widget.widget(self.current_tab_pos).deleteLater()
 
@@ -207,7 +207,7 @@ class Controller:
         with each tab displaying a grid of instances corresponding to that
         element type within the current environment.
         """
-        self.main_view.toolbar.addStretch()
+        self.view.toolbar.addStretch()
 
         self.tab_widget = QTabWidget()
         self.tab_widget.currentChanged.connect(self.update_current_tab)
@@ -220,7 +220,7 @@ class Controller:
         font = QFont()
         font.setPointSize(12)
         self.tab_widget.tabBar().setFont(font)
-        self.main_view.splitter.insertWidget(0, self.tab_widget)
+        self.view.splitter.insertWidget(0, self.tab_widget)
         self.update_current_tab()
 
     def update_current_tab(self):
@@ -246,7 +246,7 @@ class Controller:
         currently displayed view.
         """
         if self.current_view == ElementType.ENV:
-            self.current_grid = self.main_view.splitter.widget(0).layout()
+            self.current_grid = self.view.splitter.widget(0).layout()
         elif self.current_view == ElementType.WEBSITE:
             self.current_grid = self.tab_widget.widget(0).layout()
         elif self.current_view == ElementType.APP:
@@ -436,7 +436,7 @@ class Controller:
         Args:
             pos (int): The index position of the clicked label.
         """
-        self.main_view.sidebar_widget.show()
+        self.view.sidebar_widget.show()
         if self.current_view == ElementType.ENV:
             env = flowizi.environment_list[pos]
             self.sidebar_name_label.setText(f"Name: {env.name}")
@@ -464,7 +464,7 @@ class Controller:
 
     def hide_sidebar(self):
         """Hides the sidebar from the UI when no label has been selected."""
-        self.main_view.sidebar_widget.hide()
+        self.view.sidebar_widget.hide()
 
     def enable_buttons(self):
         """Enables specific buttons so that the user can interact with them

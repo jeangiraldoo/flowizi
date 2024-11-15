@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
                              QSplitter, QHBoxLayout, QGridLayout)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
-from gui.view.custom_components import ClickableLabel
+from gui.views.custom_comps import ClickableLabel
 from flowizi import flowizi
 from core.elements.element import Element, ElementType
-from gui.view.view_utils import ViewUtils
+from gui.views.view_utils import ViewUtils
 
 
 class MainWindow(QMainWindow):

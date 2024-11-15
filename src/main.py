@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from flowizi import flowizi
 from cli import add, remove, list, system, start, record
-from gui.controller.main_controller import Controller
+from gui.controllers.controller import Controller
 
 parser = ArgumentParser(prog = "Flowizi", description = "Automates the process of starting up your workflow")
 parser.add_argument("-v", action = "store_true", help = "show the app version", default = False)
