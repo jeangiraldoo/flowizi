@@ -7,7 +7,8 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from gui.views.custom_comps import ClickableLabel
 from flowizi import flowizi
 from core.elements.element import Element, ElementType
-from gui.views.view_utils import ElemLabelStyle, ViewUtils
+from gui.views.view_utils import ViewUtils
+from gui.views.styles import ElemLabelStyle
 
 
 class MainWindow(QMainWindow):

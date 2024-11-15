@@ -4,7 +4,8 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt, QEventLoop
 from gui.views.view import MainWindow
-from gui.views.view_utils import ElemLabelStyle, ViewUtils
+from gui.views.view_utils import ViewUtils
+from gui.views.styles import ElemLabelStyle
 from gui.views.custom_comps import InputDialog, AppDialog
 from core.elements.element import ElementType
 from core.text_res.feedback import Feedback
