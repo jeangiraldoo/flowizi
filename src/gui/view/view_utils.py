@@ -1,4 +1,6 @@
 from PyQt5.QtWidgets import QPushButton, QLabel, QSizePolicy
+from PyQt5.QtCore import Qt
+from core.elements.element import ElementType
 
 
 class ViewUtils():
@@ -42,5 +44,26 @@ class ViewUtils():
         label.setStyleSheet(style)
         label.setWordWrap(True)
         label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+        return label
+
+    @staticmethod
+    def generate_empty_grid_label(elem_type: ElementType) -> QLabel:
+        """Creates and returns a QLabel indicating that there are no elements
+        of the specified type.
+
+        Args:
+            elem_type (ElementType): The type of element to mention in the label text
+            (e.g., "files").
+
+        Returns:
+            QLabel: A centered label prompting the user to create a new
+            element.
+        """
+        label_text = f"No {elem_type.value} have been created yet. Use the 'Create' button to create one"
+        label = QLabel(label_text)
+        label.setWordWrap(True)
+        label.setAlignment(Qt.AlignCenter)
+        label.setStyleSheet("color: white; font-size: 30px; padding: 10px;")
 
         return label

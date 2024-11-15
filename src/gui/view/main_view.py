@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
         if len(elem_list):
             return self.generate_grid(elem_list)
         else:
-            return self.generate_empty_grid_label(elem_type)
+            return ViewUtils.generate_empty_grid_label(elem_type)
 
     def generate_grid(self, element_list) -> QWidget:
         """Generates and returns a QWidget containing a grid layout
@@ -119,26 +119,6 @@ class MainWindow(QMainWindow):
                     break
 
         return grid_widget
-
-    def generate_empty_grid_label(self, elem_type: ElementType) -> QLabel:
-        """Creates and returns a QLabel indicating that there are no elements
-        of the specified type.
-
-        Args:
-            elem_type (ElementType): The type of element to mention in the label text
-            (e.g., "files").
-
-        Returns:
-            QLabel: A centered label prompting the user to create a new
-            element.
-        """
-        label_text = f"No {elem_type.value} have been created yet. Use the 'Create' button to create one"
-        label = QLabel(label_text)
-        label.setWordWrap(True)
-        label.setAlignment(Qt.AlignCenter)
-        label.setStyleSheet("color: white; font-size: 30px; padding: 10px;")
-
-        return label
 
     def create_label_event(self, pos):
         """Creates a mouse event handler for a label and returns it.
