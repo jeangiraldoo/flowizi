@@ -28,26 +28,12 @@ class Controller:
         self.view.label_signal.connect(self.elem_clicked)
         self.view.label_double_click_signal.connect(self.elem_double_clicked)
 
-        # Create toolbar buttons
-        self.start_btn = ViewUtils.create_btn("Start")
-        self.create_btn = ViewUtils.create_btn("Create")
-        self.delete_btn = ViewUtils.create_btn("Delete")
-        self.back_btn = ViewUtils.create_btn("Back")
-        self.disable_buttons()
-
         # Connect button signals to slots
-        self.start_btn.clicked.connect(self.start_btn_clicked)
-        self.create_btn.clicked.connect(self.create_btn_clicked)
-        self.delete_btn.clicked.connect(self.delete_btn_clicked)
-        self.back_btn.clicked.connect(self.back_btn_clicked)
-
-        # Add buttons to toolbar
-        self.view.toolbar.addWidget(self.back_btn)
-        self.view.toolbar.addWidget(self.start_btn)
-        self.view.toolbar.addWidget(self.create_btn)
-        self.view.toolbar.addWidget(self.delete_btn)
-        self.back_btn.hide()
-        self.view.toolbar.addStretch()
+        self.view.start_btn.clicked.connect(self.start_btn_clicked)
+        self.view.create_btn.clicked.connect(self.create_btn_clicked)
+        self.view.delete_btn.clicked.connect(self.delete_btn_clicked)
+        self.view.back_btn.clicked.connect(self.back_btn_clicked)
+        self.disable_buttons()
 
         # Create sidebar icon and labels
         self.sidebar_icon = ViewUtils.create_sidebar_label("")
@@ -94,11 +80,11 @@ class Controller:
         self.disable_buttons()
 
         if self.current_view == ElementType.ENV:
-            self.start_btn.show()
-            self.back_btn.hide()
+            self.view.start_btn.show()
+            self.view.back_btn.hide()
         else:
-            self.start_btn.hide()
-            self.back_btn.show()
+            self.view.start_btn.hide()
+            self.view.back_btn.show()
 
     def refresh_left_widget(self):
         """
@@ -471,15 +457,15 @@ class Controller:
         """Enables specific buttons so that the user can interact with them
         after selecting a label
         """
-        self.start_btn.setEnabled(True)
-        self.delete_btn.setEnabled(True)
+        self.view.start_btn.setEnabled(True)
+        self.view.delete_btn.setEnabled(True)
 
     def disable_buttons(self):
         """Disables specific buttons so that the user can't use them unless
         they click a label first, preventing unintended behaviour.
         """
-        self.start_btn.setEnabled(False)
-        self.delete_btn.setEnabled(False)
+        self.view.start_btn.setEnabled(False)
+        self.view.delete_btn.setEnabled(False)
 
     def show_create_elem_msg_box(self, title, message):
         msg_box = InputDialog()

@@ -45,6 +45,17 @@ class MainWindow(QMainWindow):
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
 
+        self.start_btn = ViewUtils.create_btn("Start")
+        self.create_btn = ViewUtils.create_btn("Create")
+        self.delete_btn = ViewUtils.create_btn("Delete")
+        self.back_btn = ViewUtils.create_btn("Back")
+        self.toolbar.addWidget(self.back_btn)
+        self.toolbar.addWidget(self.start_btn)
+        self.toolbar.addWidget(self.create_btn)
+        self.toolbar.addWidget(self.delete_btn)
+        self.back_btn.hide()
+        self.toolbar.addStretch()
+
         grid_widget = self.get_grid(ElementType.ENV, flowizi.environment_list)
 
         self.splitter.addWidget(grid_widget)
