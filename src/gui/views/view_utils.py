@@ -1,10 +1,11 @@
+from enum import Enum
 from PyQt5.QtWidgets import QPushButton, QLabel, QSizePolicy
 from PyQt5.QtCore import Qt
 from core.elements.element import ElementType
 
 
-class ViewUtils():
-    ELEM_LABEL_STYLE = """QLabel{
+class ElemLabelStyle(Enum):
+    DEFAULT = """QLabel{
                         background-color: #454541;
                         color: white;
                         font-size: 20px;
@@ -14,16 +15,18 @@ class ViewUtils():
                         }
                         QLabel:hover{
                         background-color: #4d4c49;
-                        }"""
-    ELEM_LABEL_CLICKED_STYLE = """QLabel{
+                 }"""
+    CLICKED = """QLabel{
                         background-color: #f19600;
                         color: white;
                         font-size: 20px;
                         height: 10px;
                         border: 2px solid white;
                         border-radius: 10px;
-                        }"""
+                 }"""
 
+
+class ViewUtils():
     @staticmethod
     def create_btn(name):
         btn = QPushButton(name)

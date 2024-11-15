@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt, QEventLoop
 from gui.views.view import MainWindow
-from gui.views.view_utils import ViewUtils
+from gui.views.view_utils import ElemLabelStyle, ViewUtils
 from gui.views.custom_comps import InputDialog, AppDialog
 from core.elements.element import ElementType
 from core.text_res.feedback import Feedback
@@ -148,15 +148,15 @@ class Controller:
         new_label = self.current_grid.itemAt(pos).widget()
         if clicked_pos is not None and clicked_pos == pos: #Enters if the previous clicked label is the same as the current one
             old_label = self.current_grid.itemAt(clicked_pos).widget()
-            old_label.setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
+            old_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
         elif clicked_pos is not None:
             old_label = self.current_grid.itemAt(clicked_pos).widget()
-            old_label.setStyleSheet(ViewUtils.ELEM_LABEL_STYLE)
-            new_label.setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
+            old_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
+            new_label.setStyleSheet(ElemLabelStyle.CLICKED.value)
 
             self.enable_buttons()
         else:  # This code will only run the first time a label is clicked
-            new_label.setStyleSheet(ViewUtils.ELEM_LABEL_CLICKED_STYLE)
+            new_label.setStyleSheet(ElemLabelStyle.CLICKED.value)
             self.enable_buttons()
 
     def get_clicked_elem_pos(self) -> int | None:
@@ -170,7 +170,7 @@ class Controller:
             label = self.current_grid.itemAt(i).widget()
             label_style = label.styleSheet()
 
-            if ViewUtils.ELEM_LABEL_CLICKED_STYLE in label_style:
+            if ElemLabelStyle.CLICKED.value in label_style:
                 return i
 
     def get_grid_widget(self, elem_type: ElementType) -> QWidget | QLabel:
