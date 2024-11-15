@@ -1,13 +1,13 @@
 import math
 from typing import List
 from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
-                             QSplitter, QHBoxLayout, QGridLayout)
+                             QSplitter, QPushButton, QHBoxLayout, QGridLayout,
+                             QSizePolicy)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal
 from gui.views.custom_comps import ClickableLabel
 from flowizi import flowizi
 from core.elements.element import Element, ElementType
-from gui.views.view_utils import ViewUtils
 from gui.views.styles import ElemLabelStyle
 
 
@@ -45,10 +45,10 @@ class MainWindow(QMainWindow):
         self.toolbar = QHBoxLayout()
         self.toolbar.setContentsMargins(0, 0, 0, 0)
 
-        self.start_btn = ViewUtils.create_btn("Start")
-        self.create_btn = ViewUtils.create_btn("Create")
-        self.delete_btn = ViewUtils.create_btn("Delete")
-        self.back_btn = ViewUtils.create_btn("Back")
+        self.start_btn = self.create_button("Start")
+        self.create_btn = self.create_button("Create")
+        self.delete_btn = self.create_button("Delete")
+        self.back_btn = self.create_button("Back")
         self.toolbar.addWidget(self.back_btn)
         self.toolbar.addWidget(self.start_btn)
         self.toolbar.addWidget(self.create_btn)
@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
         if len(elem_list):
             return self.generate_grid(elem_list)
         else:
-            return ViewUtils.generate_empty_grid_label(elem_type)
+            return self.generate_empty_grid_label(elem_type)
 
     def generate_grid(self, element_list) -> QWidget:
         """Generates and returns a QWidget containing a grid layout
@@ -160,3 +160,44 @@ class MainWindow(QMainWindow):
             pos: The position of the label that was double-clicked.
         """
         self.label_double_click_signal.emit(pos)
+
+    def create_button(self, name):
+        btn = QPushButton(name)
+        btn.setMaximumSize(100, 40)
+        btn.setStyleSheet("""QPushButton{
+                    background-color: #f19600;
+                    font-size: 20px;
+                    }
+                    QPushButton:hover{
+                    background-color: #ffbb4d;
+                    }""")
+        return btn
+
+    def create_sidebar_label(self, name):
+        style = """background-color: #1c1c1b; padding-left: 3px; border-radius: 8px; font-size: 22px; color: white;"""
+        label = QLabel(name)
+        label.setStyleSheet(style)
+        label.setWordWrap(True)
+        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+        return label
+
+    def generate_empty_grid_label(self, elem_type: ElementType) -> QLabel:
+        """Creates and returns a QLabel indicating that there are no elements
+        of the specified type.
+
+        Args:
+            elem_type (ElementType): The type of element to mention in the label text
+            (e.g., "files").
+
+        Returns:
+            QLabel: A centered label prompting the user to create a new
+            element.
+        """
+        label_text = f"No {elem_type.value} have been created yet. Use the 'Create' button to create one"
+        label = QLabel(label_text)
+        label.setWordWrap(True)
+        label.setAlignment(Qt.AlignCenter)
+        label.setStyleSheet("color: white; font-size: 30px; padding: 10px;")
+
+        return label

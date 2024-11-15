@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
 from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt, QEventLoop
 from gui.views.view import MainWindow
-from gui.views.view_utils import ViewUtils
 from gui.views.styles import ElemLabelStyle
 from gui.views.custom_comps import InputDialog, AppDialog
 from core.elements.element import ElementType
@@ -36,15 +35,15 @@ class Controller:
         self.disable_buttons()
 
         # Create sidebar icon and labels
-        self.sidebar_icon = ViewUtils.create_sidebar_label("")
+        self.sidebar_icon = self.view.create_sidebar_label("")
         icon = QPixmap("logo.svg")
         self.sidebar_icon.setPixmap(icon)
         self.sidebar_icon.setAlignment(Qt.AlignCenter)
-        self.sidebar_name_label = ViewUtils.create_sidebar_label("")
-        self.sidebar_elem_info_label = ViewUtils.create_sidebar_label("")
-        self.sidebar_websites_label = ViewUtils.create_sidebar_label("")
-        self.sidebar_apps_label = ViewUtils.create_sidebar_label("")
-        self.sidebar_files_label = ViewUtils.create_sidebar_label("")
+        self.sidebar_name_label = self.view.create_sidebar_label("")
+        self.sidebar_elem_info_label = self.view.create_sidebar_label("")
+        self.sidebar_websites_label = self.view.create_sidebar_label("")
+        self.sidebar_apps_label = self.view.create_sidebar_label("")
+        self.sidebar_files_label = self.view.create_sidebar_label("")
 
         # Add icon and labels to the sidebar
         self.view.sidebar_layout.addWidget(self.sidebar_icon)
