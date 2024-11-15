@@ -37,31 +37,13 @@ class MainWindow(QMainWindow):
         self.vbox = QVBoxLayout()
         self.splitter = QSplitter(Qt.Horizontal)
 
-        self.sidebar_widget = QWidget()
-        self.sidebar_widget.setMinimumWidth(300)
-        self.sidebar_layout = QVBoxLayout()
-        self.sidebar_widget.setLayout(self.sidebar_layout)
+        self.setup_toolbar()
+        self.setup_grid()
+        self.setup_sidebar()
 
-        self.toolbar = QHBoxLayout()
-        self.toolbar.setContentsMargins(0, 0, 0, 0)
-
-        self.start_btn = self.create_button("Start")
-        self.create_btn = self.create_button("Create")
-        self.delete_btn = self.create_button("Delete")
-        self.back_btn = self.create_button("Back")
-        self.toolbar.addWidget(self.back_btn)
-        self.toolbar.addWidget(self.start_btn)
-        self.toolbar.addWidget(self.create_btn)
-        self.toolbar.addWidget(self.delete_btn)
-        self.back_btn.hide()
-        self.toolbar.addStretch()
-
-        grid_widget = self.get_grid(ElementType.ENV, flowizi.environment_list)
-
-        self.splitter.addWidget(grid_widget)
         self.vbox.addLayout(self.toolbar)
         self.vbox.addWidget(self.splitter)
-        self.splitter.addWidget(self.sidebar_widget)
+
         central_widget.setLayout(self.vbox)
 
     def get_grid(self, elem_type: ElementType, elem_list: List[Element]) -> QLabel | QWidget:
@@ -160,6 +142,33 @@ class MainWindow(QMainWindow):
             pos: The position of the label that was double-clicked.
         """
         self.label_double_click_signal.emit(pos)
+
+    def setup_toolbar(self):
+        self.toolbar = QHBoxLayout()
+        self.toolbar.setContentsMargins(0, 0, 0, 0)
+
+        self.start_btn = self.create_button("Start")
+        self.create_btn = self.create_button("Create")
+        self.delete_btn = self.create_button("Delete")
+        self.back_btn = self.create_button("Back")
+
+        self.toolbar.addWidget(self.back_btn)
+        self.toolbar.addWidget(self.start_btn)
+        self.toolbar.addWidget(self.create_btn)
+        self.toolbar.addWidget(self.delete_btn)
+        self.back_btn.hide()
+        self.toolbar.addStretch()
+
+    def setup_grid(self):
+        grid_widget = self.get_grid(ElementType.ENV, flowizi.environment_list)
+        self.splitter.addWidget(grid_widget)
+
+    def setup_sidebar(self):
+        self.sidebar_widget = QWidget()
+        self.sidebar_widget.setMinimumWidth(300)
+        self.sidebar_layout = QVBoxLayout()
+        self.sidebar_widget.setLayout(self.sidebar_layout)
+        self.splitter.addWidget(self.sidebar_widget)
 
     def create_button(self, name):
         btn = QPushButton(name)
