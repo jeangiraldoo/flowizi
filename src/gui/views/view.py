@@ -105,7 +105,7 @@ class MainWindow(QMainWindow):
 
                 grid.addWidget(label, row, column)
                 label.set_pos(grid.indexOf(label))
-                label.mousePressEvent = self.create_label_event(label.pos)
+                label.mousePressEvent = self.send_label_signal(label.pos)
                 label.label_double_click_signal.connect(self.create_label_double_click_event)
                 current_env += 1
 
@@ -114,7 +114,7 @@ class MainWindow(QMainWindow):
 
         return grid_widget
 
-    def create_label_event(self, pos):
+    def send_label_signal(self, pos: int):
         """Creates a mouse event handler for a label and returns it.
 
         The returned handler emits a `label_signal` with the specified
