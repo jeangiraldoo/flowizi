@@ -266,7 +266,9 @@ class Controller:
         """Displays a message box prompting the user for input to create
         a website or environment.
         """
-        msg_box = self.show_create_elem_msg_box(w_title, w_message)
+        msg_box = InputDialog()
+        msg_box.set_window_title(w_title)
+        msg_box.set_message(w_message)
 
         if msg_box.exec():
             input = msg_box.get_text()
@@ -443,12 +445,6 @@ class Controller:
         """
         self.view.start_btn.setEnabled(False)
         self.view.delete_btn.setEnabled(False)
-
-    def show_create_elem_msg_box(self, title, message):
-        msg_box = InputDialog()
-        msg_box.set_window_title(title)
-        msg_box.set_message(message)
-        return msg_box
 
     def show_error_message(self, message):
         error_box = QMessageBox()
