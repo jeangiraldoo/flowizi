@@ -25,7 +25,7 @@ class Controller:
 
         self.connect_signals_to_slots()
         self.disable_buttons()
-        self.hide_sidebar()
+        self.view.sidebar_widget.hide()
 
         sys.exit(app.exec_())
 
@@ -36,7 +36,7 @@ class Controller:
         """
         self.refresh_left_widget()
         self.refresh_toolbar()
-        self.hide_sidebar()
+        self.view.sidebar_widget.hide()
 
     def refresh_toolbar(self):
         """
@@ -93,7 +93,7 @@ class Controller:
         """Slot triggered when an environment is double clicked,
         revealing the websites, apps and files it holds."""
         if self.current_view == ElementType.ENV:
-            self.hide_sidebar()
+            self.view.sidebar_widget.hide()
             self.remove_left_widget()
             self.show_contained_elems()
             self.refresh_toolbar()
@@ -419,10 +419,6 @@ class Controller:
             self.view.sidebar_websites_label.hide()
             self.view.sidebar_apps_label.hide()
             self.view.sidebar_files_label.hide()
-
-    def hide_sidebar(self):
-        """Hides the sidebar from the UI when no label has been selected."""
-        self.view.sidebar_widget.hide()
 
     def enable_buttons(self):
         """Enables specific buttons so that the user can interact with them
