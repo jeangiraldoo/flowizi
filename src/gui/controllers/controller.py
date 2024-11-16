@@ -1,11 +1,11 @@
 import sys
-from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
-                             QLabel, QTabWidget, QFileDialog)
+from PyQt5.QtWidgets import (QWidget, QApplication, QLabel, QTabWidget,
+                             QFileDialog)
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QEventLoop
 from gui.views.view import MainWindow
 from gui.views.styles import ElemLabelStyle
-from gui.views.custom_comps import InputDialog, AppDialog
+from gui.views.custom_comps import ErrorWindow, InputDialog, AppDialog
 from core.elements.element import ElementType, Environment
 from core.elements.contained_element import ContainedElement
 from core.text_res.feedback import Feedback
@@ -273,7 +273,7 @@ class Controller:
         if msg_box.exec():
             input = msg_box.get_text()
             if input == "":
-                self.show_error_message("The name must have at least one character")
+                ErrorWindow.show("The name must have at least one character")
             else:
                 self.validate_input(input)
 
@@ -302,7 +302,7 @@ class Controller:
         """
         result: bool = Validations.add_env_validation(env_name)
         if not result:
-            self.show_error_message(Feedback.ENV_ALREADY_EXISTS.value)
+            ErrorWindow.show(Feedback.ENV_ALREADY_EXISTS.value)
 
         return result
 
@@ -344,7 +344,7 @@ class Controller:
             result = Validations.add_elem_validation(env_name, ElementType.FILE, file_path)
 
             if not result == ResultType.SUCCESSFUL_OPERATION:
-                self.show_error_message(Feedback.FILE_ALREADY_EXISTS.value)
+                ErrorWindow.show(Feedback.FILE_ALREADY_EXISTS.value)
             return result
 
     def add_application(self) -> bool:
@@ -383,7 +383,7 @@ class Controller:
         else:
             message = Feedback.WEBSITE_ALREADY_EXISTS.value
 
-        self.show_error_message(message)
+        ErrorWindow.show(message)
 
     def refresh_sidebar(self, pos):
         """
@@ -445,15 +445,6 @@ class Controller:
         """
         self.view.start_btn.setEnabled(False)
         self.view.delete_btn.setEnabled(False)
-
-    def show_error_message(self, message):
-        error_box = QMessageBox()
-        error_box.setIcon(QMessageBox.Critical)
-        error_box.setWindowTitle("Error")
-        error_box.setText(message)
-        error_box.setStandardButtons(QMessageBox.Ok)
-        error_box.setDefaultButton(QMessageBox.Ok)
-        error_box.exec_()
 
     def connect_signals_to_slots(self):
         self.view.lbl_sig.connect(self.elem_clicked)
