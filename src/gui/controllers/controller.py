@@ -25,7 +25,7 @@ class Controller:
         self.selected_app = None
 
         self.connect_signals_to_slots()
-        self.disable_buttons()
+        self.set_btns_clickable(False)
         self.view.sidebar_widget.hide()
 
         sys.exit(app.exec_())
@@ -49,7 +49,7 @@ class Controller:
         enhancing the user interface's usability and preventing unintended
         actions.
         """
-        self.disable_buttons()
+        self.set_btns_clickable(False)
 
         if self.current_view == ElementType.ENV:
             self.view.start_btn.show()
@@ -101,7 +101,7 @@ class Controller:
 
     def style_clicked_elem(self, pos):
         """Changes the style of the label on a given position"""
-        self.disable_buttons()
+        self.set_btns_clickable(False)
         clicked_pos = self.get_clicked_elem_pos()
 
         new_label = self.current_grid.itemAt(pos).widget()
@@ -113,10 +113,10 @@ class Controller:
             old_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
             new_label.setStyleSheet(ElemLabelStyle.CLICKED.value)
 
-            self.enable_buttons()
+            self.set_btns_clickable(True)
         else:  # This code will only run the first time a label is clicked
             new_label.setStyleSheet(ElemLabelStyle.CLICKED.value)
-            self.enable_buttons()
+            self.set_btns_clickable(True)
 
     def get_clicked_elem_pos(self) -> int | None:
         """Returns the index position of the clicked label in the currently
@@ -427,19 +427,18 @@ class Controller:
         self.view.sidebar_name_label.setText(f"Name: {elem.name}")
         self.view.sidebar_elem_info_label.setText(f"URL: {elem.url}")
 
-    def enable_buttons(self):
-        """Enables specific buttons so that the user can interact with them
-        after selecting a label
-        """
-        self.view.start_btn.setEnabled(True)
-        self.view.delete_btn.setEnabled(True)
+    def set_btns_clickable(self, clickable: bool):
+        """Enable or disable the 'start' and 'delete' buttons.
 
-    def disable_buttons(self):
-        """Disables specific buttons so that the user can't use them unless
-        they click a label first, preventing unintended behaviour.
+        Sets the 'start' and 'delete' buttons to either enabled
+        or disabled based on the value of the 'clickable' parameter.
+
+        Args:
+            clickable (bool): True to enable the buttons,
+                              False to disable them.
         """
-        self.view.start_btn.setEnabled(False)
-        self.view.delete_btn.setEnabled(False)
+        self.view.start_btn.setEnabled(clickable)
+        self.view.delete_btn.setEnabled(clickable)
 
     def connect_signals_to_slots(self):
         self.view.lbl_sig.connect(self.elem_clicked)
