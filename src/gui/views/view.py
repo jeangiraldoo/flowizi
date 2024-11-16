@@ -132,11 +132,8 @@ class MainWindow(QMainWindow):
             self.label_signal.emit(pos)
         return event
 
-    def send_lbl_dbl_click_signal(self, pos):
-        """Emit a signal indicating that a label was double-clicked.
-
-        This method is called when a label is double-clicked, emitting the
-        label_double_click_signal with the position of the label.
+    def send_lbl_dbl_click_signal(self, pos: int):
+        """Emits a signal with the position of a label that was double-clicked.
 
         Args:
             pos: The position of the label that was double-clicked.
