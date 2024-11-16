@@ -319,8 +319,15 @@ class Controller:
         """
         env_name = flowizi.environment_list[self.current_env].name
         result = Validations.add_elem_validation(env_name, ElementType.WEBSITE, url)
+
         if not result == ResultType.SUCCESSFUL_OPERATION:
-            self.show_add_website_error(result, url)
+            print(result)
+            if result == ResultType.INVALID_URL:
+                message = Feedback.WEBSITE_INVALID_URL.value
+            else:
+                message = Feedback.WEBSITE_ALREADY_EXISTS.value
+
+            ErrorWindow.show(message)
 
         return result
 
@@ -375,15 +382,6 @@ class Controller:
 
     def handle_app_close_signal(self, value):
         self.user_app_close = value
-
-    def show_add_website_error(self, result, url):
-        """Launches a window that displays an error message"""
-        if result == ResultType.INVALID_URL:
-            message = Feedback.WEBSITE_INVALID_URL.value
-        else:
-            message = Feedback.WEBSITE_ALREADY_EXISTS.value
-
-        ErrorWindow.show(message)
 
     def refresh_sidebar(self, pos):
         """
