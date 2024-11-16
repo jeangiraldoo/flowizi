@@ -51,8 +51,7 @@ class MainWindow(QMainWindow):
         elements, or a QLabel if "elem_list" is empty.
 
         Args:
-            elem_type (ElementType): The type of elements in the grid (used for label
-            display).
+            elem_type (ElementType): The type of elements in the grid.
             elem_list (List[Element]): List of elements to display in the grid.
 
         Returns:
@@ -78,11 +77,6 @@ class MainWindow(QMainWindow):
         Returns:
             QWidget: A QWidget containing the grid of clickable labels, each
             label positioned according to its order in "element_list".
-
-        Notes:
-            - "num_elems_row" defines the number of labels per row.
-            - Mouse events and double-click signals are connected to each label
-              for custom interactions.
         """
         grid = QGridLayout()
         grid.setSpacing(30)
@@ -213,8 +207,7 @@ class MainWindow(QMainWindow):
         of the specified type.
 
         Args:
-            elem_type (ElementType): The type of element to mention in the label text
-            (e.g., "files").
+            elem_type (ElementType): Type of element to mention in the label.
 
         Returns:
             QLabel: A centered label prompting the user to create a new
