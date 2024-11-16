@@ -182,9 +182,11 @@ class MainWindow(QMainWindow):
                     }""")
         return btn
 
-    def create_sidebar_label(self, name):
-        style = """background-color: #1c1c1b; padding-left: 3px; border-radius: 8px; font-size: 22px; color: white;"""
-        label = QLabel(name)
+    def create_sidebar_label(self, text: str):
+        style = """background-color: #1c1c1b; padding-left: 3px;
+                   border-radius: 8px; font-size: 22px; color: white;
+                """
+        label = QLabel(text)
         label.setStyleSheet(style)
         label.setWordWrap(True)
         label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
