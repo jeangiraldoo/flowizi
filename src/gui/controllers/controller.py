@@ -23,15 +23,7 @@ class Controller:
         self.current_tab_pos = None
         self.selected_app = None
 
-        # Connect label signals to slots
-        self.view.label_signal.connect(self.elem_clicked)
-        self.view.label_double_click_signal.connect(self.elem_double_clicked)
-
-        # Connect button signals to slots
-        self.view.start_btn.clicked.connect(self.start_btn_clicked)
-        self.view.create_btn.clicked.connect(self.create_btn_clicked)
-        self.view.delete_btn.clicked.connect(self.delete_btn_clicked)
-        self.view.back_btn.clicked.connect(self.back_btn_clicked)
+        self.connect_signals_to_slots()
         self.disable_buttons()
         self.hide_sidebar()
 
@@ -460,3 +452,12 @@ class Controller:
         error_box.setStandardButtons(QMessageBox.Ok)
         error_box.setDefaultButton(QMessageBox.Ok)
         error_box.exec_()
+
+    def connect_signals_to_slots(self):
+        self.view.label_signal.connect(self.elem_clicked)
+        self.view.label_double_click_signal.connect(self.elem_double_clicked)
+
+        self.view.start_btn.clicked.connect(self.start_btn_clicked)
+        self.view.create_btn.clicked.connect(self.create_btn_clicked)
+        self.view.delete_btn.clicked.connect(self.delete_btn_clicked)
+        self.view.back_btn.clicked.connect(self.back_btn_clicked)
