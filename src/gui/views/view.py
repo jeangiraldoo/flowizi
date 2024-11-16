@@ -105,8 +105,8 @@ class MainWindow(QMainWindow):
 
                 grid.addWidget(label, row, column)
                 label.set_pos(grid.indexOf(label))
-                label.mousePressEvent = self.send_label_signal(label.pos)
-                label.label_double_click_signal.connect(self.send_lbl_dbl_click_signal)
+                label.mousePressEvent = self.send_lbl_sig(label.pos)
+                label.label_double_click_signal.connect(self.send_lbl_dbl_click_sig)
                 current_env += 1
 
                 if current_env == total_envs:
@@ -114,10 +114,10 @@ class MainWindow(QMainWindow):
 
         return grid_widget
 
-    def send_label_signal(self, pos: int):
+    def send_lbl_sig(self, pos: int):
         """Creates a mouse event handler for a label and returns it.
 
-        The returned handler emits a `label_signal` with the specified
+        The returned handler emits a signal with the specified
         position when triggered, allowing the label's position to be processed
         by other components.
 
@@ -125,14 +125,14 @@ class MainWindow(QMainWindow):
             pos (int): The position of the label within the grid.
 
         Returns:
-            function: An event handler function that emits "label_signal" with
+            function: An event handler function that emits "lbl_sig" with
             the label's position when a mouse event occurs.
         """
         def event(event):
             self.lbl_sig.emit(pos)
         return event
 
-    def send_lbl_dbl_click_signal(self, pos: int):
+    def send_lbl_dbl_click_sig(self, pos: int):
         """Emits a signal with the position of a label that was double-clicked.
 
         Args:
