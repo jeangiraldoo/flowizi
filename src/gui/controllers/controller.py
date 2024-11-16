@@ -280,14 +280,14 @@ class Controller:
         the window to display the updated information.
         """
         if self.current_view == ElementType.ENV:
-            result = self.add_environment(input)
+            result = self.add_env(input)
         else:
             result = self.add_website(input)
 
         if result:
             self.refresh_window()
 
-    def add_environment(self, env_name) -> bool:
+    def add_env(self, env_name) -> bool:
         """Tries to create an environment with the name given by the user.
         Displays an error if there is already an environment with that name.
 
@@ -296,7 +296,7 @@ class Controller:
 
         Returns:
         bool: True if the environment was successfully created,
-        False otherwise.
+              False otherwise.
         """
         result: bool = Validations.add_env_validation(env_name)
         if not result:
