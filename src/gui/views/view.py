@@ -12,8 +12,8 @@ from gui.views.styles import ElemLabelStyle
 
 
 class MainWindow(QMainWindow):
-    label_signal = pyqtSignal(int)
-    label_double_click_signal = pyqtSignal(int)
+    lbl_sig = pyqtSignal(int)
+    lbl_dbl_click_sig = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
@@ -129,7 +129,7 @@ class MainWindow(QMainWindow):
             the label's position when a mouse event occurs.
         """
         def event(event):
-            self.label_signal.emit(pos)
+            self.lbl_sig.emit(pos)
         return event
 
     def send_lbl_dbl_click_signal(self, pos: int):
@@ -138,7 +138,7 @@ class MainWindow(QMainWindow):
         Args:
             pos: The position of the label that was double-clicked.
         """
-        self.label_double_click_signal.emit(pos)
+        self.lbl_dbl_click_sig.emit(pos)
 
     def setup_toolbar(self):
         self.toolbar = QHBoxLayout()

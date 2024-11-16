@@ -454,8 +454,8 @@ class Controller:
         error_box.exec_()
 
     def connect_signals_to_slots(self):
-        self.view.label_signal.connect(self.elem_clicked)
-        self.view.label_double_click_signal.connect(self.elem_double_clicked)
+        self.view.lbl_sig.connect(self.elem_clicked)
+        self.view.lbl_dbl_click_sig.connect(self.elem_double_clicked)
 
         self.view.start_btn.clicked.connect(self.start_btn_clicked)
         self.view.create_btn.clicked.connect(self.create_btn_clicked)
