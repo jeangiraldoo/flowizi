@@ -307,21 +307,18 @@ class Controller:
         return result
 
     def add_website(self, url) -> bool:
-        """Tries to create a website with the URL given by the user.
-        Calls show_add_website_error to display an error if there is already
-        a website with that URL, or the URL is not valid.
+        """Attempts to create a website with the URL given by the user.
 
         Args:
-        url (str): URL provided by the user for the website.
+            url (str): URL provided by the user for the website.
 
         Returns:
-        bool: True if the website was successfully created, False otherwise.
+            bool: True if the site was successfully created, False otherwise.
         """
         env_name = flowizi.environment_list[self.current_env].name
         result = Validations.add_elem_validation(env_name, ElementType.WEBSITE, url)
 
         if not result == ResultType.SUCCESSFUL_OPERATION:
-            print(result)
             if result == ResultType.INVALID_URL:
                 message = Feedback.WEBSITE_INVALID_URL.value
             else:
