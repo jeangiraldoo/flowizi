@@ -3,7 +3,7 @@ from typing import List
 from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
                              QSplitter, QPushButton, QHBoxLayout, QGridLayout,
                              QSizePolicy)
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt, pyqtSignal
 from gui.views.custom_comps import ClickableLabel
 from flowizi import flowizi
@@ -166,9 +166,27 @@ class MainWindow(QMainWindow):
     def setup_sidebar(self):
         self.sidebar_widget = QWidget()
         self.sidebar_widget.setMinimumWidth(300)
-        self.sidebar_layout = QVBoxLayout()
-        self.sidebar_widget.setLayout(self.sidebar_layout)
+        sidebar_layout = QVBoxLayout()
+        self.sidebar_widget.setLayout(sidebar_layout)
         self.splitter.addWidget(self.sidebar_widget)
+
+        sidebar_icon = self.create_sidebar_label("")
+        icon = QPixmap("logo.svg")
+        sidebar_icon.setPixmap(icon)
+        sidebar_icon.setAlignment(Qt.AlignCenter)
+        self.sidebar_name_label = self.create_sidebar_label("")
+        self.sidebar_elem_info_label = self.create_sidebar_label("")
+        self.sidebar_websites_label = self.create_sidebar_label("")
+        self.sidebar_apps_label = self.create_sidebar_label("")
+        self.sidebar_files_label = self.create_sidebar_label("")
+
+        sidebar_layout.addWidget(sidebar_icon)
+        sidebar_layout.addWidget(self.sidebar_name_label)
+        sidebar_layout.addWidget(self.sidebar_elem_info_label)
+        sidebar_layout.addWidget(self.sidebar_websites_label)
+        sidebar_layout.addWidget(self.sidebar_apps_label)
+        sidebar_layout.addWidget(self.sidebar_files_label)
+        sidebar_layout.addStretch()
 
     def create_button(self, name):
         btn = QPushButton(name)

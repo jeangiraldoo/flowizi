@@ -1,8 +1,8 @@
 import sys
 from PyQt5.QtWidgets import (QWidget, QApplication, QMessageBox,
                              QLabel, QTabWidget, QFileDialog)
-from PyQt5.QtGui import QFont, QPixmap
-from PyQt5.QtCore import Qt, QEventLoop
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import QEventLoop
 from gui.views.view import MainWindow
 from gui.views.styles import ElemLabelStyle
 from gui.views.custom_comps import InputDialog, AppDialog
@@ -33,26 +33,6 @@ class Controller:
         self.view.delete_btn.clicked.connect(self.delete_btn_clicked)
         self.view.back_btn.clicked.connect(self.back_btn_clicked)
         self.disable_buttons()
-
-        # Create sidebar icon and labels
-        self.sidebar_icon = self.view.create_sidebar_label("")
-        icon = QPixmap("logo.svg")
-        self.sidebar_icon.setPixmap(icon)
-        self.sidebar_icon.setAlignment(Qt.AlignCenter)
-        self.sidebar_name_label = self.view.create_sidebar_label("")
-        self.sidebar_elem_info_label = self.view.create_sidebar_label("")
-        self.sidebar_websites_label = self.view.create_sidebar_label("")
-        self.sidebar_apps_label = self.view.create_sidebar_label("")
-        self.sidebar_files_label = self.view.create_sidebar_label("")
-
-        # Add icon and labels to the sidebar
-        self.view.sidebar_layout.addWidget(self.sidebar_icon)
-        self.view.sidebar_layout.addWidget(self.sidebar_name_label)
-        self.view.sidebar_layout.addWidget(self.sidebar_elem_info_label)
-        self.view.sidebar_layout.addWidget(self.sidebar_websites_label)
-        self.view.sidebar_layout.addWidget(self.sidebar_apps_label)
-        self.view.sidebar_layout.addWidget(self.sidebar_files_label)
-        self.view.sidebar_layout.addStretch()
         self.hide_sidebar()
 
         sys.exit(app.exec_())
@@ -425,28 +405,28 @@ class Controller:
         self.view.sidebar_widget.show()
         if self.current_view == ElementType.ENV:
             env = flowizi.environment_list[pos]
-            self.sidebar_name_label.setText(f"Name: {env.name}")
+            self.view.sidebar_name_label.setText(f"Name: {env.name}")
 
-            self.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
+            self.view.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
 
-            self.sidebar_websites_label.show()
-            self.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
+            self.view.sidebar_websites_label.show()
+            self.view.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
 
-            self.sidebar_apps_label.show()
-            self.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
+            self.view.sidebar_apps_label.show()
+            self.view.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
 
-            self.sidebar_files_label.show()
-            self.sidebar_files_label.setText(f"Files: {len(env.files)}")
+            self.view.sidebar_files_label.show()
+            self.view.sidebar_files_label.setText(f"Files: {len(env.files)}")
         else:
             env = flowizi.environment_list[self.current_env]
             elems = getattr(env, self.current_view.value)
             elem = elems[pos]
-            self.sidebar_name_label.setText(f"Name: {elem.name}")
-            self.sidebar_elem_info_label.setText(f"URL: {elem.url}")
+            self.view.sidebar_name_label.setText(f"Name: {elem.name}")
+            self.view.sidebar_elem_info_label.setText(f"URL: {elem.url}")
 
-            self.sidebar_websites_label.hide()
-            self.sidebar_apps_label.hide()
-            self.sidebar_files_label.hide()
+            self.view.sidebar_websites_label.hide()
+            self.view.sidebar_apps_label.hide()
+            self.view.sidebar_files_label.hide()
 
     def hide_sidebar(self):
         """Hides the sidebar from the UI when no label has been selected."""
