@@ -6,7 +6,8 @@ from PyQt5.QtCore import QEventLoop
 from gui.views.view import MainWindow
 from gui.views.styles import ElemLabelStyle
 from gui.views.custom_comps import InputDialog, AppDialog
-from core.elements.element import ElementType
+from core.elements.element import ElementType, Environment
+from core.elements.contained_element import ContainedElement
 from core.text_res.feedback import Feedback
 from flowizi import flowizi
 from core.database.validations import Validations, ResultType
@@ -384,41 +385,50 @@ class Controller:
 
     def refresh_sidebar(self, pos):
         """
-        Updates the sidebar information based on the clicked label's position.
-
-        This method determines which element's information to display in the
-        sidebar based on the position of the label clicked by the user. The
-        position corresponds to the index of the element whose details will be
-        shown.
+        Updates the sidebar information based on the clicked label's position
+        and current view.
 
         Args:
             pos (int): The index position of the clicked label.
         """
         self.view.sidebar_widget.show()
         if self.current_view == ElementType.ENV:
-            env = flowizi.environment_list[pos]
-            self.view.sidebar_name_label.setText(f"Name: {env.name}")
-
-            self.view.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
-
-            self.view.sidebar_websites_label.show()
-            self.view.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
-
-            self.view.sidebar_apps_label.show()
-            self.view.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
-
-            self.view.sidebar_files_label.show()
-            self.view.sidebar_files_label.setText(f"Files: {len(env.files)}")
+            self.refresh_env_sidebar(flowizi.environment_list[pos])
         else:
             env = flowizi.environment_list[self.current_env]
-            elems = getattr(env, self.current_view.value)
-            elem = elems[pos]
-            self.view.sidebar_name_label.setText(f"Name: {elem.name}")
-            self.view.sidebar_elem_info_label.setText(f"URL: {elem.url}")
+            elem = getattr(env, self.current_view.value)[pos]
+            self.refresh_elem_sidebar(elem)
 
-            self.view.sidebar_websites_label.hide()
-            self.view.sidebar_apps_label.hide()
-            self.view.sidebar_files_label.hide()
+    def refresh_env_sidebar(self, env: Environment):
+        """Refreshes the sidebar to display details of the specified environment.
+
+        Args:
+            env (Environment): The environment object whose details
+                               are displayed in the sidebar.
+        """
+        self.view.sidebar_websites_label.show()
+        self.view.sidebar_apps_label.show()
+        self.view.sidebar_files_label.show()
+
+        self.view.sidebar_name_label.setText(f"Name: {env.name}")
+        self.view.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
+        self.view.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
+        self.view.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
+        self.view.sidebar_files_label.setText(f"Files: {len(env.files)}")
+
+    def refresh_elem_sidebar(self, elem: ContainedElement):
+        """Refreshes the sidebar to display details of the specified element.
+
+        Args:
+            elem (ContainedElement): The ContainedElement object whose details
+                               are displayed in the sidebar.
+        """
+        self.view.sidebar_websites_label.hide()
+        self.view.sidebar_apps_label.hide()
+        self.view.sidebar_files_label.hide()
+
+        self.view.sidebar_name_label.setText(f"Name: {elem.name}")
+        self.view.sidebar_elem_info_label.setText(f"URL: {elem.url}")
 
     def enable_buttons(self):
         """Enables specific buttons so that the user can interact with them
