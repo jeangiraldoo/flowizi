@@ -29,22 +29,22 @@ class MainWindow(QMainWindow):
         This method sets up the central widget, main layout, and sidebar for
         the application. It includes:
         - A horizontal splitter containing the main grid and sidebar.
-        - A vertical layout (`vbox`) that organizes the toolbar and splitter.
+        - A vertical layout (vbox) that organizes the toolbar and splitter.
         - A toolbar.
         """
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        self.vbox = QVBoxLayout()
+        root_widget = QWidget()
+        root_layout = QVBoxLayout()
+        root_widget.setLayout(root_layout)
+        self.setCentralWidget(root_widget)
+
         self.splitter = QSplitter(Qt.Horizontal)
 
         self.setup_toolbar()
         self.setup_grid()
         self.setup_sidebar()
 
-        self.vbox.addLayout(self.toolbar)
-        self.vbox.addWidget(self.splitter)
-
-        central_widget.setLayout(self.vbox)
+        root_layout.addLayout(self.toolbar)
+        root_layout.addWidget(self.splitter)
 
     def get_grid(self, elem_type: ElementType, elem_list: List[Element]) -> QLabel | QWidget:
         """Returns a widget containing a grid layout if "elem_list" has
