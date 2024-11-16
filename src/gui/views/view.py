@@ -106,7 +106,7 @@ class MainWindow(QMainWindow):
                 grid.addWidget(label, row, column)
                 label.set_pos(grid.indexOf(label))
                 label.mousePressEvent = self.send_label_signal(label.pos)
-                label.label_double_click_signal.connect(self.create_label_double_click_event)
+                label.label_double_click_signal.connect(self.send_lbl_dbl_click_signal)
                 current_env += 1
 
                 if current_env == total_envs:
@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
             self.label_signal.emit(pos)
         return event
 
-    def create_label_double_click_event(self, pos):
+    def send_lbl_dbl_click_signal(self, pos):
         """Emit a signal indicating that a label was double-clicked.
 
         This method is called when a label is double-clicked, emitting the
