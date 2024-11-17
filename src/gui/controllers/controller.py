@@ -364,8 +364,6 @@ class Controller:
             False otherwise.
         """
         app_window = AppDialog(self.current_env)
-        app_window.set_window_title("Create an app")
-        app_window.set_message("Double click one of the available apps:")
         self.loop = QEventLoop()
         app_window.result_signal.connect(self.handle_app_signal)
         app_window.user_close_signal.connect(self.handle_app_close_signal)

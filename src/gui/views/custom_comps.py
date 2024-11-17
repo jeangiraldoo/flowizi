@@ -19,6 +19,7 @@ class ErrorWindow():
         error_box.setDefaultButton(QMessageBox.Ok)
         error_box.exec_()
 
+
 class InputDialog(QDialog):
     def __init__(self):
         super().__init__()
@@ -98,12 +99,14 @@ class AppDialog(QDialog):
 
     def __init__(self, env_name: str):
         super().__init__()
+        self.setWindowTitle("Create an app")
         self.current_env_name = env_name
         self.current_view = "app"
         self.execs = None
         self.env_name = flowizi.environment_list[self.current_env_name].name
         self.apps = sys_apps.get_apps()
         self.message_label = QLabel()
+        self.message_label.setText("Double click one of the available apps:")
         self.message_label.setStyleSheet("font-size: 17px")
         self.item_list = QListWidget(self)
         self.item_list.itemDoubleClicked.connect(self.item_double_clicked)
@@ -266,12 +269,6 @@ class AppDialog(QDialog):
         self.current_view = "execs"
         self.item_list.clear()
         self.set_items(self.execs)
-
-    def set_window_title(self, title):
-        self.setWindowTitle(title)
-
-    def set_message(self, message):
-        self.message_label.setText(message)
 
     def set_items(self, items):
         for i in items:
