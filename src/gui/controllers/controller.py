@@ -284,15 +284,10 @@ class Controller:
                 self.validate_input(input)
 
     def validate_input(self, input: str):
-        """Validates the user's input. If the input is valid, refreshes
-        the window to display the updated information.
-        """
-        if self.current_view == ElementType.ENV:
-            result = self.add_env(input)
-        else:
-            result = self.add_web(input)
-
-        if result:
+        """Validates if the user's input is valid."""
+        view = self.current_view
+        res = self.add_env(input) if view == ElementType.ENV else self.add_web(input)
+        if res:
             self.refresh_window()
 
     def add_env(self, env_name) -> bool:
