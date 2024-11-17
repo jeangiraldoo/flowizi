@@ -161,9 +161,11 @@ class Controller:
         position.
         """
         if self.current_view == ElementType.ENV:
-            self.view.splitter.widget(0).deleteLater()
+            widget = self.view.splitter.widget(0)
         else:
-            self.tab_widget.widget(self.current_tab_pos).deleteLater()
+            widget = self.tab_widget.widget(self.current_tab_pos)
+
+        widget.deleteLater()
 
     def show_contained_elems(self):
         """Inserts a QTabWidget into the splitter at index 0.
