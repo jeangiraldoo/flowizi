@@ -284,12 +284,20 @@ class Controller:
     def validate_input(self, input: str):
         """Validates if the user's input is valid."""
         if input == "":
-            ErrorWindow.show("The name must have at least one character")
-            return
+            res = ""
+            msg = "The name must have at least one character"
+        elif self.current_view == ElementType.ENV:
+            res = self.add_env(input)
+            msg = Feedback.ENV_ALREADY_EXISTS.value
+        else:
+            inv_url_msg = Feedback.WEBSITE_INVALID_URL.value
+            web_already_exist = Feedback.WEBSITE_ALREADY_EXISTS.value
+            res = self.add_web(input)
+            msg = inv_url_msg if res == ResultType.INVALID_URL else web_already_exist
 
-        view = self.current_view
-        res = self.add_env(input) if view == ElementType.ENV else self.add_web(input)
-        if res:
+        if res != ResultType.ENV_CREATED and res != ResultType.SUCCESSFUL_OPERATION:
+            ErrorWindow.show(msg)
+        else:
             self.refresh_window()
 
     def add_env(self, env_name) -> bool:
@@ -304,8 +312,6 @@ class Controller:
               False otherwise.
         """
         result: bool = Validations.add_env_validation(env_name)
-        if not result:
-            ErrorWindow.show(Feedback.ENV_ALREADY_EXISTS.value)
 
         return result
 
@@ -320,15 +326,6 @@ class Controller:
         """
         env_name = flowizi.environment_list[self.current_env].name
         result = Validations.add_elem_validation(env_name, ElementType.WEBSITE, url)
-
-        if not result == ResultType.SUCCESSFUL_OPERATION:
-            if result == ResultType.INVALID_URL:
-                message = Feedback.WEBSITE_INVALID_URL.value
-            else:
-                message = Feedback.WEBSITE_ALREADY_EXISTS.value
-
-            ErrorWindow.show(message)
-
         return result
 
     def add_file(self) -> bool:
