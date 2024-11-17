@@ -1,11 +1,11 @@
 import sys
-from PyQt5.QtWidgets import (QWidget, QApplication, QLabel, QTabWidget,
-                             QFileDialog)
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QTabWidget
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QEventLoop
 from gui.views.view import MainWindow
 from gui.views.styles import ElemLabelStyle
-from gui.views.custom_comps import ErrorWindow, InputDialog, AppDialog
+from gui.views.custom_comps import (ErrorWindow, InputDialog, FileDialog,
+                                    AppDialog)
 from core.elements.element import ElemType, Environment
 from core.elements.contained_element import ContainedElement
 from core.text_res.feedback import Feedback
@@ -339,11 +339,9 @@ class Controller:
             bool: True if the file was successfully created and added,
             False otherwise.
         """
-        dialog = QFileDialog()
-        dialog.setFileMode(QFileDialog.ExistingFile)  # Allows selecting only existing files
-        dialog.setNameFilter("All files (*)")  # Filters by file type if desired
+        dialog = FileDialog()
         if dialog.exec_():
-            file_path = dialog.selectedFiles()[0]
+            file_path = dialog.get_selected_file()
             env_name = flowizi.environment_list[self.current_env].name
             result = Validations.add_elem_validation(env_name, ElemType.FILE, file_path)
 

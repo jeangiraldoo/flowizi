@@ -1,23 +1,11 @@
 from PyQt5.QtWidgets import (QPushButton, QLabel, QDialog,
                              QVBoxLayout, QHBoxLayout, QLineEdit,
-                             QMessageBox, QListWidget)
+                             QMessageBox, QListWidget, QFileDialog)
 from PyQt5.QtCore import pyqtSignal
 from core.platform import sys_apps
 from core.database.validations import Validations, ResType
 from core.elements.element import ElemType
 from flowizi import flowizi
-
-
-class ErrorWindow():
-    @staticmethod
-    def show(msg):
-        error_box = QMessageBox()
-        error_box.setIcon(QMessageBox.Critical)
-        error_box.setWindowTitle("Error")
-        error_box.setText(msg)
-        error_box.setStandardButtons(QMessageBox.Ok)
-        error_box.setDefaultButton(QMessageBox.Ok)
-        error_box.exec_()
 
 
 class InputDialog(QDialog):
@@ -84,6 +72,17 @@ class ChoiceDialog(QMessageBox):
     def closeEvent(self, event):
         self.user_closed = True
         super().closeEvent(event)
+
+
+class FileDialog(QFileDialog):
+    def __init__(self):
+        super().__init__()
+        self.setFileMode(QFileDialog.ExistingFile)  # Allows selecting only existing files
+        self.setNameFilter("All files (*)")  # Filters by file type if desired
+
+    def get_selected_file(self):
+        selected_files = self.selectedFiles()
+        return selected_files[0]
 
 
 class ClickableLabel(QLabel):
@@ -154,7 +153,7 @@ class AppDialog(QDialog):
               " the correct directory and add the executable file as a file"
               " instead of an application."
               )
-            self.ErrorWindow.show(msg)
+            ErrorWindow.show(msg)
         else:
             self.request_exec_confirmation(name)
 
@@ -185,7 +184,7 @@ class AppDialog(QDialog):
               f"There is already an application called {self.app_name} or that uses {name} as an executable file in the {self.env_name} environment"
               )
 
-            self.ErrorWindow.show(msg)
+            ErrorWindow.show(msg)
             self.result_signal.emit(False)
         else:
             self.result_signal.emit(True)
@@ -249,7 +248,7 @@ class AppDialog(QDialog):
               f"There is already an application called {app_name} or that uses {exe_name} as an executable file in the {self.env_name} environment"
               )
 
-            self.ErrorWindow.show(msg)
+            ErrorWindow.show(msg)
             self.result_signal.emit(False)
         else:
             self.result_signal.emit(True)
@@ -268,3 +267,15 @@ class AppDialog(QDialog):
     def closeEvent(self, event):
         if event.spontaneous():
             self.user_close_signal.emit(True)
+
+
+class ErrorWindow():
+    @staticmethod
+    def show(msg):
+        error_box = QMessageBox()
+        error_box.setIcon(QMessageBox.Critical)
+        error_box.setWindowTitle("Error")
+        error_box.setText(msg)
+        error_box.setStandardButtons(QMessageBox.Ok)
+        error_box.setDefaultButton(QMessageBox.Ok)
+        error_box.exec_()
