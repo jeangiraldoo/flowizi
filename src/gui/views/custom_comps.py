@@ -52,16 +52,16 @@ class InputDialog(QDialog):
         return self.text_input.text()
 
 
-class CustomMessageBox(QMessageBox):
+class ChoiceDialog(QMessageBox):
     """
-    A customized QMessageBox to distinguish between programmatic and
-    user-initiated closures.
+    A customized QMessageBox to prompt the user to choose between 2 actions.
 
-    This class overrides the "closeEvent" method to set a "user_closed"
-    attribute, which allows other parts of the code to check whether the
-    message box was closed by the user or programmatically. This behavior
-    is especially useful in scenarios where validations or actions depend
-    on how the window was closed.
+    Notes:
+        This class overrides the "closeEvent" method to set a "user_closed"
+        attribute, which allows other parts of the code to check whether the
+        message box was closed by the user or programmatically. This behavior
+        is especially useful in scenarios where validations or actions depend
+        on how the window was closed.
 
     Attributes:
         user_closed (bool): Tracks if the message box was closed by the user.
@@ -212,7 +212,7 @@ class AppDialog(QDialog):
                    "\nDo you wish to use this one or to select a different one manually?"
                    )
 
-        msg_box = CustomMessageBox("App confirmation", message)
+        msg_box = ChoiceDialog("App confirmation", message)
         msg_box.button(QMessageBox.Yes).setText("Use executable")
         msg_box.button(QMessageBox.No).setText("Choose")
 
