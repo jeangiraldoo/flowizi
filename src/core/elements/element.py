@@ -3,9 +3,9 @@ from enum import Enum
 from core.elements.element_features.screen_recorder import ScreenRecorder
 
 
-class ElementType(Enum):
+class ElemType(Enum):
     ENV = "environments"
-    WEBSITE = "websites"
+    WEB = "websites"
     APP = "applications"
     FILE = "files"
 

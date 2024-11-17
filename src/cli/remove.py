@@ -1,15 +1,15 @@
 from core.database.validations import Validations, ResultType
-from core.elements.element import ElementType
+from core.elements.element import ElemType
 
 
 def remove_command(args, parser):
     """Remove a link from the configuration file"""
     if args.w:
-        remove_element(parser, args.name, ElementType.WEBSITE, args.w)
+        remove_element(parser, args.name, ElemType.WEB, args.w)
     elif args.f:
-        remove_element(parser, args.name, ElementType.FILE, args.f)
+        remove_element(parser, args.name, ElemType.FILE, args.f)
     elif args.a:
-        remove_element(parser, args.name, ElementType.APP, args.a)
+        remove_element(parser, args.name, ElemType.APP, args.a)
     else:
         remove_environment(parser, args.name)
 
@@ -28,7 +28,7 @@ def remove_environment(parser, name: str):
         parser.error(f"There is no environment called {name}")
 
 
-def remove_element(parser, env_name: str, elem_type: ElementType, name: str):
+def remove_element(parser, env_name: str, elem_type: ElemType, name: str):
     """Removes an element from the database.
 
     Args:
@@ -36,7 +36,7 @@ def remove_element(parser, env_name: str, elem_type: ElementType, name: str):
                 errors.
         env_name (str): Name of the environment that contains the element to
                 remove.
-        elem_type (ElementType): Element type (WEBSITE, FILE, or APP).
+        elem_type (ElemType): Element type (WEBSITE, FILE, or APP).
         name (str): Name of the element to remove.
     """
     singular_type = elem_type.value[:len(elem_type.value) - 1]

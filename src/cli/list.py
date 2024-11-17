@@ -1,6 +1,6 @@
 from flowizi import flowizi
 from core.database.validations import Validations
-from core.elements.element import ElementType
+from core.elements.element import ElemType
 
 
 def list_command(parser, args):
@@ -9,15 +9,15 @@ def list_command(parser, args):
     elif args.name and not Validations.env_exists(args.name):
         parser.error("The environment specified does not exist")
     elif args.w:
-        list_contained_elements(args.name, ElementType.WEBSITE)
+        list_contained_elements(args.name, ElemType.WEB)
     elif args.f:
-        list_contained_elements(args.name, ElementType.FILE)
+        list_contained_elements(args.name, ElemType.FILE)
     elif args.a:
-        list_contained_elements(args.name, ElementType.APP)
+        list_contained_elements(args.name, ElemType.APP)
     elif args.name:
-        list_contained_elements(args.name, ElementType.WEBSITE)
-        list_contained_elements(args.name, ElementType.FILE)
-        list_contained_elements(args.name, ElementType.APP)
+        list_contained_elements(args.name, ElemType.WEB)
+        list_contained_elements(args.name, ElemType.FILE)
+        list_contained_elements(args.name, ElemType.APP)
     else:
         list_environments()
 
@@ -31,7 +31,7 @@ def list_environments():
               f"record screen: {environment.record}]")
 
 
-def list_contained_elements(env_name: str, element_type: ElementType):
+def list_contained_elements(env_name: str, element_type: ElemType):
     env = ""
     for environment in flowizi.environment_list:
         if environment.name == env_name:

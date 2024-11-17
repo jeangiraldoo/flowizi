@@ -1,24 +1,24 @@
 from core.platform import sys_apps
 from core.text_res.feedback import Feedback
 from core.database.validations import Validations, ResultType
-from core.elements.element import ElementType
+from core.elements.element import ElemType
 from cli.common.app_io import display_items, get_pos
 
 
 def add_command(args, parser):
     if args.w:
-        elem_type = ElementType.WEBSITE
+        elem_type = ElemType.WEB
         url = args.w[0]
-        result = Validations.add_elem_validation(args.name, ElementType.WEBSITE, url)
+        result = Validations.add_elem_validation(args.name, ElemType.WEB, url)
     elif args.f:
-        elem_type = ElementType.FILE
+        elem_type = ElemType.FILE
         url = args.f[0]
-        result = Validations.add_elem_validation(args.name, ElementType.FILE, url)
+        result = Validations.add_elem_validation(args.name, ElemType.FILE, url)
     elif args.a:
-        elem_type = ElementType.APP
+        elem_type = ElemType.APP
         result = add_application(parser, args.name)
     else:
-        elem_type = ElementType.ENV
+        elem_type = ElemType.ENV
         result = Validations.add_env_validation(args.name)
 
     show_feedback(parser, args.name, elem_type, result)
@@ -26,7 +26,7 @@ def add_command(args, parser):
 
 def add_application(parser, env_name: str):
     apps = sys_apps.get_apps()
-    display_items(ElementType.APP.value, apps, "no index")
+    display_items(ElemType.APP.value, apps, "no index")
     input_name = input("\nType the name/part of the name of any app: ")
     similar_names = sys_apps.get_similar_names(input_name, apps)
 
@@ -75,7 +75,7 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
     Returns:
         ResultType: Enum that indicates the result of the operation.
     """
-    display_items(ElementType.APP.value, similar_names, "index")
+    display_items(ElemType.APP.value, similar_names, "index")
     pos = get_pos(1, len(similar_names))
 
     if pos == ResultType.INVALID_NUMBER:
@@ -103,7 +103,7 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
         if exe_result == ResultType.INVALID_NUMBER:
             result = ResultType.INVALID_NUMBER
         else:
-            result = Validations.add_elem_validation(env_name, ElementType.APP, exe_result)
+            result = Validations.add_elem_validation(env_name, ElemType.APP, exe_result)
 
     return result
 
@@ -111,10 +111,10 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
 def choose_exe(parser, env_name: str, execs, exe_name: str, exe_path: str):
     confirmation = request_exe_confirmation(exe_name)
     if confirmation:
-        result = Validations.add_elem_validation(env_name, ElementType.APP, exe_path)
+        result = Validations.add_elem_validation(env_name, ElemType.APP, exe_path)
     else:
         exe_path = manually_choose_exe(execs)
-        result = Validations.add_elem_validation(env_name, ElementType.APP, exe_path)
+        result = Validations.add_elem_validation(env_name, ElemType.APP, exe_path)
 
     return result
 

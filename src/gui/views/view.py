@@ -7,7 +7,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import Qt, pyqtSignal
 from gui.views.custom_comps import ClickableLabel
 from flowizi import flowizi
-from core.elements.element import Element, ElementType
+from core.elements.element import Element, ElemType
 from gui.views.styles import ElemLabelStyle
 
 
@@ -46,12 +46,12 @@ class MainWindow(QMainWindow):
         root_layout.addLayout(self.toolbar)
         root_layout.addWidget(self.splitter)
 
-    def get_grid(self, elem_type: ElementType, elem_list: List[Element]) -> QLabel | QWidget:
+    def get_grid(self, elem_type: ElemType, elem_list: List[Element]) -> QLabel | QWidget:
         """Returns a widget containing a grid layout if "elem_list" has
         elements, or a QLabel if "elem_list" is empty.
 
         Args:
-            elem_type (ElementType): The type of elements in the grid.
+            elem_type (ElemType): The type of elements in the grid.
             elem_list (List[Element]): List of elements to display in the grid.
 
         Returns:
@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addStretch()
 
     def setup_grid(self):
-        grid_widget = self.get_grid(ElementType.ENV, flowizi.environment_list)
+        grid_widget = self.get_grid(ElemType.ENV, flowizi.environment_list)
         self.splitter.addWidget(grid_widget)
 
     def setup_sidebar(self):
@@ -202,12 +202,12 @@ class MainWindow(QMainWindow):
 
         return label
 
-    def generate_empty_grid_label(self, elem_type: ElementType) -> QLabel:
+    def generate_empty_grid_label(self, elem_type: ElemType) -> QLabel:
         """Creates and returns a QLabel indicating that there are no elements
         of the specified type.
 
         Args:
-            elem_type (ElementType): Type of element to mention in the label.
+            elem_type (ElemType): Type of element to mention in the label.
 
         Returns:
             QLabel: A centered label prompting the user to create a new
