@@ -1,4 +1,4 @@
-from core.database.validations import Validations, ResultType
+from core.database.validations import Validations, ResType
 from core.elements.element import ElemType
 
 
@@ -42,9 +42,9 @@ def remove_element(parser, env_name: str, elem_type: ElemType, name: str):
     singular_type = elem_type.value[:len(elem_type.value) - 1]
 
     result = Validations.delete_elem_validation(env_name, elem_type, name)
-    if result == ResultType.ENV_NOT_EXISTS:
+    if result == ResType.ENV_NOT_EXISTS:
         parser.error(f"There is no environment called {env_name}")
-    elif result == ResultType.ELEM_NOT_EXISTS:
+    elif result == ResType.ELEM_NOT_EXISTS:
         parser.error(f"The {singular_type} specfified does not exist")
 
     print(f"The {name} {singular_type} was successfully removed from the {env_name} environment!")

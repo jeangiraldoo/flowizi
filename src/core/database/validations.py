@@ -7,10 +7,10 @@ from core.elements.element import ElemType, Environment
 from core.database._queries import Query
 
 
-class ResultType(Enum):
+class ResType(Enum):
     INVALID_NUMBER = 1
-    SUCCESSFUL_OPERATION = 2
-    UNSUCCESSFUL_OPERATION = 3
+    SUCCESS = 2
+    FAILURE = 3
     ENV_ALREADY_EXISTS = 4
     ENV_NOT_EXISTS = 5
     ELEM_NOT_EXISTS = 6
@@ -23,25 +23,25 @@ class ResultType(Enum):
 
 class Validations():
     @staticmethod
-    def add_env_validation(env_name: str) -> ResultType:
+    def add_env_validation(env_name: str) -> ResType:
         """Validates if an environment can be inserted into the database.
 
         Args:
             env_name (Str): Name of the environment to add.
         Returns:
-            ResultType: Enum indicating the result of the validation, such as
+            ResType: Enum indicating the result of the validation, such as
                         whether the element was successfully inserted or if
                         errors occurred.
         """
         env_id = Query.get_element_ID(ElemType.ENV, env_name)
         if env_id:
-            return ResultType.ENV_ALREADY_EXISTS
+            return ResType.ENV_ALREADY_EXISTS
 
         Query.add_environment(env_name)
-        return ResultType.ENV_CREATED
+        return ResType.ENV_CREATED
 
     @staticmethod
-    def add_elem_validation(env_name: str, elem_type: ElemType, url: str) -> ResultType:
+    def add_elem_validation(env_name: str, elem_type: ElemType, url: str) -> ResType:
         """Validates if an element can be inserted into the database based or not.
 
         Args:
@@ -50,16 +50,16 @@ class Validations():
             url (str): URL or path of the element.
 
         Returns:
-            ResultType: Enum indicating the result of the validation, such as
+            ResType: Enum indicating the result of the validation, such as
                         whether the element was successfully inserted or if
                         errors occurred.
         """
         env_id = Query.get_element_ID(ElemType.ENV.value, env_name)
         if not env_id:
-            return ResultType.ENV_NOT_EXISTS
+            return ResType.ENV_NOT_EXISTS
 
         url, result = Validations._validate_url(elem_type, url)
-        if not result == ResultType.SUCCESSFUL_OPERATION:
+        if not result == ResType.SUCCESS:
             return result
 
         name = url[url.rfind("/") + 1:]
@@ -69,26 +69,26 @@ class Validations():
         if not elem_id:
             return Validations._insert_if_elem_not_exists(elem_type, env_id, name, url)
         elif Query.insert_env_elem(elem_type.value, env_id, elem_id):
-            return ResultType.SUCCESSFUL_OPERATION
+            return ResType.SUCCESS
         else:
-            return ResultType.UNSUCCESSFUL_OPERATION
+            return ResType.FAILURE
 
     @staticmethod
-    def _validate_url(elem_type: ElemType, url: str) -> tuple[str, ResultType]:
+    def _validate_url(elem_type: ElemType, url: str) -> tuple[str, ResType]:
         url = url.replace("\\", "/")
         if elem_type == ElemType.WEB and not (
             Validations._is_valid_website_url(url) or
             Validations._is_valid_website_url(f"https://{url}")
         ):
-            return url, ResultType.INVALID_URL
+            return url, ResType.INVALID_URL
 
         if elem_type != ElemType.WEB and not Validations._is_valid_file_path(url):
-            return url, ResultType.INVALID_FILE_PATH
+            return url, ResType.INVALID_FILE_PATH
 
-        return url, ResultType.SUCCESSFUL_OPERATION
+        return url, ResType.SUCCESS
 
     @staticmethod
-    def _insert_if_elem_not_exists(elem_type: ElemType, env_id: int, name: str, url: str) -> ResultType:
+    def _insert_if_elem_not_exists(elem_type: ElemType, env_id: int, name: str, url: str) -> ResType:
         """Inserts an element into the specified environment if it does not
         already exist.
 
@@ -99,13 +99,13 @@ class Validations():
             url (str): URL or path of the element.
 
         Returns:
-            ResultType: Enum indicating that the operation was successful.
+            ResType: Enum indicating that the operation was successful.
 
         """
         Query.insert_elem(elem_type.value, name, url)
         elem_id = Query.get_element_ID(elem_type.value, name)
         Query.insert_env_elem(elem_type.value, env_id, elem_id)
-        return ResultType.SUCCESSFUL_OPERATION
+        return ResType.SUCCESS
 
     @staticmethod
     def _is_valid_website_url(url: str) -> bool:
@@ -178,7 +178,7 @@ class Validations():
         return True
 
     @staticmethod
-    def delete_elem_validation(env_name: str, elem_type: ElemType, name: str) -> ResultType:
+    def delete_elem_validation(env_name: str, elem_type: ElemType, name: str) -> ResType:
         """Validates that an element exists in a specific environment before
         deleting it from the database.
 
@@ -188,20 +188,20 @@ class Validations():
             name (str): Name of the element.
 
         Returns:
-            ResultType: Enum indicating the result of the validation, such as
+            ResType: Enum indicating the result of the validation, such as
                         whether the element was successfully inserted or if
                         errors occurred.
         """
         env_id = Query.get_element_ID(elem_type.ENV.value, env_name)
         if not env_id:
-            return ResultType.ENV_NOT_EXISTS
+            return ResType.ENV_NOT_EXISTS
 
         elem_id = Query.get_element_ID(elem_type.value, name)
         if not elem_id:
-            return ResultType.ELEM_NOT_EXISTS
+            return ResType.ELEM_NOT_EXISTS
 
         Query.delete_element(elem_type.value, env_id, elem_id)
-        return ResultType.SUCCESSFUL_OPERATION
+        return ResType.SUCCESS
 
     @staticmethod
     def env_exists(env_name: str) -> bool:

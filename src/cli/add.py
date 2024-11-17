@@ -1,6 +1,6 @@
 from core.platform import sys_apps
 from core.text_res.feedback import Feedback
-from core.database.validations import Validations, ResultType
+from core.database.validations import Validations, ResType
 from core.elements.element import ElemType
 from cli.common.app_io import display_items, get_pos
 
@@ -55,7 +55,7 @@ def add_one_similar_app(parser, env_name: str, app_name: str, apps):
         return choose_exe(parser, env_name, execs, exe_name, exe_path)
 
 
-def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: list) -> ResultType:
+def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: list) -> ResType:
     """
     Attempts to add an app to the database when there are many apps installed
     on the system with a name similar to the one provided by the user.
@@ -73,13 +73,13 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
         the name provided by the user.
 
     Returns:
-        ResultType: Enum that indicates the result of the operation.
+        ResType: Enum that indicates the result of the operation.
     """
     display_items(ElemType.APP.value, similar_names, "index")
     pos = get_pos(1, len(similar_names))
 
-    if pos == ResultType.INVALID_NUMBER:
-        return ResultType.INVALID_NUMBER
+    if pos == ResType.INVALID_NUMBER:
+        return ResType.INVALID_NUMBER
 
     app_name = similar_names[pos - 1]
     app_path = apps[app_name]
@@ -100,8 +100,8 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
         result = Validations.add_elem_validation(env_name, "applications", path)
     else:
         exe_result = manually_choose_exe(exec_files)
-        if exe_result == ResultType.INVALID_NUMBER:
-            result = ResultType.INVALID_NUMBER
+        if exe_result == ResType.INVALID_NUMBER:
+            result = ResType.INVALID_NUMBER
         else:
             result = Validations.add_elem_validation(env_name, ElemType.APP, exe_result)
 
@@ -119,36 +119,35 @@ def choose_exe(parser, env_name: str, execs, exe_name: str, exe_path: str):
     return result
 
 
-def show_feedback(parser, env_name, elem_type, result: ResultType):
-    """Displays feedback to the user based on the ResultType from validation.
+def show_feedback(parser, env_name, elem_type, result: ResType):
+    """Displays feedback to the user based on the ResType from validation.
 
     Args:
         parser: Parser object used to create error messages.
         env_name (str): Name of the environment.
-        result (ResultType): Result type obtained.
+        result (ResType): Result type obtained.
     """
     sing_type = elem_type.value[:len(elem_type.value) - 1]  # string without the last 's'
 
-    if result == ResultType.ENV_CREATED:
-        print(Feedback.ENVIRONMENT_SUCCESS.value.format(env_name=env_name)) 
-    elif result == ResultType.ENV_ALREADY_EXISTS:
+    if result == ResType.ENV_CREATED:
+        print(Feedback.ENVIRONMENT_SUCCESS.value.format(env_name=env_name))
+    elif result == ResType.ENV_ALREADY_EXISTS:
         print(Feedback.ENV_ALREADY_EXISTS)
-    elif result == ResultType.ENV_NOT_EXISTS:
+    elif result == ResType.ENV_NOT_EXISTS:
         parser.error(Feedback.ENV_NOT_EXISTS.value)
-    elif result == ResultType.UNSUCCESSFUL_OPERATION:
+    elif result == ResType.FAILURE:
         parser.error(Feedback.ELEMENT_ALREADY_EXISTS.value.format(elem_type=sing_type, env_name=env_name))
-    elif result == ResultType.INVALID_NUMBER:
+    elif result == ResType.INVALID_NUMBER:
         parser.error(Feedback.NUMBER_OUT_OF_BOUNDS.value)
-    elif result == ResultType.INVALID_URL:
+    elif result == ResType.INVALID_URL:
         parser.error(Feedback.WEBSITE_INVALID_URL.value)
-    elif result == ResultType.INVALID_FILE_PATH:
+    elif result == ResType.INVALID_FILE_PATH:
         parser.error(Feedback.FILE_NOT_FOUND.value)
     else:
         print(f"The {sing_type} was successfully added to the {env_name} environment!")
 
 
-
-def manually_choose_exe(final_list: dict) -> ResultType | str:
+def manually_choose_exe(final_list: dict) -> ResType | str:
     """Displays a list of executable files found in the app's directory
     and prompts the user to choose one.
 
@@ -162,13 +161,13 @@ def manually_choose_exe(final_list: dict) -> ResultType | str:
 
     Returns:
         str: The path to the selected executable file.
-        ResultType: Enum that indicates the result of the operation.
+        ResType: Enum that indicates the result of the operation.
     """
     display_items("executables", final_list, "index")
 
     pos = get_pos(1, len(final_list))
 
-    if pos == ResultType.INVALID_NUMBER:
+    if pos == ResType.INVALID_NUMBER:
         return pos
 
     for idx, file in enumerate(final_list):

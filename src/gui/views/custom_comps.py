@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QPushButton, QLabel, QDialog,
                              QMessageBox, QListWidget)
 from PyQt5.QtCore import pyqtSignal
 from core.platform import sys_apps
-from core.database.validations import Validations, ResultType
+from core.database.validations import Validations, ResType
 from core.elements.element import ElemType
 from flowizi import flowizi
 
@@ -180,7 +180,7 @@ class AppDialog(QDialog):
         path = self.execs[name]
         result = Validations.add_elem_validation(self.env_name, ElemType.APP, path)
 
-        if result == ResultType.UNSUCCESSFUL_OPERATION:
+        if result == ResType.FAILURE:
             msg = (
               f"There is already an application called {self.app_name} or that uses {name} as an executable file in the {self.env_name} environment"
               )
@@ -244,7 +244,7 @@ class AppDialog(QDialog):
 
         """
         result = Validations.add_elem_validation(self.env_name, ElemType.APP, path)
-        if result == ResultType.UNSUCCESSFUL_OPERATION:
+        if result == ResType.FAILURE:
             msg = (
               f"There is already an application called {app_name} or that uses {exe_name} as an executable file in the {self.env_name} environment"
               )

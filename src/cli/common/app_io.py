@@ -1,7 +1,7 @@
-from core.database.validations import ResultType
+from core.database.validations import ResType
 
 
-def get_pos(lower_range: int, upper_range: int) -> ResultType | int:
+def get_pos(lower_range: int, upper_range: int) -> ResType | int:
     """Prompts the user to input a number that matches one of the items being
     shown on the screen.
 
@@ -9,7 +9,7 @@ def get_pos(lower_range: int, upper_range: int) -> ResultType | int:
 
     Returns:
         int: The user's choice as an integer.
-        ResultType: Enum that indicates the result of the operation.
+        ResType: Enum that indicates the result of the operation.
     """
     try:
         pos = int(input("\nType the number associated with an option: "))
@@ -18,7 +18,7 @@ def get_pos(lower_range: int, upper_range: int) -> ResultType | int:
         exit(1)
 
     if pos < lower_range or pos > upper_range:
-        return ResultType.INVALID_NUMBER
+        return ResType.INVALID_NUMBER
     return pos
 
 

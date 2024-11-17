@@ -10,7 +10,7 @@ from core.elements.element import ElemType, Environment
 from core.elements.contained_element import ContainedElement
 from core.text_res.feedback import Feedback
 from flowizi import flowizi
-from core.database.validations import Validations, ResultType
+from core.database.validations import Validations, ResType
 
 
 class Controller:
@@ -293,9 +293,9 @@ class Controller:
             inv_url_msg = Feedback.WEBSITE_INVALID_URL.value
             web_already_exist = Feedback.WEBSITE_ALREADY_EXISTS.value
             res = self.add_web(input)
-            msg = inv_url_msg if res == ResultType.INVALID_URL else web_already_exist
+            msg = inv_url_msg if res == ResType.INVALID_URL else web_already_exist
 
-        if res != ResultType.ENV_CREATED and res != ResultType.SUCCESSFUL_OPERATION:
+        if res != ResType.ENV_CREATED and res != ResType.SUCCESS:
             ErrorWindow.show(msg)
         else:
             self.refresh_window()
@@ -347,7 +347,7 @@ class Controller:
             env_name = flowizi.environment_list[self.current_env].name
             result = Validations.add_elem_validation(env_name, ElemType.FILE, file_path)
 
-            if not result == ResultType.SUCCESSFUL_OPERATION:
+            if not result == ResType.SUCCESS:
                 ErrorWindow.show(Feedback.FILE_ALREADY_EXISTS.value)
             return result
 
