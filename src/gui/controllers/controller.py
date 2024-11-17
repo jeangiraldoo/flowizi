@@ -243,21 +243,35 @@ class Controller:
         """Deletes the element associated with the clicked label"""
         elem_pos = self.get_clicked_elem_pos()
         if self.current_view == ElemType.ENV and elem_pos is not None:
-            env_name = flowizi.environment_list[elem_pos].name
-            Validations.delete_env_validation(env_name)
-        elif self.current_tab_pos == 0 and elem_pos is not None:
-            env = flowizi.environment_list[self.current_env]
-            website_name = env.websites[elem_pos].name
-            Validations.delete_elem_validation(env.name, ElemType.WEB, website_name)
-        elif self.current_tab_pos == 2 and elem_pos is not None:
-            env = flowizi.environment_list[self.current_env]
-            file_name = env.files[elem_pos].name
-            Validations.delete_elem_validation(env.name, ElemType.FILE, file_name)
+            self.delete_env(elem_pos)
         else:
-            env = flowizi.environment_list[self.current_env]
-            app_name = env.applications[elem_pos].name
-            Validations.delete_elem_validation(env.name, ElemType.APP, app_name)
+            self.delete_elem(self.current_view, elem_pos)
+
         self.refresh_window()
+
+    def delete_env(self, env_pos: int):
+        """Deletes the environment corresponding to the clicked label's
+        position.
+
+        Args:
+            env_pos (int): Index of the environment to delete.
+        """
+        env_name = flowizi.environment_list[env_pos].name
+        Validations.delete_env_validation(env_name)
+
+    def delete_elem(self, elem_type: ElemType, elem_pos: int):
+        """Deletes the element corresponding to the clicked label's position.
+
+        Args:
+            elem_type (ElemType): The type of the element (e.g., WEB, APP,
+                                  or FILE).
+            elem_pos (int): The index or position of the element to delete.
+        """
+        env = flowizi.environment_list[self.current_env]
+        env_elem_list = getattr(env, elem_type.value)
+        elem_name = env_elem_list[elem_pos].name
+
+        Validations.delete_elem_validation(env.name, elem_type, elem_name)
 
     def create_btn_clicked(self):
         """Calls a method to create an element based on the current view"""
