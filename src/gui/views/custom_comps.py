@@ -74,9 +74,12 @@ class CustomMessageBox(QMessageBox):
                            calls the parent class's closeEvent.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, title, msg, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_closed = False
+        self.setWindowTitle(title)
+        self.setText(msg)
+        self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
 
     def closeEvent(self, event):
         self.user_closed = True
@@ -204,15 +207,12 @@ class AppDialog(QDialog):
             executable file is being confirmed.
         """
         exe_name, path = sys_apps.detect_exe(app_name, self.execs)
-
-        msg_box = CustomMessageBox()
-        msg_box.setWindowTitle("App confirmation")
         message = ("This is the detected executable that will open the app:"
                    f"\n{exe_name}"
                    "\nDo you wish to use this one or to select a different one manually?"
                    )
-        msg_box.setText(message)
-        msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+        msg_box = CustomMessageBox("App confirmation", message)
         msg_box.button(QMessageBox.Yes).setText("Use executable")
         msg_box.button(QMessageBox.No).setText("Choose")
 
