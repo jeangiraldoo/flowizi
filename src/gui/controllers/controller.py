@@ -279,14 +279,14 @@ class Controller:
         msg_box.set_message(w_message)
 
         if msg_box.exec():
-            input = msg_box.get_text()
-            if input == "":
-                ErrorWindow.show("The name must have at least one character")
-            else:
-                self.validate_input(input)
+            self.validate_input(msg_box.get_text())
 
     def validate_input(self, input: str):
         """Validates if the user's input is valid."""
+        if input == "":
+            ErrorWindow.show("The name must have at least one character")
+            return
+
         view = self.current_view
         res = self.add_env(input) if view == ElementType.ENV else self.add_web(input)
         if res:
