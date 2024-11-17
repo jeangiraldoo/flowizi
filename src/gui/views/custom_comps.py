@@ -151,7 +151,7 @@ class AppDialog(QDialog):
               " the correct directory and add the executable file as a file"
               " instead of an application."
               )
-            self.show_error(msg)
+            self.ErrorWindow.show(msg)
         else:
             self.request_exec_confirmation(name)
 
@@ -182,7 +182,7 @@ class AppDialog(QDialog):
               f"There is already an application called {self.app_name} or that uses {name} as an executable file in the {self.env_name} environment"
               )
 
-            self.show_error(msg)
+            self.ErrorWindow.show(msg)
             self.result_signal.emit(False)
         else:
             self.result_signal.emit(True)
@@ -249,21 +249,12 @@ class AppDialog(QDialog):
               f"There is already an application called {app_name} or that uses {exe_name} as an executable file in the {self.env_name} environment"
               )
 
-            self.show_error(msg)
+            self.ErrorWindow.show(msg)
             self.result_signal.emit(False)
         else:
             self.result_signal.emit(True)
         self.user_close_signal.emit(False)
         self.close()
-
-    def show_error(self, msg):
-        error_box = QMessageBox()
-        error_box.setIcon(QMessageBox.Critical)
-        error_box.setWindowTitle("Error")
-        error_box.setText(msg)
-        error_box.setStandardButtons(QMessageBox.Ok)
-        error_box.setDefaultButton(QMessageBox.Ok)
-        error_box.exec_()
 
     def set_exec_view(self):
         self.current_view = "execs"
