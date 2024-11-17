@@ -290,7 +290,7 @@ class Controller:
         if self.current_view == ElementType.ENV:
             result = self.add_env(input)
         else:
-            result = self.add_website(input)
+            result = self.add_web(input)
 
         if result:
             self.refresh_window()
@@ -312,7 +312,7 @@ class Controller:
 
         return result
 
-    def add_website(self, url) -> bool:
+    def add_web(self, url) -> bool:
         """Attempts to create a website with the URL given by the user.
 
         Args:
