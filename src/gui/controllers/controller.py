@@ -99,24 +99,30 @@ class Controller:
             self.show_contained_elems()
             self.refresh_toolbar()
 
-    def style_clicked_elem(self, pos):
-        """Changes the style of the label on a given position"""
-        self.set_btns_clickable(False)
-        clicked_pos = self.get_clicked_elem_pos()
+    def style_clicked_elem(self, lbl_pos: int):
+        """Updates the style of the clicked label in the grid.
 
-        new_label = self.current_grid.itemAt(pos).widget()
-        if clicked_pos is not None and clicked_pos == pos: #Enters if the previous clicked label is the same as the current one
-            old_label = self.current_grid.itemAt(clicked_pos).widget()
-            old_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
-        elif clicked_pos is not None:
-            old_label = self.current_grid.itemAt(clicked_pos).widget()
-            old_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
-            new_label.setStyleSheet(ElemLabelStyle.CLICKED.value)
+        Determines whether the clicked label should use the default or
+        clicked style and enables or disables associated buttons based
+        on whether its position matches the previously clicked label.
 
-            self.set_btns_clickable(True)
-        else:  # This code will only run the first time a label is clicked
-            new_label.setStyleSheet(ElemLabelStyle.CLICKED.value)
-            self.set_btns_clickable(True)
+        Args:
+            pos (int): Position of the clicked label in the grid.
+        """
+        clicked_style = ElemLabelStyle.CLICKED.value
+        default_style = ElemLabelStyle.DEFAULT.value
+        prev_lbl_pos: int | None = self.get_clicked_elem_pos()
+        clicked_label = self.current_grid.itemAt(lbl_pos).widget()
+
+        enable_btns = prev_lbl_pos != lbl_pos
+        clicked_lbl_style = clicked_style if enable_btns else default_style
+
+        self.set_btns_clickable(enable_btns)
+        clicked_label.setStyleSheet(clicked_lbl_style)
+
+        if prev_lbl_pos:
+            previous_label = self.current_grid.itemAt(prev_lbl_pos).widget()
+            previous_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
 
     def get_clicked_elem_pos(self) -> int | None:
         """Returns the index position of the clicked label in the currently
