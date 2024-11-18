@@ -275,14 +275,29 @@ class Controller:
 
     def create_btn_clicked(self):
         """Calls a method to create an element based on the current view"""
-        if ((self.current_view == ElemType.APP and self.add_application())
-           or (self.current_view == ElemType.FILE and self.add_file())):
+        if self.current_view == ElemType.WEB or self.current_view == ElemType.ENV:
+            self.create_elem_input(self.current_view)
+        else:
+            self.create_elem_dialog(self.current_view)
+
+    def create_elem_dialog(self, elem_type: ElemType):
+        """Creates an element without keyboard input through a dialog window.
+        Args:
+            elem_type(ElemType): Element type.
+        """
+        if self.current_view == ElemType.APP:
+            res = self.add_application()
+        else:
+            res = self.add_file()
+
+        if res:
             self.refresh_window()
-        elif self.current_view == ElemType.WEB or self.current_view == ElemType.ENV:
-            singular_name = self.current_view.value[: len(self.current_view.value) - 1]
-            title = f"Create {singular_name}"
-            message = f"Enter the name of the new {singular_name}"
-            self.get_input(title, message)
+
+    def create_elem_with_input(self, elem_type: ElemType):
+        singular_name = elem_type.value[: len(elem_type.value) - 1]
+        title = f"Create {singular_name}"
+        message = f"Enter the name of the new {singular_name}"
+        self.get_input(title, message)
 
     def get_input(self, w_title, w_message):
         """Displays a message box prompting the user for input to create
