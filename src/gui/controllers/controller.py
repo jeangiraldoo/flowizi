@@ -301,9 +301,7 @@ class Controller:
         title = f"Create {singular_name}"
         msg = f"Enter the name of the new {singular_name}"
 
-        msg_box = InputDialog()
-        msg_box.set_window_title(title)
-        msg_box.set_message(msg)
+        msg_box = InputDialog(title, msg)
 
         if msg_box.exec():
             self.validate_input(msg_box.get_text())

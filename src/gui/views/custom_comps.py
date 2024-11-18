@@ -9,9 +9,11 @@ from flowizi import flowizi
 
 
 class InputDialog(QDialog):
-    def __init__(self):
+    def __init__(self, title, msg):
         super().__init__()
+        self.setWindowTitle(title)
         self.message_label = QLabel()
+        self.message_label.setText(msg)
         self.message_label.setStyleSheet("font-size: 17px")
         self.text_input = QLineEdit(self)
 
@@ -30,11 +32,7 @@ class InputDialog(QDialog):
         self.setLayout(layout)
         self.resize(350, 150)
 
-    def set_window_title(self, title):
-        self.setWindowTitle(title)
 
-    def set_message(self, message):
-        self.message_label.setText(message)
 
     def get_text(self):
         return self.text_input.text()
