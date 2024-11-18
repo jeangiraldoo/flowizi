@@ -31,9 +31,11 @@ class Controller:
         sys.exit(app.exec_())
 
     def refresh_window(self):
-        """Reloads the window by resetting the toolbar to its default state,
-        hiding the sidebar, and refreshing the current grid to reflect any
-        new changes.
+        """
+        Refreshes the UI to reflect changes in the app's state.
+
+        This method ensures the UI stays in sync with the application's state
+        after actions such as adding, selecting, or deleting an element.
         """
         self.refresh_left_widget()
         self.refresh_toolbar()
@@ -41,13 +43,12 @@ class Controller:
 
     def refresh_toolbar(self):
         """
-        Shows or hides specific buttons based on the current interaction state.
+        Updates the visibility of specific buttons based on the app's state.
 
-        This method is invoked after an action (e.g., adding a website) to
-        disable buttons that interact with elements. It ensures that the
-        user cannot click these buttons unless a label is selected,
-        enhancing the user interface's usability and preventing unintended
-        actions.
+        This method is called after actions like adding a website or interacting
+        with elements. It ensures buttons that require a selected label are
+        disabled when no label is selected, preventing unintended interactions
+        and enhancing the user experience.
         """
         self.set_btns_clickable(False)
 
@@ -60,11 +61,10 @@ class Controller:
 
     def refresh_left_widget(self):
         """
-        Replaces the first widget in the environments section or the current
-        tab with an updated grid.
+        Refreshes the grid by replacing it with an updated version.
 
-        This method is called after creating or deleting an element to display
-        the updated information on the screen.
+        Called after creating or deleting an element to ensure the screen
+        reflects the latest state of the application.
         """
         flowizi.update_environments()
         self.remove_left_widget()
@@ -79,20 +79,25 @@ class Controller:
 
         self.update_current_grid()
 
-    def elem_clicked(self, pos):
-        """Slot triggered when an element is clicked, updating the sidebar with
-        information about the clicked element and visually highlighting it,
-        while unhighlighting any previously selected elements.
-        """
+    def elem_clicked(self, pos: int):
+        """Slot triggered when a label is clicked.
 
+        Updates the sidebar with information about the clicked element and
+        sets the CLICKED style to it, while setting the DEFAULT style to any
+        previously selected elements.
+        """
         if self.current_view == ElemType.ENV:
             self.current_env = pos
         self.refresh_sidebar(pos)
         self.style_clicked_elem(pos)
 
-    def elem_double_clicked(self, pos):
-        """Slot triggered when an environment is double clicked,
-        revealing the websites, apps and files it holds."""
+    def elem_double_clicked(self, pos: int):
+        """
+        Displays the elements in an environment after double-clicking it.
+
+        Args:
+            pos (int): Position of the clicked environment.
+        """
         if self.current_view == ElemType.ENV:
             self.view.sidebar_widget.hide()
             self.remove_left_widget()
@@ -100,14 +105,15 @@ class Controller:
             self.refresh_toolbar()
 
     def style_clicked_elem(self, lbl_pos: int):
-        """Updates the style of the clicked label in the grid.
+        """
+        Updates the style of the clicked label in the grid.
 
-        Determines whether the clicked label should use the default or
-        clicked style and enables or disables associated buttons based
+        Determines whether the clicked label should use the DEFAULT or
+        CLICKED style and enables or disables associated buttons based
         on whether its position matches the previously clicked label.
 
         Args:
-            pos (int): Position of the clicked label in the grid.
+            lbl_pos (int): Position of the clicked label in the grid.
         """
         clicked_style = ElemLabelStyle.CLICKED.value
         default_style = ElemLabelStyle.DEFAULT.value
@@ -125,11 +131,13 @@ class Controller:
             previous_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
 
     def get_clicked_elem_pos(self) -> int | None:
-        """Returns the index position of the clicked label in the currently
-        displayed grid. If no label is selected, returns None.
+        """
+        Returns the index position of the currently clicked label.
 
         Returns:
-        int or None: The index of the clicked label, or None if no label is selected."""
+            int | None: The index of the clicked label, or None if no label is
+                        selected.
+        """
         total_elems = len(self.current_grid)
         for i in range(total_elems):
             label = self.current_grid.itemAt(i).widget()
@@ -139,10 +147,15 @@ class Controller:
                 return i
 
     def get_grid_widget(self, elem_type: ElemType) -> QWidget | QLabel:
-        """Returns a QWidget containing a grid of elements.
+        """
+        Returns a new grid or empty label.
 
-        If there are no elements of the specified type, returns a QWidget with
-        a single label.
+        Args:
+            elem_type (ElemType): Element type.
+
+        Returns:
+            QWidget | QLabel: A widget containing a grid or an empty label if
+                              there are no elements of the specified type.
         """
         if elem_type == ElemType.ENV:
             elems = flowizi.environment_list
@@ -153,8 +166,8 @@ class Controller:
         return self.view.get_grid(elem_type, elems)
 
     def remove_left_widget(self):
-        """Removes the widget at index 0 of the splitter if the current view
-        is "environments", or removes the currently displayed tab otherwise.
+        """
+        Removes the widget at index 0 of the splitter.
 
         This method is typically called after adding or deleting an element
         to ensure that the updated grid can be inserted into the appropriate
@@ -168,7 +181,8 @@ class Controller:
         widget.deleteLater()
 
     def show_contained_elems(self):
-        """Inserts a QTabWidget into the splitter at index 0.
+        """
+        Inserts a QTabWidget into the splitter at index 0.
 
         The QTabWidget contains tabs for each type of contained element,
         with each tab displaying a grid of instances corresponding to that
@@ -191,7 +205,8 @@ class Controller:
         self.update_current_tab()
 
     def update_current_tab(self):
-        """Updates the values of "current_tab_pos" and "current_view" based on
+        """
+        Updates the values of "current_tab_pos" and "current_view" based on
         the current view.
 
         This ensures that the application's state reflects the user's active
@@ -209,8 +224,8 @@ class Controller:
         self.update_current_grid()
 
     def update_current_grid(self):
-        """Updates the "current_grid" attribute to reflect the grid of the
-        currently displayed view.
+        """
+        Updates the "current_grid" attribute based on the App's state.
         """
         if self.current_view == ElemType.ENV:
             self.current_grid = self.view.splitter.widget(0).layout()
@@ -222,9 +237,12 @@ class Controller:
             self.current_grid = self.tab_widget.widget(2).layout()
 
     def back_btn_clicked(self):
-        """Handles the back button click event by resetting the current view,
-        tab position, and environment. This restores the application state to
-        the initial view  or the state before double-clicking an environment.
+        """
+        Slot triggered when the back button is clicked.
+
+        Resets the current view, tab position, and environment. This restores
+        the application state to the initial view  or the state before
+        double-clicking an environment.
         """
         self.current_view = ElemType.ENV
         self.current_tab_pos = None
@@ -232,8 +250,8 @@ class Controller:
         self.refresh_window()
 
     def start_btn_clicked(self):
-        """If an environment is selected, the elements contained within it
-        will be launched.
+        """
+        Opens the clicked environment's elements after using the start button.
         """
         pos = self.get_clicked_elem_pos()
         if pos is not None:
@@ -250,8 +268,8 @@ class Controller:
         self.refresh_window()
 
     def delete_env(self, env_pos: int):
-        """Deletes the environment corresponding to the clicked label's
-        position.
+        """
+        Deletes the environment corresponding to the clicked label's position.
 
         Args:
             env_pos (int): Index of the environment to delete.
@@ -260,7 +278,8 @@ class Controller:
         Validations.delete_env_validation(env_name)
 
     def delete_elem(self, elem_type: ElemType, elem_pos: int):
-        """Deletes the element corresponding to the clicked label's position.
+        """
+        Deletes the element corresponding to the clicked label's position.
 
         Args:
             elem_type (ElemType): The type of the element (e.g., WEB, APP,
@@ -274,14 +293,16 @@ class Controller:
         Validations.delete_elem_validation(env.name, elem_type, elem_name)
 
     def create_btn_clicked(self):
-        """Calls a method to create an element based on the current view"""
+        """Calls a method to create an element based on the current view."""
         if self.current_view == ElemType.WEB or self.current_view == ElemType.ENV:
             self.create_elem_input(self.current_view)
         else:
             self.create_elem_dialog(self.current_view)
 
     def create_elem_dialog(self, elem_type: ElemType):
-        """Creates an element without keyboard input through a dialog window.
+        """
+        Creates an element without keyboard input through a dialog window.
+
         Args:
             elem_type(ElemType): Element type.
         """
@@ -294,8 +315,11 @@ class Controller:
             self.refresh_window()
 
     def create_elem_input(self, elem_type: ElemType):
-        """Displays a window prompting the user for input to create a website
-        or environment.
+        """
+        Prompts the user for input through a dialog to create an element.
+
+        Args:
+            elem_type (ElemType): Element type.
         """
         singular_name = elem_type.value[: len(elem_type.value) - 1]
         title = f"Create {singular_name}"
@@ -307,7 +331,12 @@ class Controller:
             self.validate_input(msg_box.get_text())
 
     def validate_input(self, input: str):
-        """Validates if the user's input is valid."""
+        """
+        Validates if the user's input is valid.
+
+        Args:
+            input (str): String given by the user.
+        """
         if input == "":
             res = ""
             msg = "The name must have at least one character"
@@ -325,23 +354,24 @@ class Controller:
         else:
             self.refresh_window()
 
-    def add_env(self, env_name) -> bool:
-        """Tries to create an environment with the name given by the user.
-        Displays an error if there is already an environment with that name.
+    def add_env(self, env_name: str) -> bool:
+        """
+        Attempts to create an environment with the name given by the user.
 
         Args:
-        env_name (str): Name provided by the user for the environment.
+            env_name (str): Name provided by the user for the environment.
 
         Returns:
-        bool: True if the environment was successfully created,
-              False otherwise.
+            bool: True if the environment was successfully created,
+                  False otherwise.
         """
         result: bool = Validations.add_env_validation(env_name)
 
         return result
 
-    def add_web(self, url) -> bool:
-        """Attempts to create a website with the URL given by the user.
+    def add_web(self, url: str) -> bool:
+        """
+        Attempts to create a website with the URL given by the user.
 
         Args:
             url (str): URL provided by the user for the website.
@@ -354,7 +384,8 @@ class Controller:
         return result
 
     def add_file(self) -> bool:
-        """Launches a QFileDialog so that the user can choose the file to add.
+        """
+        Launches a FileDialog so that the user can choose the file to add.
 
         Once a file is selected, the path to the file will be stored. If
         that path is not already in the database for the current environment,
@@ -362,7 +393,7 @@ class Controller:
 
         Returns:
             bool: True if the file was successfully created and added,
-            False otherwise.
+                  False otherwise.
         """
         dialog = FileDialog()
         if dialog.exec_():
@@ -375,8 +406,8 @@ class Controller:
             return result
 
     def add_application(self) -> bool:
-        """Launches an AppDialog so that the user can choose the application
-        to add.
+        """
+        Launches an AppDialog so that the user can choose the app to add.
 
         Once an executable file is selected, the path will be stored. If
         that path is not already in the database for the current environment,
@@ -384,7 +415,7 @@ class Controller:
 
         Returns:
             bool: True if the application was successfully created and added,
-            False otherwise.
+                  False otherwise.
         """
         app_window = AppDialog(self.current_env)
         self.loop = QEventLoop()
@@ -401,7 +432,7 @@ class Controller:
     def handle_app_close_signal(self, value):
         self.user_app_close = value
 
-    def refresh_sidebar(self, pos):
+    def refresh_sidebar(self, pos: int):
         """
         Updates the sidebar information based on the clicked label's position
         and current view.
@@ -418,7 +449,8 @@ class Controller:
             self.refresh_elem_sidebar(elem)
 
     def refresh_env_sidebar(self, env: Environment):
-        """Refreshes the sidebar to display details of the specified environment.
+        """
+        Refreshes the sidebar to display details of the specified environment.
 
         Args:
             env (Environment): The environment object whose details
@@ -435,7 +467,8 @@ class Controller:
         self.view.sidebar_files_label.setText(f"Files: {len(env.files)}")
 
     def refresh_elem_sidebar(self, elem: ContainedElement):
-        """Refreshes the sidebar to display details of the specified element.
+        """
+        Refreshes the sidebar to display details of the specified element.
 
         Args:
             elem (ContainedElement): The ContainedElement object whose details
@@ -449,7 +482,8 @@ class Controller:
         self.view.sidebar_elem_info_label.setText(f"URL: {elem.url}")
 
     def set_btns_clickable(self, clickable: bool):
-        """Enable or disable the 'start' and 'delete' buttons.
+        """
+        Enable or disable the 'start' and 'delete' buttons.
 
         Sets the 'start' and 'delete' buttons to either enabled
         or disabled based on the value of the 'clickable' parameter.
