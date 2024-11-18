@@ -4,8 +4,7 @@ from PyQt5.QtGui import QFont
 from PyQt5.QtCore import QEventLoop
 from gui.views.view import MainWindow
 from gui.views.styles import ElemLabelStyle
-from gui.views.custom_comps import (ErrorWindow, InputDialog, FileDialog,
-                                    AppDialog)
+from gui.views.custom_comps import ErrorWindow, FileDialog, AppDialog
 from core.elements.element import ElemType, Environment
 from core.elements.contained_element import ContainedElement
 from core.text_res.feedback import Feedback
@@ -25,7 +24,7 @@ class Controller:
         self.selected_app = None
 
         self.connect_signals_to_slots()
-        self.set_btns_clickable(False)
+        self.view.set_btns_clickable(False)
         self.view.sidebar_widget.hide()
 
         sys.exit(app.exec_())
@@ -50,7 +49,7 @@ class Controller:
         disabled when no label is selected, preventing unintended interactions
         and enhancing the user experience.
         """
-        self.set_btns_clickable(False)
+        self.view.set_btns_clickable(False)
 
         if self.current_view == ElemType.ENV:
             self.view.start_btn.show()
@@ -123,7 +122,7 @@ class Controller:
         enable_btns = prev_lbl_pos != lbl_pos
         clicked_lbl_style = clicked_style if enable_btns else default_style
 
-        self.set_btns_clickable(enable_btns)
+        self.view.set_btns_clickable(enable_btns)
         clicked_label.setStyleSheet(clicked_lbl_style)
 
         if prev_lbl_pos:
@@ -295,40 +294,9 @@ class Controller:
     def create_btn_clicked(self):
         """Calls a method to create an element based on the current view."""
         if self.current_view == ElemType.WEB or self.current_view == ElemType.ENV:
-            self.create_elem_input(self.current_view)
+            self.view.create_elem_input(self.current_view)
         else:
-            self.create_elem_dialog(self.current_view)
-
-    def create_elem_dialog(self, elem_type: ElemType):
-        """
-        Creates an element without keyboard input through a dialog window.
-
-        Args:
-            elem_type(ElemType): Element type.
-        """
-        if self.current_view == ElemType.APP:
-            res = self.add_application()
-        else:
-            res = self.add_file()
-
-        if res:
-            self.refresh_window()
-
-    def create_elem_input(self, elem_type: ElemType):
-        """
-        Prompts the user for input through a dialog to create an element.
-
-        Args:
-            elem_type (ElemType): Element type.
-        """
-        singular_name = elem_type.value[: len(elem_type.value) - 1]
-        title = f"Create {singular_name}"
-        msg = f"Enter the name of the new {singular_name}"
-
-        msg_box = InputDialog(title, msg)
-
-        if msg_box.exec():
-            self.validate_input(msg_box.get_text())
+            self.view.create_elem_dialog(self.current_view, self.current_env)
 
     def validate_input(self, input: str):
         """
@@ -338,99 +306,46 @@ class Controller:
             input (str): String given by the user.
         """
         if input == "":
-            res = ""
-            msg = "The name must have at least one character"
+            res, msg = "", "The name must have at least one character"
         elif self.current_view == ElemType.ENV:
-            res = self.add_env(input)
-            msg = Feedback.ENV_ALREADY_EXISTS.value
+            res, msg = self.validate_env_input(input)
         else:
-            inv_url_msg = Feedback.WEBSITE_INVALID_URL.value
-            web_already_exist = Feedback.WEBSITE_ALREADY_EXISTS.value
-            res = self.add_web(input)
-            msg = inv_url_msg if res == ResType.INVALID_URL else web_already_exist
+            res, msg = self.validate_web_input(input)
 
-        if res != ResType.ENV_CREATED and res != ResType.SUCCESS:
-            ErrorWindow.show(msg)
-        else:
-            self.refresh_window()
+        self.finish_validate_input(res, msg)
 
-    def add_env(self, env_name: str) -> bool:
+    def validate_env_input(self, input: str) -> str:
         """
-        Attempts to create an environment with the name given by the user.
+        Validates if the user's input is a valid environment name.
 
         Args:
-            env_name (str): Name provided by the user for the environment.
-
-        Returns:
-            bool: True if the environment was successfully created,
-                  False otherwise.
+            input (str): User input.
         """
-        result: bool = Validations.add_env_validation(env_name)
+        res = Validations.add_env_validation(input)
+        msg = Feedback.ENV_ALREADY_EXISTS.value
 
-        return result
+        return res, msg
 
-    def add_web(self, url: str) -> bool:
+    def validate_web_input(self, input: str) -> str:
         """
-        Attempts to create a website with the URL given by the user.
+        Validates if the user's input is a valid web URL.
 
         Args:
-            url (str): URL provided by the user for the website.
-
-        Returns:
-            bool: True if the site was successfully created, False otherwise.
+            input (str): User input.
         """
         env_name = flowizi.environment_list[self.current_env].name
-        result = Validations.add_elem_validation(env_name, ElemType.WEB, url)
-        return result
+        inv_url_msg = Feedback.WEBSITE_INVALID_URL.value
+        web_already_exist = Feedback.WEBSITE_ALREADY_EXISTS.value
+        res = Validations.add_elem_validation(env_name, ElemType.WEB, input)
+        msg = inv_url_msg if res == ResType.INVALID_URL else web_already_exist
 
-    def add_file(self) -> bool:
-        """
-        Launches a FileDialog so that the user can choose the file to add.
+        return res, msg
 
-        Once a file is selected, the path to the file will be stored. If
-        that path is not already in the database for the current environment,
-        it will be added.
-
-        Returns:
-            bool: True if the file was successfully created and added,
-                  False otherwise.
-        """
-        dialog = FileDialog()
-        if dialog.exec_():
-            file_path = dialog.get_selected_file()
-            env_name = flowizi.environment_list[self.current_env].name
-            result = Validations.add_elem_validation(env_name, ElemType.FILE, file_path)
-
-            if not result == ResType.SUCCESS:
-                ErrorWindow.show(Feedback.FILE_ALREADY_EXISTS.value)
-            return result
-
-    def add_application(self) -> bool:
-        """
-        Launches an AppDialog so that the user can choose the app to add.
-
-        Once an executable file is selected, the path will be stored. If
-        that path is not already in the database for the current environment,
-        it will be added.
-
-        Returns:
-            bool: True if the application was successfully created and added,
-                  False otherwise.
-        """
-        app_window = AppDialog(self.current_env)
-        self.loop = QEventLoop()
-        app_window.result_signal.connect(self.handle_app_signal)
-        app_window.user_close_signal.connect(self.handle_app_close_signal)
-        app_window.exec_()
-
-        if not self.user_app_close:
-            return self.app_result
-
-    def handle_app_signal(self, value):
-        self.app_result = value
-
-    def handle_app_close_signal(self, value):
-        self.user_app_close = value
+    def finish_validate_input(self, res, msg):
+        if res != ResType.ENV_CREATED and res != ResType.SUCCESS:
+            self.view.show_error_msg(msg)
+        else:
+            self.refresh_window()
 
     def refresh_sidebar(self, pos: int):
         """
@@ -481,23 +396,11 @@ class Controller:
         self.view.sidebar_name_label.setText(f"Name: {elem.name}")
         self.view.sidebar_elem_info_label.setText(f"URL: {elem.url}")
 
-    def set_btns_clickable(self, clickable: bool):
-        """
-        Enable or disable the 'start' and 'delete' buttons.
-
-        Sets the 'start' and 'delete' buttons to either enabled
-        or disabled based on the value of the 'clickable' parameter.
-
-        Args:
-            clickable (bool): True to enable the buttons,
-                              False to disable them.
-        """
-        self.view.start_btn.setEnabled(clickable)
-        self.view.delete_btn.setEnabled(clickable)
-
     def connect_signals_to_slots(self):
         self.view.lbl_sig.connect(self.elem_clicked)
         self.view.lbl_dbl_click_sig.connect(self.elem_double_clicked)
+        self.view.input_dialog_sig.connect(self.validate_input)
+        self.view.elem_dialog_created_sig.connect(self.refresh_window)
 
         self.view.start_btn.clicked.connect(self.start_btn_clicked)
         self.view.create_btn.clicked.connect(self.create_btn_clicked)

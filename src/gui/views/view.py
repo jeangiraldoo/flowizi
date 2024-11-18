@@ -4,9 +4,12 @@ from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
                              QSplitter, QPushButton, QHBoxLayout, QGridLayout,
                              QSizePolicy)
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import Qt, pyqtSignal
-from gui.views.custom_comps import ClickableLabel
+from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
+from gui.views.custom_comps import (FileDialog, AppDialog, InputDialog,
+                                    ClickableLabel, ErrorWindow)
 from flowizi import flowizi
+from core.database.validations import Validations, ResType
+from core.text_res.feedback import Feedback
 from core.elements.element import Element, ElemType
 from gui.views.styles import ElemLabelStyle
 
@@ -14,6 +17,9 @@ from gui.views.styles import ElemLabelStyle
 class MainWindow(QMainWindow):
     lbl_sig = pyqtSignal(int)
     lbl_dbl_click_sig = pyqtSignal(int)
+    elem_dialog_created_sig = pyqtSignal(bool)
+    input_dialog_sig = pyqtSignal(str)
+    AppDialog_sig = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -45,6 +51,93 @@ class MainWindow(QMainWindow):
 
         root_layout.addLayout(self.toolbar)
         root_layout.addWidget(self.splitter)
+
+    def set_btns_clickable(self, clickable: bool):
+        """
+        Enable or disable the 'start' and 'delete' buttons.
+
+        Sets the 'start' and 'delete' buttons to either enabled
+        or disabled based on the value of the 'clickable' parameter.
+
+        Args:
+            clickable (bool): True to enable the buttons,
+                              False to disable them.
+        """
+        self.start_btn.setEnabled(clickable)
+        self.delete_btn.setEnabled(clickable)
+
+    def create_elem_input(self, elem_type: ElemType):
+        """
+        Prompts the user for input through a dialog to create an element.
+
+        Args:
+            elem_type (ElemType): Element type.
+        """
+        singular_name = elem_type.value[: len(elem_type.value) - 1]
+        title = f"Create {singular_name}"
+        msg = f"Enter the name of the new {singular_name}"
+
+        msg_box = InputDialog(title, msg)
+
+        if msg_box.exec():
+            self.input_dialog_sig.emit(msg_box.get_text())
+
+    def create_elem_dialog(self, elem_type, current_env):
+        """
+        Creates an element without keyboard input through a dialog window.
+
+        Args:
+            elem_type(ElemType): Element type.
+        """
+        if elem_type == ElemType.APP:
+            res = self._launch_AppDialog(current_env)
+        else:
+            res = self._launch_FileDialog(current_env)
+
+        if res:
+            self.elem_dialog_created_sig.emit(True)
+
+    def _launch_AppDialog(self, current_env):
+        """
+        Launches an AppDialog so that the user can choose the app to add.
+
+        Returns:
+            bool: True if the app was successfully created, False otherwise.
+        """
+        app_window = AppDialog(current_env)
+        self.loop = QEventLoop()
+        app_window.result_signal.connect(self.handle_app_signal)
+        app_window.user_close_signal.connect(self.handle_app_close_signal)
+        app_window.exec_()
+
+        if not self.user_app_close:
+            return self.app_result
+
+    def _launch_FileDialog(self, current_env) -> bool:
+        """
+        Launches a FileDialog so that the user can choose the file to add.
+
+        Returns:
+            bool: True if the file was successfully created, False otherwise.
+        """
+        dialog = FileDialog()
+        if dialog.exec_():
+            file_path = dialog.get_selected_file()
+            env_name = flowizi.environment_list[current_env].name
+            result = Validations.add_elem_validation(env_name, ElemType.FILE, file_path)
+
+            if not result == ResType.SUCCESS:
+                ErrorWindow.show(Feedback.FILE_ALREADY_EXISTS.value)
+            return result
+
+    def handle_app_signal(self, value):
+        self.app_result = value
+
+    def handle_app_close_signal(self, value):
+        self.user_app_close = value
+
+    def show_error_msg(self, msg):
+        ErrorWindow.show(msg)
 
     def get_grid(self, elem_type: ElemType, elem_list: List[Element]) -> QLabel | QWidget:
         """Returns a widget containing a grid layout if "elem_list" has
