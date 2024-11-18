@@ -1,12 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QTabWidget
 from PyQt5.QtGui import QFont
-from PyQt5.QtCore import QEventLoop
 from gui.views.view import MainWindow
 from gui.views.styles import ElemLabelStyle
-from gui.views.custom_comps import ErrorWindow, FileDialog, AppDialog
-from core.elements.element import ElemType, Environment
-from core.elements.contained_element import ContainedElement
+from core.elements.element import ElemType
 from core.text_res.feedback import Feedback
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
@@ -25,7 +22,6 @@ class Controller:
 
         self.connect_signals_to_slots()
         self.view.set_btns_clickable(False)
-        self.view.sidebar_widget.hide()
 
         sys.exit(app.exec_())
 
@@ -87,7 +83,7 @@ class Controller:
         """
         if self.current_view == ElemType.ENV:
             self.current_env = pos
-        self.refresh_sidebar(pos)
+        self.view.update_sidebar(self.current_view, self.current_env, pos)
         self.style_clicked_elem(pos)
 
     def elem_double_clicked(self, pos: int):
@@ -125,7 +121,7 @@ class Controller:
         self.view.set_btns_clickable(enable_btns)
         clicked_label.setStyleSheet(clicked_lbl_style)
 
-        if prev_lbl_pos:
+        if prev_lbl_pos is not None:
             previous_label = self.current_grid.itemAt(prev_lbl_pos).widget()
             previous_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
 
@@ -346,55 +342,6 @@ class Controller:
             self.view.show_error_msg(msg)
         else:
             self.refresh_window()
-
-    def refresh_sidebar(self, pos: int):
-        """
-        Updates the sidebar information based on the clicked label's position
-        and current view.
-
-        Args:
-            pos (int): The index position of the clicked label.
-        """
-        self.view.sidebar_widget.show()
-        if self.current_view == ElemType.ENV:
-            self.refresh_env_sidebar(flowizi.environment_list[pos])
-        else:
-            env = flowizi.environment_list[self.current_env]
-            elem = getattr(env, self.current_view.value)[pos]
-            self.refresh_elem_sidebar(elem)
-
-    def refresh_env_sidebar(self, env: Environment):
-        """
-        Refreshes the sidebar to display details of the specified environment.
-
-        Args:
-            env (Environment): The environment object whose details
-                               are displayed in the sidebar.
-        """
-        self.view.sidebar_websites_label.show()
-        self.view.sidebar_apps_label.show()
-        self.view.sidebar_files_label.show()
-
-        self.view.sidebar_name_label.setText(f"Name: {env.name}")
-        self.view.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
-        self.view.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
-        self.view.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
-        self.view.sidebar_files_label.setText(f"Files: {len(env.files)}")
-
-    def refresh_elem_sidebar(self, elem: ContainedElement):
-        """
-        Refreshes the sidebar to display details of the specified element.
-
-        Args:
-            elem (ContainedElement): The ContainedElement object whose details
-                               are displayed in the sidebar.
-        """
-        self.view.sidebar_websites_label.hide()
-        self.view.sidebar_apps_label.hide()
-        self.view.sidebar_files_label.hide()
-
-        self.view.sidebar_name_label.setText(f"Name: {elem.name}")
-        self.view.sidebar_elem_info_label.setText(f"URL: {elem.url}")
 
     def connect_signals_to_slots(self):
         self.view.lbl_sig.connect(self.elem_clicked)

@@ -10,7 +10,8 @@ from gui.views.custom_comps import (FileDialog, AppDialog, InputDialog,
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
-from core.elements.element import Element, ElemType
+from core.elements.element import Element, Environment, ElemType
+from core.elements.contained_element import ContainedElement
 from gui.views.styles import ElemLabelStyle
 
 
@@ -249,6 +250,7 @@ class MainWindow(QMainWindow):
 
     def setup_sidebar(self):
         self.sidebar_widget = QWidget()
+        self.sidebar_widget.hide()
         self.sidebar_widget.setMinimumWidth(300)
         sidebar_layout = QVBoxLayout()
         self.sidebar_widget.setLayout(sidebar_layout)
@@ -313,3 +315,52 @@ class MainWindow(QMainWindow):
         label.setStyleSheet("color: white; font-size: 30px; padding: 10px;")
 
         return label
+
+    def update_sidebar(self, current_view: ElemType, current_env, pos: int):
+        """
+        Updates the sidebar information based on the clicked label's position
+        and current view.
+
+        Args:
+            pos (int): The index position of the clicked label.
+        """
+        self.sidebar_widget.show()
+        if current_view == ElemType.ENV:
+            self.update_env_sidebar(flowizi.environment_list[pos])
+        else:
+            env = flowizi.environment_list[current_env]
+            elem = getattr(env, current_view.value)[pos]
+            self.update_elem_sidebar(elem)
+
+    def update_env_sidebar(self, env: Environment):
+        """
+        Refreshes the sidebar to display details of the specified environment.
+
+        Args:
+            env (Environment): The environment object whose details
+                               are displayed in the sidebar.
+        """
+        self.sidebar_websites_label.show()
+        self.sidebar_apps_label.show()
+        self.sidebar_files_label.show()
+
+        self.sidebar_name_label.setText(f"Name: {env.name}")
+        self.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
+        self.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
+        self.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
+        self.sidebar_files_label.setText(f"Files: {len(env.files)}")
+
+    def update_elem_sidebar(self, elem: ContainedElement):
+        """
+        Updates the sidebar to display details of the specified element.
+
+        Args:
+            elem (ContainedElement): The ContainedElement object whose details
+                               are displayed in the sidebar.
+        """
+        self.sidebar_websites_label.hide()
+        self.sidebar_apps_label.hide()
+        self.sidebar_files_label.hide()
+
+        self.sidebar_name_label.setText(f"Name: {elem.name}")
+        self.sidebar_elem_info_label.setText(f"URL: {elem.url}")
