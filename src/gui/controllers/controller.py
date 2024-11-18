@@ -33,26 +33,8 @@ class Controller:
         after actions such as adding, selecting, or deleting an element.
         """
         self.refresh_left_widget()
-        self.refresh_toolbar()
+        self.view.update_toolbar(self.current_view)
         self.view.sidebar_widget.hide()
-
-    def refresh_toolbar(self):
-        """
-        Updates the visibility of specific buttons based on the app's state.
-
-        This method is called after actions like adding a website or interacting
-        with elements. It ensures buttons that require a selected label are
-        disabled when no label is selected, preventing unintended interactions
-        and enhancing the user experience.
-        """
-        self.view.set_btns_clickable(False)
-
-        if self.current_view == ElemType.ENV:
-            self.view.start_btn.show()
-            self.view.back_btn.hide()
-        else:
-            self.view.start_btn.hide()
-            self.view.back_btn.show()
 
     def refresh_left_widget(self):
         """
@@ -97,7 +79,7 @@ class Controller:
             self.view.sidebar_widget.hide()
             self.remove_left_widget()
             self.show_contained_elems()
-            self.refresh_toolbar()
+            self.view.update_toolbar(self.current_view)
 
     def style_clicked_elem(self, lbl_pos: int):
         """

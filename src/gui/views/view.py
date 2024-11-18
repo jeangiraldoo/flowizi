@@ -364,3 +364,21 @@ class MainWindow(QMainWindow):
 
         self.sidebar_name_label.setText(f"Name: {elem.name}")
         self.sidebar_elem_info_label.setText(f"URL: {elem.url}")
+
+    def update_toolbar(self, current_view):
+        """
+        Updates the visibility of specific buttons based on the app's state.
+
+        This method is called after actions like adding a website or interacting
+        with elements. It ensures buttons that require a selected label are
+        disabled when no label is selected, preventing unintended interactions
+        and enhancing the user experience.
+        """
+        self.set_btns_clickable(False)
+
+        if current_view == ElemType.ENV:
+            self.start_btn.show()
+            self.back_btn.hide()
+        else:
+            self.start_btn.hide()
+            self.back_btn.show()
