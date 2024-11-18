@@ -293,19 +293,17 @@ class Controller:
         if res:
             self.refresh_window()
 
-    def create_elem_with_input(self, elem_type: ElemType):
+    def create_elem_input(self, elem_type: ElemType):
+        """Displays a window prompting the user for input to create a website
+        or environment.
+        """
         singular_name = elem_type.value[: len(elem_type.value) - 1]
         title = f"Create {singular_name}"
-        message = f"Enter the name of the new {singular_name}"
-        self.get_input(title, message)
+        msg = f"Enter the name of the new {singular_name}"
 
-    def get_input(self, w_title, w_message):
-        """Displays a message box prompting the user for input to create
-        a website or environment.
-        """
         msg_box = InputDialog()
-        msg_box.set_window_title(w_title)
-        msg_box.set_message(w_message)
+        msg_box.set_window_title(title)
+        msg_box.set_message(msg)
 
         if msg_box.exec():
             self.validate_input(msg_box.get_text())
