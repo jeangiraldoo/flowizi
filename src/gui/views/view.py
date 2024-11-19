@@ -6,7 +6,7 @@ from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
 from gui.views.custom_comps import (FileDialog, AppDialog, InputDialog,
                                     ClickableLabel, ErrorWindow)
-from gui.views.ui_comps import Sidebar, Toolbar
+from gui.views.ui_comps import Sidebar, Toolbar, TabBar
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
@@ -334,17 +334,12 @@ class MainWindow(QMainWindow):
         files = getattr(env, ElemType.FILE.value)
         self.toolbar.addStretch()
 
-        self.tab_widget = QTabWidget()
+        self.tab_widget = TabBar()
         self.tab_widget.currentChanged.connect(self.tab_changed)
-        self.tab_widget.setStyleSheet("""QTabBar::tab::selected{
-                                        background-color: #f19600;
-                                 }""")
         self.tab_widget.addTab(self.get_grid(ElemType.WEB, websites), "Websites")
         self.tab_widget.addTab(self.get_grid(ElemType.APP, apps), "Apps")
         self.tab_widget.addTab(self.get_grid(ElemType.FILE, files), "Files")
-        font = QFont()
-        font.setPointSize(12)
-        self.tab_widget.tabBar().setFont(font)
+
         self.splitter.insertWidget(0, self.tab_widget)
         self.tab_changed()
 

@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout,
-                             QSizePolicy, QPushButton)
-from PyQt5.QtGui import QPixmap
+                             QSizePolicy, QPushButton, QTabWidget)
+from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt
 
 
@@ -87,3 +87,14 @@ class Toolbar(QHBoxLayout):
                     background-color: #ffbb4d;
                     }""")
         return btn
+
+
+class TabBar(QTabWidget):
+    def __init__(self):
+        super().__init__()
+        font = QFont()
+        font.setPointSize(12)
+        self.tabBar().setFont(font)
+        self.setStyleSheet("""QTabBar::tab::selected{
+                                        background-color: #f19600;
+                                 }""")
