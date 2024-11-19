@@ -1,13 +1,12 @@
 import math
 from typing import List
 from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
-                             QSplitter, QPushButton, QHBoxLayout, QGridLayout,
-                             QSizePolicy, QTabWidget)
-from PyQt5.QtGui import QIcon, QFont, QPixmap
+                             QSplitter, QGridLayout, QTabWidget)
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
 from gui.views.custom_comps import (FileDialog, AppDialog, InputDialog,
                                     ClickableLabel, ErrorWindow)
-from gui.views.ui_comps import Sidebar
+from gui.views.ui_comps import Sidebar, Toolbar
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
@@ -48,8 +47,8 @@ class MainWindow(QMainWindow):
 
         self.splitter = QSplitter(Qt.Horizontal)
 
-        self.setup_toolbar()
         self.setup_grid()
+        self.toolbar = Toolbar()
         self.sidebar_widget = Sidebar()
         self.splitter.addWidget(self.sidebar_widget)
 
@@ -67,8 +66,8 @@ class MainWindow(QMainWindow):
             clickable (bool): True to enable the buttons,
                               False to disable them.
         """
-        self.start_btn.setEnabled(clickable)
-        self.delete_btn.setEnabled(clickable)
+        self.toolbar.start_btn.setEnabled(clickable)
+        self.toolbar.delete_btn.setEnabled(clickable)
 
     def create_elem_input(self, elem_type: ElemType):
         """
@@ -231,37 +230,9 @@ class MainWindow(QMainWindow):
         """
         self.lbl_dbl_click_sig.emit(pos)
 
-    def setup_toolbar(self):
-        self.toolbar = QHBoxLayout()
-        self.toolbar.setContentsMargins(0, 0, 0, 0)
-
-        self.start_btn = self.create_button("Start")
-        self.create_btn = self.create_button("Create")
-        self.delete_btn = self.create_button("Delete")
-        self.back_btn = self.create_button("Back")
-
-        self.toolbar.addWidget(self.back_btn)
-        self.toolbar.addWidget(self.start_btn)
-        self.toolbar.addWidget(self.create_btn)
-        self.toolbar.addWidget(self.delete_btn)
-        self.back_btn.hide()
-        self.toolbar.addStretch()
-
     def setup_grid(self):
         grid_widget = self.get_grid(ElemType.ENV, flowizi.environment_list)
         self.splitter.addWidget(grid_widget)
-
-    def create_button(self, name):
-        btn = QPushButton(name)
-        btn.setMaximumSize(100, 40)
-        btn.setStyleSheet("""QPushButton{
-                    background-color: #f19600;
-                    font-size: 20px;
-                    }
-                    QPushButton:hover{
-                    background-color: #ffbb4d;
-                    }""")
-        return btn
 
     def generate_empty_grid_label(self, elem_type: ElemType) -> QLabel:
         """Creates and returns a QLabel indicating that there are no elements
@@ -343,11 +314,11 @@ class MainWindow(QMainWindow):
         self.set_btns_clickable(False)
 
         if current_view == ElemType.ENV:
-            self.start_btn.show()
-            self.back_btn.hide()
+            self.toolbar.start_btn.show()
+            self.toolbar.back_btn.hide()
         else:
-            self.start_btn.hide()
-            self.back_btn.show()
+            self.toolbar.start_btn.hide()
+            self.toolbar.back_btn.show()
 
     def show_contained_elems(self, current_env):
         """
@@ -388,7 +359,7 @@ class MainWindow(QMainWindow):
         if current_view == ElemType.ENV:
             widget = self.splitter.widget(0)
         else:
-            widget = self.tab_widget.widget(self.current_tab_pos)
+            widget = self.tab_widget.widget(self.tab_widget.currentIndex())
 
         widget.deleteLater()
 

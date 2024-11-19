@@ -292,7 +292,7 @@ class Controller:
         self.view.elem_dialog_created_sig.connect(self.refresh_window)
         self.view.tab_changed_sig.connect(self.update_current_tab)
 
-        self.view.start_btn.clicked.connect(self.start_btn_clicked)
-        self.view.create_btn.clicked.connect(self.create_btn_clicked)
-        self.view.delete_btn.clicked.connect(self.delete_btn_clicked)
-        self.view.back_btn.clicked.connect(self.back_btn_clicked)
+        self.view.toolbar.start_btn.clicked.connect(self.start_btn_clicked)
+        self.view.toolbar.create_btn.clicked.connect(self.create_btn_clicked)
+        self.view.toolbar.delete_btn.clicked.connect(self.delete_btn_clicked)
+        self.view.toolbar.back_btn.clicked.connect(self.back_btn_clicked)

@@ -1,4 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QSizePolicy
+from PyQt5.QtWidgets import (QWidget, QLabel, QVBoxLayout, QHBoxLayout,
+                             QSizePolicy, QPushButton)
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
@@ -31,7 +32,7 @@ class Sidebar(QWidget):
     def create_label(self, text: str) -> QLabel:
         """
         Creates the labels used to display information about an element.
-            
+
         Args:
             text (str): Text to display on the label.
 
@@ -47,3 +48,42 @@ class Sidebar(QWidget):
         label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         return label
+
+
+class Toolbar(QHBoxLayout):
+    def __init__(self):
+        super().__init__()
+        self.setContentsMargins(0, 0, 0, 0)
+
+        self.start_btn = self.create_button("Start")
+        self.create_btn = self.create_button("Create")
+        self.delete_btn = self.create_button("Delete")
+        self.back_btn = self.create_button("Back")
+
+        self.addWidget(self.back_btn)
+        self.addWidget(self.start_btn)
+        self.addWidget(self.create_btn)
+        self.addWidget(self.delete_btn)
+        self.back_btn.hide()
+        self.addStretch()
+
+    def create_button(self, btn_txt: str) -> QPushButton:
+        """
+        Creates a button to be displayed in the toolbar
+
+        Args:
+            btn_txt (str): Text to be displayed on the button.
+
+        Returns:
+            QPushButton: Customized button.
+        """
+        btn = QPushButton(btn_txt)
+        btn.setMaximumSize(100, 40)
+        btn.setStyleSheet("""QPushButton{
+                    background-color: #f19600;
+                    font-size: 20px;
+                    }
+                    QPushButton:hover{
+                    background-color: #ffbb4d;
+                    }""")
+        return btn
