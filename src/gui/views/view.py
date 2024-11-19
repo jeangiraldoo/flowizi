@@ -7,6 +7,7 @@ from PyQt5.QtGui import QIcon, QFont, QPixmap
 from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
 from gui.views.custom_comps import (FileDialog, AppDialog, InputDialog,
                                     ClickableLabel, ErrorWindow)
+from gui.views.ui_comps import Sidebar
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
@@ -34,9 +35,9 @@ class MainWindow(QMainWindow):
     def initUI(self):
         """Initializes the main UI layout and its components.
 
-        This method sets up the central widget, main layout, and sidebar for
+        This method sets up the central widget, main layout, and sidebar_widget for
         the application. It includes:
-        - A horizontal splitter containing the main grid and sidebar.
+        - A horizontal splitter containing the main grid and sidebar_widget.
         - A vertical layout (vbox) that organizes the toolbar and splitter.
         - A toolbar.
         """
@@ -49,7 +50,8 @@ class MainWindow(QMainWindow):
 
         self.setup_toolbar()
         self.setup_grid()
-        self.setup_sidebar()
+        self.sidebar_widget = Sidebar()
+        self.splitter.addWidget(self.sidebar_widget)
 
         root_layout.addLayout(self.toolbar)
         root_layout.addWidget(self.splitter)
@@ -249,32 +251,6 @@ class MainWindow(QMainWindow):
         grid_widget = self.get_grid(ElemType.ENV, flowizi.environment_list)
         self.splitter.addWidget(grid_widget)
 
-    def setup_sidebar(self):
-        self.sidebar_widget = QWidget()
-        self.sidebar_widget.hide()
-        self.sidebar_widget.setMinimumWidth(300)
-        sidebar_layout = QVBoxLayout()
-        self.sidebar_widget.setLayout(sidebar_layout)
-        self.splitter.addWidget(self.sidebar_widget)
-
-        sidebar_icon = self.create_sidebar_label("")
-        icon = QPixmap("logo.svg")
-        sidebar_icon.setPixmap(icon)
-        sidebar_icon.setAlignment(Qt.AlignCenter)
-        self.sidebar_name_label = self.create_sidebar_label("")
-        self.sidebar_elem_info_label = self.create_sidebar_label("")
-        self.sidebar_websites_label = self.create_sidebar_label("")
-        self.sidebar_apps_label = self.create_sidebar_label("")
-        self.sidebar_files_label = self.create_sidebar_label("")
-
-        sidebar_layout.addWidget(sidebar_icon)
-        sidebar_layout.addWidget(self.sidebar_name_label)
-        sidebar_layout.addWidget(self.sidebar_elem_info_label)
-        sidebar_layout.addWidget(self.sidebar_websites_label)
-        sidebar_layout.addWidget(self.sidebar_apps_label)
-        sidebar_layout.addWidget(self.sidebar_files_label)
-        sidebar_layout.addStretch()
-
     def create_button(self, name):
         btn = QPushButton(name)
         btn.setMaximumSize(100, 40)
@@ -286,17 +262,6 @@ class MainWindow(QMainWindow):
                     background-color: #ffbb4d;
                     }""")
         return btn
-
-    def create_sidebar_label(self, text: str):
-        style = """background-color: #1c1c1b; padding-left: 3px;
-                   border-radius: 8px; font-size: 22px; color: white;
-                """
-        label = QLabel(text)
-        label.setStyleSheet(style)
-        label.setWordWrap(True)
-        label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-
-        return label
 
     def generate_empty_grid_label(self, elem_type: ElemType) -> QLabel:
         """Creates and returns a QLabel indicating that there are no elements
@@ -319,7 +284,7 @@ class MainWindow(QMainWindow):
 
     def update_sidebar(self, current_view: ElemType, current_env, pos: int):
         """
-        Updates the sidebar information based on the clicked label's position
+        Updates the sidebar_widget information based on the clicked label's position
         and current view.
 
         Args:
@@ -327,44 +292,44 @@ class MainWindow(QMainWindow):
         """
         self.sidebar_widget.show()
         if current_view == ElemType.ENV:
-            self.update_env_sidebar(flowizi.environment_list[pos])
+            self.update_env_sidebar_widget(flowizi.environment_list[pos])
         else:
             env = flowizi.environment_list[current_env]
             elem = getattr(env, current_view.value)[pos]
-            self.update_elem_sidebar(elem)
+            self.update_elem_sidebar_widget(elem)
 
-    def update_env_sidebar(self, env: Environment):
+    def update_env_sidebar_widget(self, env: Environment):
         """
-        Refreshes the sidebar to display details of the specified environment.
+        Refreshes the sidebar_widget to display details of the specified environment.
 
         Args:
             env (Environment): The environment object whose details
-                               are displayed in the sidebar.
+                               are displayed in the sidebar_widget.
         """
-        self.sidebar_websites_label.show()
-        self.sidebar_apps_label.show()
-        self.sidebar_files_label.show()
+        self.sidebar_widget.websites_label.show()
+        self.sidebar_widget.apps_label.show()
+        self.sidebar_widget.files_label.show()
 
-        self.sidebar_name_label.setText(f"Name: {env.name}")
-        self.sidebar_elem_info_label.setText(f"Screen recording: {env.record}")
-        self.sidebar_websites_label.setText(f"Websites: {len(env.websites)}")
-        self.sidebar_apps_label.setText(f"Apps: {len(env.applications)}")
-        self.sidebar_files_label.setText(f"Files: {len(env.files)}")
+        self.sidebar_widget.name_label.setText(f"Name: {env.name}")
+        self.sidebar_widget.elem_info_label.setText(f"Screen recording: {env.record}")
+        self.sidebar_widget.websites_label.setText(f"Websites: {len(env.websites)}")
+        self.sidebar_widget.apps_label.setText(f"Apps: {len(env.applications)}")
+        self.sidebar_widget.files_label.setText(f"Files: {len(env.files)}")
 
-    def update_elem_sidebar(self, elem: ContainedElement):
+    def update_elem_sidebar_widget(self, elem: ContainedElement):
         """
-        Updates the sidebar to display details of the specified element.
+        Updates the sidebar_widget to display details of the specified element.
 
         Args:
             elem (ContainedElement): The ContainedElement object whose details
-                               are displayed in the sidebar.
+                               are displayed in the sidebar_widget.
         """
-        self.sidebar_websites_label.hide()
-        self.sidebar_apps_label.hide()
-        self.sidebar_files_label.hide()
+        self.sidebar_widget.websites_label.hide()
+        self.sidebar_widget.apps_label.hide()
+        self.sidebar_widget.files_label.hide()
 
-        self.sidebar_name_label.setText(f"Name: {elem.name}")
-        self.sidebar_elem_info_label.setText(f"URL: {elem.url}")
+        self.sidebar_widget.name_label.setText(f"Name: {elem.name}")
+        self.sidebar_widget.elem_info_label.setText(f"URL: {elem.url}")
 
     def update_toolbar(self, current_view):
         """
