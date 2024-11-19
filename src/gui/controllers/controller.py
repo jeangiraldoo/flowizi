@@ -1,6 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QWidget, QApplication, QLabel, QTabWidget
-from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QWidget, QApplication, QLabel
 from gui.views.view import MainWindow
 from gui.views.styles import ElemLabelStyle
 from core.elements.element import ElemType
@@ -44,7 +43,7 @@ class Controller:
         reflects the latest state of the application.
         """
         flowizi.update_environments()
-        self.remove_left_widget()
+        self.view.remove_left_widget(self.current_view)
 
         if self.current_view == ElemType.ENV:
             updated_grid = self.get_grid_widget(ElemType.ENV)
@@ -77,8 +76,8 @@ class Controller:
         """
         if self.current_view == ElemType.ENV:
             self.view.sidebar_widget.hide()
-            self.remove_left_widget()
-            self.show_contained_elems()
+            self.view.remove_left_widget(self.current_view)
+            self.view.show_contained_elems(self.current_env)
             self.view.update_toolbar(self.current_view)
 
     def style_clicked_elem(self, lbl_pos: int):
@@ -142,45 +141,6 @@ class Controller:
 
         return self.view.get_grid(elem_type, elems)
 
-    def remove_left_widget(self):
-        """
-        Removes the widget at index 0 of the splitter.
-
-        This method is typically called after adding or deleting an element
-        to ensure that the updated grid can be inserted into the appropriate
-        position.
-        """
-        if self.current_view == ElemType.ENV:
-            widget = self.view.splitter.widget(0)
-        else:
-            widget = self.tab_widget.widget(self.current_tab_pos)
-
-        widget.deleteLater()
-
-    def show_contained_elems(self):
-        """
-        Inserts a QTabWidget into the splitter at index 0.
-
-        The QTabWidget contains tabs for each type of contained element,
-        with each tab displaying a grid of instances corresponding to that
-        element type within the current environment.
-        """
-        self.view.toolbar.addStretch()
-
-        self.tab_widget = QTabWidget()
-        self.tab_widget.currentChanged.connect(self.update_current_tab)
-        self.tab_widget.setStyleSheet("""QTabBar::tab::selected{
-                                        background-color: #f19600;
-                                 }""")
-        self.tab_widget.addTab(self.get_grid_widget(ElemType.WEB), "Websites")
-        self.tab_widget.addTab(self.get_grid_widget(ElemType.APP), "Apps")
-        self.tab_widget.addTab(self.get_grid_widget(ElemType.FILE), "Files")
-        font = QFont()
-        font.setPointSize(12)
-        self.tab_widget.tabBar().setFont(font)
-        self.view.splitter.insertWidget(0, self.tab_widget)
-        self.update_current_tab()
-
     def update_current_tab(self):
         """
         Updates the values of "current_tab_pos" and "current_view" based on
@@ -189,7 +149,7 @@ class Controller:
         This ensures that the application's state reflects the user's active
         tab/view.
         """
-        self.current_tab_pos = self.tab_widget.currentIndex()
+        self.current_tab_pos = self.view.tab_widget.currentIndex()
 
         if self.current_tab_pos == 0:
             self.current_view = ElemType.WEB
@@ -207,11 +167,11 @@ class Controller:
         if self.current_view == ElemType.ENV:
             self.current_grid = self.view.splitter.widget(0).layout()
         elif self.current_view == ElemType.WEB:
-            self.current_grid = self.tab_widget.widget(0).layout()
+            self.current_grid = self.view.tab_widget.widget(0).layout()
         elif self.current_view == ElemType.APP:
-            self.current_grid = self.tab_widget.widget(1).layout()
+            self.current_grid = self.view.tab_widget.widget(1).layout()
         else:
-            self.current_grid = self.tab_widget.widget(2).layout()
+            self.current_grid = self.view.tab_widget.widget(2).layout()
 
     def back_btn_clicked(self):
         """
@@ -330,6 +290,7 @@ class Controller:
         self.view.lbl_dbl_click_sig.connect(self.elem_double_clicked)
         self.view.input_dialog_sig.connect(self.validate_input)
         self.view.elem_dialog_created_sig.connect(self.refresh_window)
+        self.view.tab_changed_sig.connect(self.update_current_tab)
 
         self.view.start_btn.clicked.connect(self.start_btn_clicked)
         self.view.create_btn.clicked.connect(self.create_btn_clicked)

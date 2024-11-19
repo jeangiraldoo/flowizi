@@ -2,8 +2,8 @@ import math
 from typing import List
 from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
                              QSplitter, QPushButton, QHBoxLayout, QGridLayout,
-                             QSizePolicy)
-from PyQt5.QtGui import QIcon, QPixmap
+                             QSizePolicy, QTabWidget)
+from PyQt5.QtGui import QIcon, QFont, QPixmap
 from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
 from gui.views.custom_comps import (FileDialog, AppDialog, InputDialog,
                                     ClickableLabel, ErrorWindow)
@@ -21,6 +21,7 @@ class MainWindow(QMainWindow):
     elem_dialog_created_sig = pyqtSignal(bool)
     input_dialog_sig = pyqtSignal(str)
     AppDialog_sig = pyqtSignal(bool)
+    tab_changed_sig = pyqtSignal(bool)
 
     def __init__(self):
         super().__init__()
@@ -382,3 +383,49 @@ class MainWindow(QMainWindow):
         else:
             self.start_btn.hide()
             self.back_btn.show()
+
+    def show_contained_elems(self, current_env):
+        """
+        Inserts a QTabWidget into the splitter at index 0.
+
+        The QTabWidget contains tabs for each type of contained element,
+        with each tab displaying a grid of instances corresponding to that
+        element type within the current environment.
+        """
+        env = flowizi.environment_list[current_env]
+        websites = getattr(env, ElemType.WEB.value)
+        apps = getattr(env, ElemType.APP.value)
+        files = getattr(env, ElemType.FILE.value)
+        self.toolbar.addStretch()
+
+        self.tab_widget = QTabWidget()
+        self.tab_widget.currentChanged.connect(self.tab_changed)
+        self.tab_widget.setStyleSheet("""QTabBar::tab::selected{
+                                        background-color: #f19600;
+                                 }""")
+        self.tab_widget.addTab(self.get_grid(ElemType.WEB, websites), "Websites")
+        self.tab_widget.addTab(self.get_grid(ElemType.APP, apps), "Apps")
+        self.tab_widget.addTab(self.get_grid(ElemType.FILE, files), "Files")
+        font = QFont()
+        font.setPointSize(12)
+        self.tab_widget.tabBar().setFont(font)
+        self.splitter.insertWidget(0, self.tab_widget)
+        self.tab_changed()
+
+    def remove_left_widget(self, current_view):
+        """
+        Removes the widget at index 0 of the splitter.
+
+        This method is typically called after adding or deleting an element
+        to ensure that the updated grid can be inserted into the appropriate
+        position.
+        """
+        if current_view == ElemType.ENV:
+            widget = self.splitter.widget(0)
+        else:
+            widget = self.tab_widget.widget(self.current_tab_pos)
+
+        widget.deleteLater()
+
+    def tab_changed(self):
+        self.tab_changed_sig.emit(True)
