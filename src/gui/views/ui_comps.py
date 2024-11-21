@@ -88,6 +88,16 @@ class Toolbar(QHBoxLayout):
                     }""")
         return btn
 
+    def set_btns_clickable(self, clickable: bool):
+        """
+        Enable or disable buttons to allow or prevent the user from using them.
+
+        Args:
+            clickable (bool): True to enable the buttons, False otherwise.
+        """
+        self.start_btn.setEnabled(clickable)
+        self.delete_btn.setEnabled(clickable)
+
 
 class TabBar(QTabWidget):
     def __init__(self):

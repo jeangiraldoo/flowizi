@@ -57,17 +57,7 @@ class MainWindow(QMainWindow):
 
         root_layout.addLayout(self.toolbar)
         root_layout.addWidget(self.splitter)
-        self.set_btns_clickable(False)
-
-    def set_btns_clickable(self, clickable: bool):
-        """
-        Enable or disable buttons to allow or prevent the user from using them.
-
-        Args:
-            clickable (bool): True to enable the buttons, False otherwise.
-        """
-        self.toolbar.start_btn.setEnabled(clickable)
-        self.toolbar.delete_btn.setEnabled(clickable)
+        self.toolbar.set_btns_clickable(False)
 
     def create_elem_input(self, elem_type: ElemType, current_env: int):
         """
@@ -284,7 +274,7 @@ class MainWindow(QMainWindow):
         Args:
             current_view (ElemType): Current view displayed.
         """
-        self.set_btns_clickable(False)
+        self.toolbar.set_btns_clickable(False)
 
         if current_view == ElemType.ENV:
             self.toolbar.start_btn.hide()
@@ -388,7 +378,6 @@ class MainWindow(QMainWindow):
         Args:
             current_env (int): Active environment position.
         """
-        self.toolbar.addStretch()
         env = flowizi.environment_list[current_env]
         env_webs = getattr(env, ElemType.WEB.value)
         env_apps = getattr(env, ElemType.APP.value)
@@ -476,7 +465,7 @@ class MainWindow(QMainWindow):
         enable_btns = prev_lbl_pos != lbl_pos
         clicked_lbl_style = clicked_style if enable_btns else default_style
 
-        self.set_btns_clickable(enable_btns)
+        self.toolbar.set_btns_clickable(enable_btns)
         clicked_label.setStyleSheet(clicked_lbl_style)
 
         if prev_lbl_pos is not None:
