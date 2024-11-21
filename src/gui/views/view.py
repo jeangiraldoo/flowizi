@@ -187,15 +187,11 @@ class MainWindow(QMainWindow):
         for row in range(total_rows):
             grid.setRowStretch(row, 1)
             for column in range(num_elems_row):
-                label = ClickableLabel()
-                label.setText(f"{element_list[current_env].name}")
-                label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
-                label.setAlignment(Qt.AlignCenter)
-
+                label = ClickableLabel(f"{element_list[current_env].name}")
                 grid.addWidget(label, row, column)
                 label.set_pos(grid.indexOf(label))
                 label.mousePressEvent = self._send_lbl_sig(label.pos)
-                label.label_double_click_signal.connect(self._send_lbl_dbl_click_sig)
+                label.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
                 current_env += 1
 
                 if current_env == total_envs:
