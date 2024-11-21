@@ -105,6 +105,13 @@ class TabBar(QTabWidget):
         font = QFont()
         font.setPointSize(12)
         self.tabBar().setFont(font)
-        self.setStyleSheet("""QTabBar::tab::selected{
-                                        background-color: #f19600;
-                                 }""")
+        self.setStyleSheet("""QTabBar::tab::selected{background-color: #f19600;}""")
+        self._setup_tabs()
+
+    def _setup_tabs(self):
+        """Initializes the tabs within the tab widget."""
+        tab_titles = ["Websites", "Apps", "Files"]
+
+        for idx, title in enumerate(tab_titles):
+            self.addTab(QWidget(), title)
+            self.widget(idx).setLayout(QVBoxLayout())
