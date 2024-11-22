@@ -39,17 +39,14 @@ class MainWindow(QMainWindow):
 
         self.grid_widget = ElemGridWidget()
         self.grid_widget.set_grid(ElemType.ENV, flowizi.environment_list)
-        self.grid_widget.lbl_sig.connect(self._send_lbl_sig)
-        self.grid_widget.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
-        self.splitter.addWidget(self.grid_widget)
         self.toolbar = Toolbar()
         self.sidebar_widget = Sidebar()
         self.tab_widget = TabBar()
-        self.tab_widget.lbl_sig.connect(self._send_lbl_sig)
-        self.tab_widget.currentChanged.connect(self.tab_changed)
+        self.splitter.addWidget(self.grid_widget)
         self.splitter.addWidget(self.sidebar_widget)
         self.splitter.addWidget(self.tab_widget)
         self.tab_widget.hide()
+        self.connect_signals_to_slots()
 
         root_layout.addLayout(self.toolbar)
         root_layout.addWidget(self.splitter)
@@ -291,28 +288,6 @@ class MainWindow(QMainWindow):
         else:
             self.splitter.insertWidget(1, self.sidebar_widget)
 
-    def _send_lbl_dbl_click_sig(self, pos: int):
-        """Emits a signal with the position of a label that was double-clicked.
-
-        Args:
-            pos (int): The position of the label that was double-clicked.
-        """
-        self.lbl_dbl_click_sig.emit(pos)
-
-    def _send_lbl_sig(self, pos: int):
-        """Creates a mouse event handler for a label and returns it.
-
-        The returned handler emits a signal with the label's position when
-        clicked, allowing the label's position to be used by other components.
-
-        Args:
-            pos (int): The position of the label within the grid.
-
-        Returns:
-            func: Emits "lbl_sig" with the label's position when clicked.
-        """
-        self.lbl_sig.emit(pos)
-
     def tab_changed(self):
         index = self.tab_widget.currentIndex()
         if index == 0:
@@ -367,11 +342,40 @@ class MainWindow(QMainWindow):
             if ElemLabelStyle.CLICKED.value in label_style:
                 return i
 
+    def _send_lbl_dbl_click_sig(self, pos: int):
+        """Emits a signal with the position of a label that was double-clicked.
+
+        Args:
+            pos (int): The position of the label that was double-clicked.
+        """
+        self.lbl_dbl_click_sig.emit(pos)
+
+    def _send_lbl_sig(self, pos: int):
+        """Creates a mouse event handler for a label and returns it.
+
+        The returned handler emits a signal with the label's position when
+        clicked, allowing the label's position to be used by other components.
+
+        Args:
+            pos (int): The position of the label within the grid.
+
+        Returns:
+            func: Emits "lbl_sig" with the label's position when clicked.
+        """
+        self.lbl_sig.emit(pos)
+
     def handle_app_signal(self, value):
         self.app_result = value
 
     def handle_app_close_signal(self, value):
         self.user_app_close = value
+
+    def connect_signals_to_slots(self):
+        """Connects component signals to their corresponding slots."""
+        self.grid_widget.lbl_sig.connect(self._send_lbl_sig)
+        self.grid_widget.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
+        self.tab_widget.lbl_sig.connect(self._send_lbl_sig)
+        self.tab_widget.currentChanged.connect(self.tab_changed)
 
     def show_error_msg(self, msg):
         ErrorWindow.show(msg)
