@@ -134,44 +134,12 @@ class MainWindow(QMainWindow):
             current_env (int): Current environment position.
             pos (int): The index position of the clicked label.
         """
-        self.sidebar_widget.show()
+        env = flowizi.environment_list[current_env]
         if current_view == ElemType.ENV:
-            self._update_env_sidebar_widget(flowizi.environment_list[pos])
+            elem = env
         else:
-            env = flowizi.environment_list[current_env]
             elem = getattr(env, current_view.value)[pos]
-            self._update_elem_sidebar_widget(elem)
-
-    def _update_env_sidebar_widget(self, env: Environment):
-        """
-        Displays environment information in the sidebar labels.
-
-        Args:
-            env (Environment): The environment to display.
-        """
-        self.sidebar_widget.websites_label.show()
-        self.sidebar_widget.apps_label.show()
-        self.sidebar_widget.files_label.show()
-
-        self.sidebar_widget.name_label.setText(f"Name: {env.name}")
-        self.sidebar_widget.elem_info_label.setText(f"Screen recording: {env.record}")
-        self.sidebar_widget.websites_label.setText(f"Websites: {len(env.websites)}")
-        self.sidebar_widget.apps_label.setText(f"Apps: {len(env.applications)}")
-        self.sidebar_widget.files_label.setText(f"Files: {len(env.files)}")
-
-    def _update_elem_sidebar_widget(self, elem: ContainedElement):
-        """
-        Displays element information in the sidebar labels.
-
-        Args:
-            elem (ContainedElement): The ContainedElement to display.
-        """
-        self.sidebar_widget.websites_label.hide()
-        self.sidebar_widget.apps_label.hide()
-        self.sidebar_widget.files_label.hide()
-
-        self.sidebar_widget.name_label.setText(f"Name: {elem.name}")
-        self.sidebar_widget.elem_info_label.setText(f"URL: {elem.url}")
+        self.sidebar_widget.update(current_view, elem)
 
     def _update_toolbar(self, current_view: ElemType):
         """

@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import (QSizePolicy, QVBoxLayout, QHBoxLayout, QWidget,
                              QLabel, QTabWidget, QPushButton, QGridLayout)
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt, pyqtSignal
-from core.elements.element import Element, ElemType
+from core.elements.element import Element, Environment, ElemType
+from core.elements.contained_element import ContainedElement
 from gui.views.styles import ElemLabelStyle
 
 
@@ -12,25 +13,83 @@ class Sidebar(QWidget):
         super().__init__()
         self.hide()
         self.setMinimumWidth(300)
-        layout = QVBoxLayout()
-        self.setLayout(layout)
+        self.setLayout(QVBoxLayout())
+        self.define_lbl_txt()
+        self.setup_widgets()
+        print(self.layout().count())
 
-        sidebar_icon = self.create_label("")
-        sidebar_icon.setPixmap(QPixmap("logo.svg"))
-        sidebar_icon.setAlignment(Qt.AlignCenter)
-        self.name_label = self.create_label("")
-        self.elem_info_label = self.create_label("")
-        self.websites_label = self.create_label("")
-        self.apps_label = self.create_label("")
-        self.files_label = self.create_label("")
+    def define_lbl_txt(self):
+        logo = ""
+        name = "Name: {elem.name}"
+        screen_rec = "Screen recording: {elem.record}"
+        web = "Websites: {elems_len}"
+        app = "Apps: {elems_len}"
+        file = "Files: {elems_len}"
 
-        layout.addWidget(sidebar_icon)
-        layout.addWidget(self.name_label)
-        layout.addWidget(self.elem_info_label)
-        layout.addWidget(self.websites_label)
-        layout.addWidget(self.apps_label)
-        layout.addWidget(self.files_label)
-        layout.addStretch()
+        self.lbls = [logo, name, screen_rec, web, app, file]
+
+    def setup_widgets(self):
+        for i in range(len(self.lbls)):
+            label = self.create_label("")
+            if i == 0:
+                label.setPixmap(QPixmap("logo.svg"))
+                label.setAlignment(Qt.AlignCenter)
+
+            self.layout().addWidget(label)
+
+        self.layout().addStretch()
+
+    def update(self, current_view: ElemType, elem: Element):
+        """
+        Updates labels with content based on the current view and element.
+
+        Args:
+            current_view (ElemType): The active view.
+            elem (Element): The element to display.
+        """
+        self.show()
+        if current_view == ElemType.ENV:
+            self._update_env_sidebar(elem)
+        else:
+            self._update_elem_sidebar(elem)
+
+    def _update_env_sidebar(self, env: Environment):
+        """
+        Displays and updates all labels with the given environment's information.
+
+        Args:
+            env (Environment): Environment to display.
+        """
+        elems = ["", "", "", ElemType.WEB, ElemType.APP, ElemType.FILE]
+
+        for i in range(1, len(self.lbls)):
+            lbl = self.layout().itemAt(i).widget()
+            txt = self.lbls[i]
+            if 0 < i < 3:
+                format_txt = txt.format(elem=env)
+            else:
+                env_elem_len = len(getattr(env, elems[i].value))
+                format_txt = txt.format(elems_len=env_elem_len)
+
+            lbl.setText(format_txt)
+            lbl.show()
+
+    def _update_elem_sidebar(self, elem: ContainedElement):
+        """
+        Hides environment-specific labels and updates the remaining labels
+        with the element's information.
+
+        Args:
+            elem (ContainedElement): Environment to display.
+        """
+        for i in range(1, len(self.lbls)):
+            lbl = self.layout().itemAt(i).widget()
+            if i == 1:
+                lbl.setText(f"Name: {elem.name}")
+            elif i == 2:
+                lbl.setText(f"Url: {elem.url}")
+            else:
+                lbl.hide()
 
     def create_label(self, text: str) -> QLabel:
         """
