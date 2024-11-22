@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         self.splitter = QSplitter(Qt.Horizontal)
 
         self.grid_widget = ElemGridWidget()
-        self.grid_widget.set_grid(ElemType.ENV, flowizi.environment_list)
+        self.grid_widget.update(ElemType.ENV, flowizi.environment_list)
         self.toolbar = Toolbar()
         self.sidebar_widget = Sidebar()
         self.tab_widget = TabBar()
@@ -176,15 +176,13 @@ class MainWindow(QMainWindow):
         self._change_sidebar_pos(current_view)
         self._update_toolbar(current_view)
         if current_view == ElemType.ENV:
-            self.tab_widget.clear_grid_widget()
             self.grid_widget.hide()
             self.tab_widget.show()
             self._show_contained_elems(current_env)
         else:
-            self.grid_widget.clear_grid_widget()
             self.grid_widget.show()
             self.tab_widget.hide()
-            self._show_envs(current_view)
+            self.grid_widget.update(current_view, flowizi.environment_list)
 
     def update_element_widget(self, current_view: ElemType, current_env: int):
         """
@@ -200,21 +198,9 @@ class MainWindow(QMainWindow):
         self.sidebar_widget.hide()
 
         if current_view == ElemType.ENV:
-            self.grid_widget.clear_grid_widget()
-            self._show_envs(current_view)
+            self.grid_widget.update(current_view, flowizi.environment_list)
         else:
-            self.tab_widget.clear_grid_widget()
             self._show_contained_elems(current_env)
-
-    def _show_envs(self, current_view: ElemType):
-        """
-        Adds a widget with environment labels to the grid layout.
-
-        Args:
-            current_view (ElemType): Current view displayed.
-        """
-        new_elements = flowizi.environment_list
-        self.grid_widget.set_grid(current_view, new_elements)
 
     def _show_contained_elems(self, current_env: int):
         """
@@ -234,7 +220,7 @@ class MainWindow(QMainWindow):
             current_dict = elem_list[i]
             current_elem, = current_dict.keys()
             tab = self.tab_widget.widget(i)
-            tab.set_grid(current_elem, current_dict[current_elem])
+            tab.update(current_elem, current_dict[current_elem])
 
         self.tab_widget.setCurrentIndex(0)
 

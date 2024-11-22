@@ -171,6 +171,9 @@ class TabBar(QTabWidget):
         self.setStyleSheet("""QTabBar::tab::selected{background-color: #f19600;}""")
         self._setup_tabs()
 
+    def update(self):
+        self.clear_grid_widget()
+
     def clear_grid_widget(self):
         """Removes the widget found in every tab."""
         for i in range(self.count()):
@@ -208,11 +211,21 @@ class ElemGridWidget(QWidget):
         super().__init__()
         self.setLayout(QVBoxLayout())
 
-    def set_grid(self, elem_type: ElemType, elem_list: list):
+    def update(self, elem_type: ElemType, elem_list: list):
+        """Replaces the current grid with a new one.
+
+        Args:
+            elem_type (ElemType): Type of elements to display.
+            elem_list (list): Elements to populate the grid.
+        """
+        self._clear_grid_widget()
+        self._set_grid(elem_type, elem_list)
+
+    def _set_grid(self, elem_type: ElemType, elem_list: list):
         """Adds a widget grid to the layout."""
         self.layout().addWidget(self._get_grid(elem_type, elem_list))
 
-    def clear_grid_widget(self):
+    def _clear_grid_widget(self):
         """
         Deletes the grid widget if present
 
