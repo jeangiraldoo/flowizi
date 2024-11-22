@@ -1,16 +1,13 @@
-import math
-from typing import List
-from PyQt5.QtWidgets import (QMainWindow, QLabel, QWidget, QVBoxLayout,
-                             QSplitter, QGridLayout)
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
 from gui.views.custom_comps import (FileDialog, AppDialog, InputDialog,
-                                    ClickableLabel, ErrorWindow)
-from gui.views.ui_comps import Sidebar, Toolbar, TabBar
+                                    ErrorWindow)
+from gui.views.ui_comps import ElemGridWidget, Sidebar, Toolbar, TabBar
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
-from core.elements.element import Element, Environment, ElemType
+from core.elements.element import Environment, ElemType
 from core.elements.contained_element import ContainedElement
 from gui.views.styles import ElemLabelStyle
 
@@ -40,10 +37,15 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root_widget)
         self.splitter = QSplitter(Qt.Horizontal)
 
-        self.setup_grid()
+        self.grid_widget = ElemGridWidget()
+        self.grid_widget.set_grid(ElemType.ENV, flowizi.environment_list)
+        self.grid_widget.lbl_sig.connect(self._send_lbl_sig)
+        self.grid_widget.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
+        self.splitter.addWidget(self.grid_widget)
         self.toolbar = Toolbar()
         self.sidebar_widget = Sidebar()
         self.tab_widget = TabBar()
+        self.tab_widget.lbl_sig.connect(self._send_lbl_sig)
         self.tab_widget.currentChanged.connect(self.tab_changed)
         self.splitter.addWidget(self.sidebar_widget)
         self.splitter.addWidget(self.tab_widget)
@@ -126,90 +128,6 @@ class MainWindow(QMainWindow):
                 ErrorWindow.show(Feedback.FILE_ALREADY_EXISTS.value)
             return result
 
-    def get_grid(self, elem_type: ElemType, elem_list: List[Element]) -> QLabel | QWidget:
-        """Returns a widget containing a grid layout if "elem_list" has
-        elements, or a QLabel if "elem_list" is empty.
-
-        Args:
-            elem_type (ElemType): The type of elements in the grid.
-            elem_list (List[Element]): List of elements to display in the grid.
-
-        Returns:
-            QLabel | QWidget: A QWidget with a grid layout if elements
-            exist, or a QLabel indicating an empty grid otherwise.
-        """
-        if len(elem_list):
-            return self.generate_grid(elem_list)
-        else:
-            return self.generate_empty_grid_label(elem_type)
-
-    def generate_grid(self, element_list: List[Element]) -> QWidget:
-        """Returns a QWidget containing a grid layout with labels.
-
-        Each element in "element_list" is represented by a label in the grid,
-        arranged with a specified number of items per row. The labels display
-        the element's name and have connected mouse events for interaction.
-
-        Args:
-            element_list (List[Element]): List of elements to display.
-
-        Returns:
-            QWidget: A QWidget containing the grid of clickable labels, each
-            label positioned according to its order in "element_list".
-        """
-        grid = QGridLayout()
-        grid.setSpacing(30)
-
-        grid_widget = QWidget()
-        grid_widget.setLayout(grid)
-
-        num_elems_row = 4
-        total_envs = len(element_list)
-        total_rows = math.ceil(total_envs/num_elems_row)
-        current_env = 0
-
-        for row in range(total_rows):
-            grid.setRowStretch(row, 1)
-            for column in range(num_elems_row):
-                label = ClickableLabel(f"{element_list[current_env].name}")
-                grid.addWidget(label, row, column)
-                label.set_pos(grid.indexOf(label))
-                label.mousePressEvent = self._send_lbl_sig(label.pos)
-                label.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
-                current_env += 1
-
-                if current_env == total_envs:
-                    break
-
-        return grid_widget
-
-    def setup_grid(self):
-        """
-        Sets up the QWidget that will hold all of the environment labels.
-        """
-        self.grid_widget = QWidget()
-        self.grid_widget.setLayout(QVBoxLayout())
-        self.grid_widget.layout().addWidget(self.get_grid(ElemType.ENV, flowizi.environment_list))
-        self.splitter.addWidget(self.grid_widget)
-
-    def generate_empty_grid_label(self, elem_type: ElemType) -> QLabel:
-        """
-        Returns a label displaying that there are no elements of the given type.
-
-        Args:
-            elem_type (ElemType): Type of element to mention in the label.
-
-        Returns:
-            QLabel: A label prompting the user to create a new element.
-        """
-        label_text = f"No {elem_type.value} have been created yet. Use the 'Create' button to create one"
-        label = QLabel(label_text)
-        label.setWordWrap(True)
-        label.setAlignment(Qt.AlignCenter)
-        label.setStyleSheet("color: white; font-size: 30px; padding: 10px;")
-
-        return label
-
     def update_sidebar(self, current_view: ElemType, current_env: int, pos: int):
         """
         Displays element information in the sidebar labels.
@@ -289,16 +207,17 @@ class MainWindow(QMainWindow):
             current_env (int): The position of the active environment in the
                                current view.
         """
-        self.clear_grid(current_view)
         self.sidebar_widget.hide()
         self._change_sidebar_pos(current_view)
         self._update_toolbar(current_view)
         if current_view == ElemType.ENV:
+            self.tab_widget.clear_grid_widget()
             self.grid_widget.hide()
             self.tab_widget.show()
             self.tab_widget.setCurrentIndex(0)
             self._show_contained_elems(current_env)
         else:
+            self.grid_widget.clear_grid_widget()
             self.grid_widget.show()
             self.tab_widget.hide()
             self._show_envs(current_view)
@@ -315,44 +234,13 @@ class MainWindow(QMainWindow):
         """
         flowizi.update_environments()
         self.sidebar_widget.hide()
-        self.clear_grid(current_view)
 
         if current_view == ElemType.ENV:
+            self.grid_widget.clear_grid_widget()
             self._show_envs(current_view)
         else:
+            self.tab_widget.clear_grid_widget()
             self._show_contained_elems(current_env)
-
-    def clear_grid(self, current_view: ElemType):
-        """
-        Prepares the UI for updating by removing the displayed widget.
-
-        Args:
-            current_view (ElemType): The currently displayed view.
-        """
-        if current_view == ElemType.ENV:
-            self._clear_grid_widget()
-        else:
-            self._clear_tab_widget()
-
-    def _clear_grid_widget(self):
-        """
-        Deletes the widget from the grid layout.
-        """
-        widget = self.grid_widget.layout().itemAt(0).widget()
-        self.grid_widget.layout().removeWidget(widget)
-        widget.deleteLater()
-
-    def _clear_tab_widget(self):
-        """
-        Deletes the widgets in each tab's layout.
-        """
-        for i in range(self.tab_widget.count()):
-            tab = self.tab_widget.widget(i)
-            layout = tab.layout()
-            if layout:
-                item = layout.takeAt(0)
-                widget = item.widget()
-                widget.deleteLater()
 
     def _show_envs(self, current_view: ElemType):
         """
@@ -362,8 +250,7 @@ class MainWindow(QMainWindow):
             current_view (ElemType): Current view displayed.
         """
         new_elements = flowizi.environment_list
-        new_grid = self.get_grid(current_view, new_elements)
-        self.grid_widget.layout().addWidget(new_grid)
+        self.grid_widget.set_grid(current_view, new_elements)
 
     def _show_contained_elems(self, current_env: int):
         """
@@ -373,19 +260,17 @@ class MainWindow(QMainWindow):
             current_env (int): Active environment position.
         """
         env = flowizi.environment_list[current_env]
-        env_webs = getattr(env, ElemType.WEB.value)
-        env_apps = getattr(env, ElemType.APP.value)
-        env_files = getattr(env, ElemType.FILE.value)
+        web_dic = {ElemType.WEB: getattr(env, ElemType.WEB.value)}
+        app_dic = {ElemType.APP: getattr(env, ElemType.APP.value)}
+        file_dic = {ElemType.FILE: getattr(env, ElemType.FILE.value)}
 
-        web_widget = self.get_grid(ElemType.WEB, env_webs)
-        app_widget = self.get_grid(ElemType.APP, env_apps)
-        file_widget = self.get_grid(ElemType.FILE, env_files)
-        widgets = [web_widget, app_widget, file_widget]
+        elem_list = [web_dic, app_dic, file_dic]
 
         for i in range(self.tab_widget.count()):
+            current_dict = elem_list[i]
+            current_elem, = current_dict.keys()
             tab = self.tab_widget.widget(i)
-            layout = tab.layout()
-            layout.addWidget(widgets[i])
+            tab.set_grid(current_elem, current_dict[current_elem])
 
         self.tab_changed()
 
@@ -426,9 +311,7 @@ class MainWindow(QMainWindow):
         Returns:
             func: Emits "lbl_sig" with the label's position when clicked.
         """
-        def event(event):
-            self.lbl_sig.emit(pos)
-        return event
+        self.lbl_sig.emit(pos)
 
     def tab_changed(self):
         index = self.tab_widget.currentIndex()
