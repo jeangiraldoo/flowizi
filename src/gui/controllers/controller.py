@@ -61,13 +61,15 @@ class Controller:
             current_view (ElemType): The element type of the currently displayed grid.
         """
         if current_view == ElemType.ENV:
-            self.current_grid = self.view.grid_widget.layout().itemAt(0).widget()
+            widget = self.view.grid_widget
         elif current_view == ElemType.WEB:
-            self.current_grid = self.view.tab_widget.widget(0).layout().itemAt(0).widget()
+            widget = self.view.tab_widget.widget(0)
         elif current_view == ElemType.APP:
-            self.current_grid = self.view.tab_widget.widget(1).layout().itemAt(0).widget()
+            widget = self.view.tab_widget.widget(1)
         else:
-            self.current_grid = self.view.tab_widget.widget(2).layout().itemAt(0).widget()
+            widget = self.view.tab_widget.widget(2)
+
+        self.current_grid = widget.layout().itemAt(0).widget()
 
     def back_btn_clicked(self):
         """

@@ -179,7 +179,6 @@ class MainWindow(QMainWindow):
             self.tab_widget.clear_grid_widget()
             self.grid_widget.hide()
             self.tab_widget.show()
-            self.tab_widget.setCurrentIndex(0)
             self._show_contained_elems(current_env)
         else:
             self.grid_widget.clear_grid_widget()
@@ -237,7 +236,7 @@ class MainWindow(QMainWindow):
             tab = self.tab_widget.widget(i)
             tab.set_grid(current_elem, current_dict[current_elem])
 
-        self.tab_changed()
+        self.tab_widget.setCurrentIndex(0)
 
     def _change_sidebar_pos(self, current_view: ElemType):
         """

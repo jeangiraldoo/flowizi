@@ -16,7 +16,6 @@ class Sidebar(QWidget):
         self.setLayout(QVBoxLayout())
         self.define_lbl_txt()
         self.setup_widgets()
-        print(self.layout().count())
 
     def define_lbl_txt(self):
         logo = ""
