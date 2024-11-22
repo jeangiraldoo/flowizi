@@ -7,8 +7,7 @@ from gui.views.ui_comps import ElemGridWidget, Sidebar, Toolbar, TabBar
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
-from core.elements.element import Environment, ElemType
-from core.elements.contained_element import ContainedElement
+from core.elements.element import ElemType
 from gui.views.styles import ElemLabelStyle
 
 
@@ -141,25 +140,6 @@ class MainWindow(QMainWindow):
             elem = getattr(env, current_view.value)[pos]
         self.sidebar_widget.update(current_view, elem)
 
-    def _update_toolbar(self, current_view: ElemType):
-        """
-        Updates button visibility based on the app's state.
-
-        Called after actions like adding a website, it disables buttons
-        requiring a selected label to prevent unintended interactions.
-
-        Args:
-            current_view (ElemType): Current view displayed.
-        """
-        self.toolbar.set_btns_clickable(False)
-
-        if current_view == ElemType.ENV:
-            self.toolbar.start_btn.hide()
-            self.toolbar.back_btn.show()
-        else:
-            self.toolbar.start_btn.show()
-            self.toolbar.back_btn.hide()
-
     def change_elem_view(self, current_view: ElemType, current_env: int):
         """
         Switches the displayed element view and updates the UI.
@@ -174,14 +154,14 @@ class MainWindow(QMainWindow):
         """
         self.sidebar_widget.hide()
         self._change_sidebar_pos(current_view)
-        self._update_toolbar(current_view)
+        self.toolbar.update(current_view)
         if current_view == ElemType.ENV:
             self.grid_widget.hide()
             self.tab_widget.show()
             self._show_contained_elems(current_env)
         else:
-            self.grid_widget.show()
             self.tab_widget.hide()
+            self.grid_widget.show()
             self.grid_widget.update(current_view, flowizi.environment_list)
 
     def update_element_widget(self, current_view: ElemType, current_env: int):
