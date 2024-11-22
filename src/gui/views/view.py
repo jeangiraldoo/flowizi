@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
-from gui.views.custom_comps import (FileDialog, AppDialog, InputDialog,
+from gui.views.dialog_comps import (FileDialog, AppDialog, InputDialog,
                                     ErrorWindow)
 from gui.views.ui_comps import ElemGridWidget, Sidebar, Toolbar, TabBar
 from flowizi import flowizi
