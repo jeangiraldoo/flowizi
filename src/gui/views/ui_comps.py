@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QSizePolicy, QVBoxLayout, QHBoxLayout, QWidget,
 from PyQt5.QtGui import QPixmap, QFont
 from PyQt5.QtCore import Qt, pyqtSignal
 from core.elements.element import Element, ElemType
-from gui.views.custom_comps import ClickableLabel
+from gui.views.styles import ElemLabelStyle
 
 
 class Sidebar(QWidget):
@@ -263,3 +263,19 @@ class ElemGridWidget(QWidget):
         def event(event):
             self.lbl_sig.emit(pos)
         return event
+
+
+class ClickableLabel(QLabel):
+    lbl_dbl_click_sig = pyqtSignal(int)
+
+    def __init__(self, txt):
+        super().__init__()
+        self.setStyleSheet(ElemLabelStyle.DEFAULT.value)
+        self.setAlignment(Qt.AlignCenter)
+        self.setText(txt)
+
+    def set_pos(self, pos):
+        self.pos = pos
+
+    def mouseDoubleClickEvent(self, event):
+        self.lbl_dbl_click_sig.emit(self.pos)

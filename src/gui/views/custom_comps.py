@@ -1,11 +1,10 @@
 from PyQt5.QtWidgets import (QPushButton, QLabel, QDialog,
                              QVBoxLayout, QHBoxLayout, QLineEdit,
                              QMessageBox, QListWidget, QFileDialog)
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import pyqtSignal
 from core.platform import sys_apps
 from core.database.validations import Validations, ResType
 from core.elements.element import ElemType
-from gui.views.styles import ElemLabelStyle
 from flowizi import flowizi
 
 
@@ -80,22 +79,6 @@ class FileDialog(QFileDialog):
     def get_selected_file(self):
         selected_files = self.selectedFiles()
         return selected_files[0]
-
-
-class ClickableLabel(QLabel):
-    lbl_dbl_click_sig = pyqtSignal(int)
-
-    def __init__(self, txt):
-        super().__init__()
-        self.setStyleSheet(ElemLabelStyle.DEFAULT.value)
-        self.setAlignment(Qt.AlignCenter)
-        self.setText(txt)
-
-    def set_pos(self, pos):
-        self.pos = pos
-
-    def mouseDoubleClickEvent(self, event):
-        self.lbl_dbl_click_sig.emit(self.pos)
 
 
 class AppDialog(QDialog):
