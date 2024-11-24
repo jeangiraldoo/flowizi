@@ -1,9 +1,7 @@
 from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
-from gui.views.dialog_comps import (FileDialog, AppDialog, InputDialog,
-                                    ErrorWindow)
-from gui.views.ui_comps import ElemGridWidget, Sidebar, Toolbar, TabBar
+from gui.views.components import ui, dialogs
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
@@ -38,11 +36,11 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(root_widget)
         self.splitter = QSplitter(Qt.Horizontal)
 
-        self.grid_widget = ElemGridWidget()
+        self.grid_widget = ui.ElemGridWidget()
         self.grid_widget.update(ElemType.ENV, flowizi.environment_list)
-        self.toolbar = Toolbar()
-        self.sidebar_widget = Sidebar()
-        self.tab_widget = TabBar()
+        self.toolbar = ui.Toolbar()
+        self.sidebar_widget = ui.Sidebar()
+        self.tab_widget = ui.TabBar()
         self.splitter.addWidget(self.grid_widget)
         self.splitter.addWidget(self.sidebar_widget)
         self.splitter.addWidget(self.tab_widget)
@@ -66,7 +64,7 @@ class MainWindow(QMainWindow):
         title = f"Create {singular_name}"
         msg = f"Enter the name of the new {singular_name}"
 
-        msg_box = InputDialog(title, msg)
+        msg_box = dialogs.InputDialog(title, msg)
 
         if msg_box.exec():
             self.update_element_widget(current_env)
@@ -98,7 +96,7 @@ class MainWindow(QMainWindow):
         Returns:
             bool: True if the app was successfully created, False otherwise.
         """
-        app_window = AppDialog(current_env)
+        app_window = dialogs.AppDialog(current_env)
         self.loop = QEventLoop()
         app_window.result_signal.connect(self.handle_app_signal)
         app_window.user_close_signal.connect(self.handle_app_close_signal)
@@ -117,14 +115,14 @@ class MainWindow(QMainWindow):
         Returns:
             bool: True if the file was successfully created, False otherwise.
         """
-        dialog = FileDialog()
+        dialog = dialogs.FileDialog()
         if dialog.exec_():
             file_path = dialog.get_selected_file()
             env_name = flowizi.environment_list[current_env].name
             result = Validations.add_elem_validation(env_name, ElemType.FILE, file_path)
 
             if not result == ResType.SUCCESS:
-                ErrorWindow.show(Feedback.FILE_ALREADY_EXISTS.value)
+                dialogs.ErrorWindow.show(Feedback.FILE_ALREADY_EXISTS.value)
             return result
 
     def update_sidebar(self, current_view: ElemType, current_env: int, pos: int):
@@ -344,4 +342,4 @@ class MainWindow(QMainWindow):
         self.style_clicked_elem(self.view_state.get_current_grid(), elem_pos)
 
     def show_error_msg(self, msg):
-        ErrorWindow.show(msg)
+        dialogs.ErrorWindow.show(msg)
