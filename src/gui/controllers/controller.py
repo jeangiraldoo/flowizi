@@ -12,7 +12,6 @@ class Controller:
         app = QApplication(sys.argv)
         self.view = MainWindow()
         self.view.show()
-        self.update_current_view(ElemType.ENV)
         self.current_env = None
         self.connect_signals_to_slots()
 
@@ -26,11 +25,9 @@ class Controller:
         Args:
             elem_pos (int): Clicked label's position.
         """
-        if self.current_view == ElemType.ENV:
+        if self.view.view_state.state == ElemType.ENV:
             self.current_env = elem_pos
-
-        self.view.update_sidebar(self.current_view, self.current_env, elem_pos)
-        self.view.style_clicked_elem(self.current_grid, elem_pos)
+        self.view.highlight_elem(self.current_env, elem_pos)
 
     def elem_double_clicked(self, pos: int):
         """
@@ -39,51 +36,21 @@ class Controller:
         Args:
             pos (int): Position of the clicked environment.
         """
-        if self.current_view == ElemType.ENV:
-            self.view.change_elem_view(self.current_view, self.current_env)
-            self.update_current_view(ElemType.WEB)
-
-    def update_current_view(self, current_view: ElemType):
-        """
-        Updates the "current_view" to align with the user's active view.
-
-        Args:
-            current_view (ElemType): The element type of the currently displayed grid.
-        """
-        self.current_view = current_view
-        self.update_current_grid(current_view)
-
-    def update_current_grid(self, current_view: ElemType):
-        """
-        Updates the "current_grid" attribute based on the active view.
-
-        Args:
-            current_view (ElemType): The element type of the currently displayed grid.
-        """
-        if current_view == ElemType.ENV:
-            widget = self.view.grid_widget
-        elif current_view == ElemType.WEB:
-            widget = self.view.tab_widget.widget(0)
-        elif current_view == ElemType.APP:
-            widget = self.view.tab_widget.widget(1)
-        else:
-            widget = self.view.tab_widget.widget(2)
-
-        self.current_grid = widget.layout().itemAt(0).widget()
+        if self.view.view_state.state == ElemType.ENV:
+            self.view.change_elem_view(self.current_env)
 
     def back_btn_clicked(self):
         """
         Resets the current_view/grid attributes and displays environments.
         """
-        self.view.change_elem_view(self.current_view, self.current_env)
-        self.update_current_view(ElemType.ENV)
+        self.view.change_elem_view(self.current_env)
         self.current_env = None
 
     def start_btn_clicked(self):
         """
         Opens the clicked environment's elements after using the start button.
         """
-        pos = self.get_clicked_elem_pos(self.current_grid)
+        pos = self.get_clicked_elem_pos(self.view.view_state.get_current_grid())
         if pos is not None:
             flowizi.environment_list[pos].start()
 
@@ -91,14 +58,13 @@ class Controller:
         """
         Deletes the element associated with the clicked label.
         """
-        elem_pos = self.view.get_clicked_elem_pos(self.current_grid)
-        if self.current_view == ElemType.ENV and elem_pos is not None:
+        elem_pos = self.view.get_clicked_elem_pos(self.view.view_state.get_current_grid())
+        if self.view.view_state.state == ElemType.ENV and elem_pos is not None:
             self.delete_env(elem_pos)
         else:
-            self.delete_elem(self.current_view, elem_pos)
+            self.delete_elem(self.view.view_state.state, elem_pos)
 
-        self.view.update_element_widget(self.current_view, self.current_env)
-        self.update_current_grid(self.current_view)
+        self.view.update_element_widget(self.current_env)
 
     def delete_env(self, env_pos: int):
         """
@@ -128,11 +94,10 @@ class Controller:
         """
         Calls a method to create an element based on the current view.
         """
-        if self.current_view == ElemType.WEB or self.current_view == ElemType.ENV:
-            self.view.create_elem_input(self.current_view, self.current_env)
+        if self.view.view_state.state == ElemType.WEB or self.view.view_state.state == ElemType.ENV:
+            self.view.create_elem_input(self.current_env)
         else:
-            self.view.create_elem_dialog(self.current_view, self.current_env)
-        self.update_current_grid(self.current_view)
+            self.view.create_elem_dialog(self.current_env)
 
     def validate_input(self, input: str):
         """
@@ -143,7 +108,7 @@ class Controller:
         """
         if input == "":
             res, msg = "", "The name must have at least one character"
-        elif self.current_view == ElemType.ENV:
+        elif self.view.view_state.state == ElemType.ENV:
             res, msg = self.validate_env_input(input)
         else:
             res, msg = self.validate_web_input(input)
@@ -184,7 +149,7 @@ class Controller:
         if res != ResType.ENV_CREATED and res != ResType.SUCCESS:
             self.view.show_error_msg(msg)
         else:
-            self.view.update_element_widget(self.current_view, self.current_env)
+            self.view.update_element_widget(self.current_env)
 
     def connect_signals_to_slots(self):
         """
@@ -193,7 +158,6 @@ class Controller:
         self.view.lbl_sig.connect(self.elem_clicked)
         self.view.lbl_dbl_click_sig.connect(self.elem_double_clicked)
         self.view.input_dialog_sig.connect(self.validate_input)
-        self.view.tab_changed_sig.connect(self.update_current_view)
 
         self.view.toolbar.start_btn.clicked.connect(self.start_btn_clicked)
         self.view.toolbar.create_btn.clicked.connect(self.create_btn_clicked)

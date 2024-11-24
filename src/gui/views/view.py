@@ -9,6 +9,7 @@ from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
 from core.elements.element import ElemType
 from gui.views.styles import ElemLabelStyle
+from gui.views.states import GuiStateMachine
 
 
 class MainWindow(QMainWindow):
@@ -25,6 +26,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("logo.svg"))
         self.setStyleSheet("background-color: #30302f;")
         self._initUI()
+        self.view_state = GuiStateMachine(self.grid_widget)
 
     def _initUI(self):
         """
@@ -51,7 +53,7 @@ class MainWindow(QMainWindow):
         root_layout.addWidget(self.splitter)
         self.toolbar.set_btns_clickable(False)
 
-    def create_elem_input(self, elem_type: ElemType, current_env: int):
+    def create_elem_input(self, current_env: int):
         """
         Prompts the user for input through a dialog to create an element.
 
@@ -59,17 +61,18 @@ class MainWindow(QMainWindow):
             elem_type (ElemType): Element type.
             current_env (int): Current environment position.
         """
-        singular_name = elem_type.value[: len(elem_type.value) - 1]
+        view_value = self.view_state.state
+        singular_name = view_value.value[: len(view_value.value) - 1]
         title = f"Create {singular_name}"
         msg = f"Enter the name of the new {singular_name}"
 
         msg_box = InputDialog(title, msg)
 
         if msg_box.exec():
-            self.update_element_widget(elem_type, current_env)
+            self.update_element_widget(current_env)
             self.input_dialog_sig.emit(msg_box.get_text())
 
-    def create_elem_dialog(self, elem_type: ElemType, current_env: int):
+    def create_elem_dialog(self, current_env: int):
         """
         Creates an element without keyboard input, using a dialog window.
 
@@ -77,13 +80,13 @@ class MainWindow(QMainWindow):
             elem_type(ElemType): Element type.
             current_env (int): Current environment position.
         """
-        if elem_type == ElemType.APP:
+        if self.view_state.state == ElemType.APP:
             res = self._launch_AppDialog(current_env)
         else:
             res = self._launch_FileDialog(current_env)
 
         if res:
-            self.update_element_widget(elem_type, current_env)
+            self.update_element_widget(current_env)
 
     def _launch_AppDialog(self, current_env: int) -> bool:
         """
@@ -140,7 +143,7 @@ class MainWindow(QMainWindow):
             elem = getattr(env, current_view.value)[pos]
         self.sidebar_widget.update(current_view, elem)
 
-    def change_elem_view(self, current_view: ElemType, current_env: int):
+    def change_elem_view(self, current_env: int):
         """
         Switches the displayed element view and updates the UI.
 
@@ -153,18 +156,40 @@ class MainWindow(QMainWindow):
                                current view.
         """
         self.sidebar_widget.hide()
-        self._change_sidebar_pos(current_view)
-        self.toolbar.update(current_view)
-        if current_view == ElemType.ENV:
-            self.grid_widget.hide()
-            self.tab_widget.show()
-            self._show_contained_elems(current_env)
-        else:
-            self.tab_widget.hide()
-            self.grid_widget.show()
-            self.grid_widget.update(current_view, flowizi.environment_list)
+        self._change_sidebar_pos(self.view_state.state)
+        self.toolbar.update(self.view_state.state)
 
-    def update_element_widget(self, current_view: ElemType, current_env: int):
+        if self.view_state.state == ElemType.ENV:
+            self._change_view_to_elems(current_env)
+        else:
+            self._change_view_to_env()
+
+    def _change_view_to_env(self):
+        """
+        Displays a grid with environments.
+        """
+        self.tab_widget.hide()
+        self.grid_widget.show()
+        self.grid_widget.update(ElemType.ENV, flowizi.environment_list)
+        self.view_state.transition_state(ElemType.ENV, self.grid_widget)
+
+    def _change_view_to_elems(self, current_env: int):
+        """
+        Displays a grid for elements of the specified environment.
+
+        Args:
+            current_env (int): Position of environment whose elements will be shown.
+        """
+        self.grid_widget.hide()
+        self.tab_widget.show()
+        self._show_contained_elems(current_env)
+
+        if self.tab_widget.currentIndex() != 0:
+            self.tab_widget.setCurrentIndex(0)
+        else:
+            self.tab_widget.currentChanged.emit(0)
+
+    def update_element_widget(self, current_env: int):
         """
         Replaces the displayed widget with an updated version.
 
@@ -177,8 +202,8 @@ class MainWindow(QMainWindow):
         flowizi.update_environments()
         self.sidebar_widget.hide()
 
-        if current_view == ElemType.ENV:
-            self.grid_widget.update(current_view, flowizi.environment_list)
+        if self.view_state.state == ElemType.ENV:
+            self.grid_widget.update(ElemType.ENV, flowizi.environment_list)
         else:
             self._show_contained_elems(current_env)
 
@@ -202,8 +227,6 @@ class MainWindow(QMainWindow):
             tab = self.tab_widget.widget(i)
             tab.update(current_elem, current_dict[current_elem])
 
-        self.tab_widget.setCurrentIndex(0)
-
     def _change_sidebar_pos(self, current_view: ElemType):
         """
         Moves the sidebar to the right of the currently displayed grid.
@@ -224,12 +247,17 @@ class MainWindow(QMainWindow):
     def tab_changed(self):
         index = self.tab_widget.currentIndex()
         if index == 0:
-            current_view = ElemType.WEB
+            new_state = ElemType.WEB
+            widget = self.tab_widget.widget(0)
         elif index == 1:
-            current_view = ElemType.APP
+            new_state = ElemType.APP
+            widget = self.tab_widget.widget(1)
         else:
-            current_view = ElemType.FILE
-        self.tab_changed_sig.emit(current_view)
+            new_state = ElemType.FILE
+            widget = self.tab_widget.widget(2)
+
+        self.view_state.transition_state(new_state, widget)
+        # self.tab_changed_sig.emit(current_view)
 
     def style_clicked_elem(self, current_grid: QWidget, lbl_pos: int):
         """
@@ -309,6 +337,11 @@ class MainWindow(QMainWindow):
         self.grid_widget.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
         self.tab_widget.lbl_sig.connect(self._send_lbl_sig)
         self.tab_widget.currentChanged.connect(self.tab_changed)
+
+    def highlight_elem(self, env_pos, elem_pos):
+        view = self.view_state.state
+        self.update_sidebar(view, env_pos, elem_pos)
+        self.style_clicked_elem(self.view_state.get_current_grid(), elem_pos)
 
     def show_error_msg(self, msg):
         ErrorWindow.show(msg)
