@@ -97,7 +97,7 @@ def add_multiple_similar_apps(parser, env_name: str, apps: dict, similar_names: 
     exe_name, path = sys_apps.detect_exe(app_name, exec_files)
     answer = request_exe_confirmation(exe_name)
     if answer:
-        result = Validations.add_elem_validation(env_name, "applications", path)
+        result = Validations.add_elem_validation(env_name, ElemType.APP, path)
     else:
         exe_result = manually_choose_exe(exec_files)
         if exe_result == ResType.INVALID_NUMBER:
