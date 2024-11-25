@@ -8,11 +8,11 @@ from cli.common.app_io import display_items, get_pos
 def add_command(args, parser):
     if args.w:
         elem_type = ElemType.WEB
-        url = args.w[0]
+        url = args.w
         result = Validations.add_elem_validation(args.name, ElemType.WEB, url)
     elif args.f:
         elem_type = ElemType.FILE
-        url = args.f[0]
+        url = args.f
         result = Validations.add_elem_validation(args.name, ElemType.FILE, url)
     elif args.a:
         elem_type = ElemType.APP

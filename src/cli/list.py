@@ -3,7 +3,7 @@ from core.database.validations import Validations
 from core.elements.element import ElemType
 
 
-def list_command(parser, args):
+def list_command(args, parser):
     if len(flowizi.environment_list) == 0:
         print("There's no environments. You can add one by using the add command, followed by the environment name")
     elif args.name and not Validations.env_exists(args.name):
