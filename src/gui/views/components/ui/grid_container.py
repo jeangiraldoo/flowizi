@@ -46,7 +46,7 @@ class ElemGridWidget(QWidget):
 
     def _set_grid(self, elem_type: ElemType, elem_list: list):
         """Adds a widget grid to the layout."""
-        self.grid = self._get_grid(elem_type, elem_list)
+        self.grid = self._generate_widget(elem_type, elem_list)
         self.layout().addWidget(self.grid)
 
     def _clear_grid_widget(self):
@@ -59,10 +59,16 @@ class ElemGridWidget(QWidget):
             self.layout().removeWidget(self.grid)
             self.grid.deleteLater()
 
-    def get_grid_widget(self):
+    def get_grid_widget(self) -> QWidget:
+        """
+        Returns the widget that contains labels.
+
+        This method is used whenever any part of the program needs to interact with the grid
+        being displayed, keeping the rest of program decoupled from the ElemGridWidget class.
+        """
         return self.grid
 
-    def _get_grid(self, elem_type: ElemType, elem_list: list[Element]) -> QLabel | QWidget:
+    def _generate_widget(self, elem_type: ElemType, elem_list: list[Element]) -> QLabel | QWidget:
         """Returns a widget containing a grid layout if "elem_list" has
         elements, or a QLabel if "elem_list" is empty.
 
@@ -77,9 +83,9 @@ class ElemGridWidget(QWidget):
         if len(elem_list):
             return self._generate_grid(elem_list)
         else:
-            return self._generate_empty_grid_label(elem_type)
+            return self._generate_empty_label(elem_type)
 
-    def _generate_empty_grid_label(self, elem_type: ElemType) -> QLabel:
+    def _generate_empty_label(self, elem_type: ElemType) -> QLabel:
         """
         Returns a label displaying that there are no elements of the given type.
 
