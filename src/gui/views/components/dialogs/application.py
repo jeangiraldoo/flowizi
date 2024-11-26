@@ -1,84 +1,11 @@
-from PyQt5.QtWidgets import (QPushButton, QLabel, QDialog,
-                             QVBoxLayout, QHBoxLayout, QLineEdit,
-                             QMessageBox, QListWidget, QFileDialog)
+from PyQt5.QtWidgets import (QLabel, QDialog, QVBoxLayout, QMessageBox,
+                             QListWidget)
 from PyQt5.QtCore import pyqtSignal
 from core.platform import sys_apps
 from core.database.validations import Validations, ResType
+from gui.views.components.dialogs.error import ErrorWindow
 from core.elements.element import ElemType
 from flowizi import flowizi
-
-
-class InputDialog(QDialog):
-    def __init__(self, title, msg):
-        super().__init__()
-        self.setWindowTitle(title)
-        self.message_label = QLabel()
-        self.message_label.setText(msg)
-        self.message_label.setStyleSheet("font-size: 17px")
-        self.text_input = QLineEdit(self)
-
-        btn_box = QHBoxLayout()
-        ok_btn = QPushButton("Create")
-        ok_btn.clicked.connect(self.accept)
-        cancel_btn = QPushButton("Cancel")
-        cancel_btn.clicked.connect(self.reject)
-        btn_box.addWidget(ok_btn)
-        btn_box.addWidget(cancel_btn)
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.message_label)
-        layout.addWidget(self.text_input)
-        layout.addLayout(btn_box)
-        self.setLayout(layout)
-        self.resize(350, 150)
-
-    def get_text(self):
-        return self.text_input.text()
-
-
-class ChoiceDialog(QMessageBox):
-    """
-    A customized QMessageBox to prompt the user to choose between 2 actions.
-
-    Notes:
-        This class overrides the "closeEvent" method to set a "user_closed"
-        attribute, which allows other parts of the code to check whether the
-        message box was closed by the user or programmatically. This behavior
-        is especially useful in scenarios where validations or actions depend
-        on how the window was closed.
-
-    Attributes:
-        user_closed (bool): Tracks if the message box was closed by the user.
-                            Defaults to False; set to True if the user closes
-                            the window.
-
-    Methods:
-        closeEvent(event): Overrides the default close event to set
-                           "user_closed" to True if closed by the user, then
-                           calls the parent class's closeEvent.
-    """
-
-    def __init__(self, title, msg, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_closed = False
-        self.setWindowTitle(title)
-        self.setText(msg)
-        self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-
-    def closeEvent(self, event):
-        self.user_closed = True
-        super().closeEvent(event)
-
-
-class FileDialog(QFileDialog):
-    def __init__(self):
-        super().__init__()
-        self.setFileMode(QFileDialog.ExistingFile)  # Allows selecting only existing files
-        self.setNameFilter("All files (*)")  # Filters by file type if desired
-
-    def get_selected_file(self):
-        selected_files = self.selectedFiles()
-        return selected_files[0]
 
 
 class AppDialog(QDialog):
@@ -255,13 +182,35 @@ class AppDialog(QDialog):
             self.user_close_signal.emit(True)
 
 
-class ErrorWindow():
-    @staticmethod
-    def show(msg):
-        error_box = QMessageBox()
-        error_box.setIcon(QMessageBox.Critical)
-        error_box.setWindowTitle("Error")
-        error_box.setText(msg)
-        error_box.setStandardButtons(QMessageBox.Ok)
-        error_box.setDefaultButton(QMessageBox.Ok)
-        error_box.exec_()
+class ChoiceDialog(QMessageBox):
+    """
+    A customized QMessageBox to prompt the user to choose between 2 actions.
+
+    Notes:
+        This class overrides the "closeEvent" method to set a "user_closed"
+        attribute, which allows other parts of the code to check whether the
+        message box was closed by the user or programmatically. This behavior
+        is especially useful in scenarios where validations or actions depend
+        on how the window was closed.
+
+    Attributes:
+        user_closed (bool): Tracks if the message box was closed by the user.
+                            Defaults to False; set to True if the user closes
+                            the window.
+
+    Methods:
+        closeEvent(event): Overrides the default close event to set
+                           "user_closed" to True if closed by the user, then
+                           calls the parent class's closeEvent.
+    """
+
+    def __init__(self, title, msg, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user_closed = False
+        self.setWindowTitle(title)
+        self.setText(msg)
+        self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+    def closeEvent(self, event):
+        self.user_closed = True
+        super().closeEvent(event)
