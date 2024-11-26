@@ -180,7 +180,7 @@ class Toolbar(QHBoxLayout):
 
 
 class TabBar(QTabWidget):
-    lbl_sig = pyqtSignal(int)
+    lbl_sig = pyqtSignal(bool, int)
 
     def __init__(self):
         super().__init__()
@@ -207,7 +207,7 @@ class TabBar(QTabWidget):
             widget.lbl_sig.connect(self._send_lbl_sig)
             self.addTab(widget, title.value)
 
-    def _send_lbl_sig(self, pos: int):
+    def _send_lbl_sig(self, lbl_highlighted: bool, pos: int):
         """Creates a mouse event handler for a label and returns it.
 
         The returned handler emits a signal with the label's position when
@@ -219,11 +219,11 @@ class TabBar(QTabWidget):
         Returns:
             func: Emits "lbl_sig" with the label's position when clicked.
         """
-        self.lbl_sig.emit(pos)
+        self.lbl_sig.emit(lbl_highlighted, pos)
 
 
 class ElemGridWidget(QWidget):
-    lbl_sig = pyqtSignal(int)
+    lbl_sig = pyqtSignal(bool, int)
     lbl_dbl_click_sig = pyqtSignal(int)
 
     def __init__(self):
@@ -321,7 +321,7 @@ class ElemGridWidget(QWidget):
                 label = ClickableLabel(f"{element_list[current_env].name}")
                 grid.addWidget(label, row, column)
                 label.set_pos(grid.indexOf(label))
-                label.mousePressEvent = self._send_lbl_sig(label.pos)
+                label.lbl_clicked_sig.connect(self._clicked_label_handler)
                 label.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
                 current_env += 1
 
@@ -329,6 +329,57 @@ class ElemGridWidget(QWidget):
                     break
 
         return grid_widget
+
+    def _clicked_label_handler(self, lbl_pos: int):
+        res = self._style_clicked_elem(lbl_pos)
+        self.lbl_sig.emit(res, lbl_pos)
+
+    def _style_clicked_elem(self, lbl_pos: int) -> bool:
+        """
+        Updates styles for the clicked label and the previously clicked label.
+
+        Applies the CLICKED or DEFAULT style based on the label's position and
+        enables/disables associated buttons accordingly.
+
+        Args:
+            lbl_pos (int): The position of the clicked label in the grid.
+        """
+        item = self.layout().itemAt(0)
+        if item is not None:
+            grid_widget = item.widget()
+            clicked_style = ElemLabelStyle.CLICKED.value
+            default_style = ElemLabelStyle.DEFAULT.value
+            prev_lbl_pos: int | None = self.get_clicked_elem_pos(grid_widget)
+            clicked_label = grid_widget.layout().itemAt(lbl_pos).widget()
+
+            enable_btns = prev_lbl_pos != lbl_pos
+            clicked_lbl_style = clicked_style if enable_btns else default_style
+
+            clicked_label.setStyleSheet(clicked_lbl_style)
+
+            if prev_lbl_pos is not None:
+                previous_label = grid_widget.layout().itemAt(prev_lbl_pos).widget()
+                previous_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
+
+            return enable_btns
+
+    def get_clicked_elem_pos(self, current_grid: QWidget) -> int | None:
+        """
+        Gets the index of the currently clicked label.
+
+        Args:
+            current_grid (QWidget): The widget in the focused splitter's position.
+
+        Returns:
+            int | None: Index of the clicked label, or None if no label is selected.
+        """
+        total_elems = current_grid.layout().count()
+        for i in range(total_elems):
+            label = current_grid.layout().itemAt(i).widget()
+            label_style = label.styleSheet()
+
+            if ElemLabelStyle.CLICKED.value in label_style:
+                return i
 
     def _send_lbl_dbl_click_sig(self, pos: int):
         """Emits a signal with the position of a label that was double-clicked.
@@ -338,24 +389,9 @@ class ElemGridWidget(QWidget):
         """
         self.lbl_dbl_click_sig.emit(pos)
 
-    def _send_lbl_sig(self, pos: int):
-        """Creates a mouse event handler for a label and returns it.
-
-        The returned handler emits a signal with the label's position when
-        clicked, allowing the label's position to be used by other components.
-
-        Args:
-            pos (int): The position of the label within the grid.
-
-        Returns:
-            func: Emits "lbl_sig" with the label's position when clicked.
-        """
-        def event(event):
-            self.lbl_sig.emit(pos)
-        return event
-
-
+    
 class ClickableLabel(QLabel):
+    lbl_clicked_sig =pyqtSignal(int)
     lbl_dbl_click_sig = pyqtSignal(int)
 
     def __init__(self, txt):
@@ -366,6 +402,10 @@ class ClickableLabel(QLabel):
 
     def set_pos(self, pos):
         self.pos = pos
+
+    def mousePressEvent(self, event):
+        """Handles the mouse press event and emits the signal."""
+        self.lbl_clicked_sig.emit(self.pos)
 
     def mouseDoubleClickEvent(self, event):
         self.lbl_dbl_click_sig.emit(self.pos)

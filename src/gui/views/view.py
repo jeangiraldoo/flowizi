@@ -255,51 +255,6 @@ class MainWindow(QMainWindow):
             widget = self.tab_widget.widget(2)
 
         self.view_state.transition_state(new_state, widget)
-        # self.tab_changed_sig.emit(current_view)
-
-    def style_clicked_elem(self, current_grid: QWidget, lbl_pos: int):
-        """
-        Updates styles for the clicked label and the previously clicked label.
-
-        Applies the CLICKED or DEFAULT style based on the label's position and
-        enables/disables associated buttons accordingly.
-
-        Args:
-            current_grid (QWidget): The widget in the focused splitter's position.
-            lbl_pos (int): The position of the clicked label in the grid.
-        """
-        clicked_style = ElemLabelStyle.CLICKED.value
-        default_style = ElemLabelStyle.DEFAULT.value
-        prev_lbl_pos: int | None = self.get_clicked_elem_pos(current_grid)
-        clicked_label = current_grid.layout().itemAt(lbl_pos).widget()
-
-        enable_btns = prev_lbl_pos != lbl_pos
-        clicked_lbl_style = clicked_style if enable_btns else default_style
-
-        self.toolbar.set_btns_clickable(enable_btns)
-        clicked_label.setStyleSheet(clicked_lbl_style)
-
-        if prev_lbl_pos is not None:
-            previous_label = current_grid.layout().itemAt(prev_lbl_pos).widget()
-            previous_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
-
-    def get_clicked_elem_pos(self, current_grid: QWidget) -> int | None:
-        """
-        Gets the index of the currently clicked label.
-
-        Args:
-            current_grid (QWidget): The widget in the focused splitter's position.
-
-        Returns:
-            int | None: Index of the clicked label, or None if no label is selected.
-        """
-        total_elems = current_grid.layout().count()
-        for i in range(total_elems):
-            label = current_grid.layout().itemAt(i).widget()
-            label_style = label.styleSheet()
-
-            if ElemLabelStyle.CLICKED.value in label_style:
-                return i
 
     def _send_lbl_dbl_click_sig(self, pos: int):
         """Emits a signal with the position of a label that was double-clicked.
@@ -309,7 +264,7 @@ class MainWindow(QMainWindow):
         """
         self.lbl_dbl_click_sig.emit(pos)
 
-    def _send_lbl_sig(self, pos: int):
+    def _send_lbl_sig(self, lbl_highlighted, pos: int):
         """Creates a mouse event handler for a label and returns it.
 
         The returned handler emits a signal with the label's position when
@@ -321,6 +276,7 @@ class MainWindow(QMainWindow):
         Returns:
             func: Emits "lbl_sig" with the label's position when clicked.
         """
+        self.toolbar.set_btns_clickable(lbl_highlighted)
         self.lbl_sig.emit(pos)
 
     def handle_app_signal(self, value):
@@ -335,11 +291,6 @@ class MainWindow(QMainWindow):
         self.grid_widget.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
         self.tab_widget.lbl_sig.connect(self._send_lbl_sig)
         self.tab_widget.currentChanged.connect(self.tab_changed)
-
-    def highlight_elem(self, env_pos, elem_pos):
-        view = self.view_state.state
-        self.update_sidebar(view, env_pos, elem_pos)
-        self.style_clicked_elem(self.view_state.get_current_grid(), elem_pos)
 
     def show_error_msg(self, msg):
         dialogs.ErrorWindow.show(msg)

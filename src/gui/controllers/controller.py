@@ -27,7 +27,7 @@ class Controller:
         """
         if self.view.view_state.state == ElemType.ENV:
             self.current_env = elem_pos
-        self.view.highlight_elem(self.current_env, elem_pos)
+        self.view.update_sidebar(self.view.view_state.state, self.current_env, elem_pos)
 
     def elem_double_clicked(self, pos: int):
         """
@@ -58,7 +58,8 @@ class Controller:
         """
         Deletes the element associated with the clicked label.
         """
-        elem_pos = self.view.get_clicked_elem_pos(self.view.view_state.get_current_grid())
+        current_grid = self.view.view_state.get_current_grid()
+        elem_pos = current_grid.get_clicked_elem_pos(current_grid.layout().itemAt(0).widget())
         if self.view.view_state.state == ElemType.ENV and elem_pos is not None:
             self.delete_env(elem_pos)
         else:

@@ -20,4 +20,4 @@ class GuiStateMachine:
             raise ValueError(f"Cannot transition from {self.state} to {state}.")
 
     def get_current_grid(self):
-        return self.widget.layout().itemAt(0).widget()
+        return self.widget
