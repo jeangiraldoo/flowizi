@@ -59,7 +59,7 @@ class Controller:
         Deletes the element associated with the clicked label.
         """
         current_grid = self.view.view_state.get_current_grid()
-        elem_pos = current_grid.get_clicked_elem_pos(current_grid.layout().itemAt(0).widget())
+        elem_pos = current_grid.get_clicked_elem_pos(current_grid.get_grid_widget())
         if self.view.view_state.state == ElemType.ENV and elem_pos is not None:
             self.delete_env(elem_pos)
         else:

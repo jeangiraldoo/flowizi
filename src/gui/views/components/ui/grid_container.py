@@ -46,7 +46,8 @@ class ElemGridWidget(QWidget):
 
     def _set_grid(self, elem_type: ElemType, elem_list: list):
         """Adds a widget grid to the layout."""
-        self.layout().addWidget(self._get_grid(elem_type, elem_list))
+        self.grid = self._get_grid(elem_type, elem_list)
+        self.layout().addWidget(self.grid)
 
     def _clear_grid_widget(self):
         """
@@ -55,9 +56,11 @@ class ElemGridWidget(QWidget):
         The grid widget is deleted if it is present, if no grid has been set nothing is done.
         """
         if self.layout().count() > 0:
-            widget = self.layout().itemAt(0).widget()
-            self.layout().removeWidget(widget)
-            widget.deleteLater()
+            self.layout().removeWidget(self.grid)
+            self.grid.deleteLater()
+
+    def get_grid_widget(self):
+        return self.grid
 
     def _get_grid(self, elem_type: ElemType, elem_list: list[Element]) -> QLabel | QWidget:
         """Returns a widget containing a grid layout if "elem_list" has
