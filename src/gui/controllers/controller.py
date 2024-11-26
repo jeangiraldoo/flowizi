@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from gui.views.view import MainWindow
+from gui.views.view import View
 from core.elements.element import ElemType
 from core.text_res.feedback import Feedback
 from flowizi import flowizi
@@ -10,7 +10,7 @@ from core.database.validations import Validations, ResType
 class Controller:
     def main(self):
         app = QApplication(sys.argv)
-        self.view = MainWindow()
+        self.view = View()
         self.view.show()
         self.current_env = None
         self.connect_signals_to_slots()

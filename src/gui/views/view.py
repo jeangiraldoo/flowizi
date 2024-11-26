@@ -10,7 +10,7 @@ from gui.views.styles import ElemLabelStyle
 from gui.views.states import GuiStateMachine
 
 
-class MainWindow(QMainWindow):
+class View(QMainWindow):
     lbl_sig = pyqtSignal(int)
     lbl_dbl_click_sig = pyqtSignal(int)
     input_dialog_sig = pyqtSignal(str)
