@@ -32,58 +32,63 @@ class ElemGridWidget(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setLayout(QVBoxLayout())
+        layout = QGridLayout()
+        layout.setSpacing(30)
+        self.setLayout(layout)
 
     def update(self, elem_type: ElemType, elem_list: list):
-        """Replaces the current grid with a new one.
+        """
+        Updates the layout by replacing the current widgets with new ones.
 
         Args:
-            elem_type (ElemType): Type of elements to display.
-            elem_list (list): Elements to populate the grid.
+            elem_type (ElemType): The type of elements to display.
+            elem_list (list): A list of elements to populate the layout.
         """
-        self._clear_grid_widget()
-        self._set_grid(elem_type, elem_list)
+        self._clear_layout()
+        self._populate_layout(elem_type, elem_list)
 
-    def _set_grid(self, elem_type: ElemType, elem_list: list):
-        """Adds a widget grid to the layout."""
-        self.grid = self._generate_widget(elem_type, elem_list)
-        self.layout().addWidget(self.grid)
-
-    def _clear_grid_widget(self):
+    def _clear_layout(self):
         """
-        Deletes the grid widget if present
+        Deletes all widgets from the layout to prepare it for adding new ones.
 
-        The grid widget is deleted if it is present, if no grid has been set nothing is done.
+        The deletion begins only if a layout exists and contains at least one widget.
         """
-        if self.layout().count() > 0:
-            self.layout().removeWidget(self.grid)
-            self.grid.deleteLater()
+        layout = self.layout()
+        if layout is not None and layout.count():
+            for i in range(layout.count()):
+                item = layout.takeAt(0)
+                widget =  item.widget()
+                widget.deleteLater()
 
-    def get_grid_widget(self) -> QWidget:
+    def _populate_layout(self, elem_type: ElemType, elem_list: list[Element]):
         """
-        Returns the widget that contains labels.
+        Populates the layout with one or more labels.
 
-        This method is used whenever any part of the program needs to interact with the grid
-        being displayed, keeping the rest of program decoupled from the ElemGridWidget class.
-        """
-        return self.grid
-
-    def _generate_widget(self, elem_type: ElemType, elem_list: list[Element]) -> QLabel | QWidget:
-        """Returns a widget containing a grid layout if "elem_list" has
-        elements, or a QLabel if "elem_list" is empty.
+        If the provided element list is empty, a label with feedback on how to create 
+        an element is added to the layout. Otherwise, the layout is populated with 
+        labels, each representing an element from the given list.
 
         Args:
-            elem_type (ElemType): The type of elements in the grid.
-            elem_list (List[Element]): List of elements to display in the grid.
-
-        Returns:
-            QLabel | QWidget: A QWidget with a grid layout if elements
-            exist, or a QLabel indicating an empty grid otherwise.
+            elem_type (ElemType): The type of the elements in the list.
+            elem_list (list[Element]): A list of elements to be represented as labels.
         """
         if len(elem_list):
-            return self._generate_grid(elem_list)
+            self._generate_grid_labels(self.layout(), elem_list)
         else:
-            return self._generate_empty_label(elem_type)
+            self.layout().addWidget(self._generate_empty_label(elem_type), 0, 0)
+        
+    def get_layout(self) -> QGridLayout:
+        """
+        Retrieve the layout associated with this instance.
+
+        Provides access to the "QGridLayout" that manages the labels displayed in the widget. 
+        This method helps decouple other parts of the program from the internal structure 
+        of the "ElemGridWidget" class.
+
+        Returns:
+            QGridLayout: The grid layout containing the labels for this widget.
+        """
+        return self.layout()
 
     def _generate_empty_label(self, elem_type: ElemType) -> QLabel:
         """
@@ -103,45 +108,33 @@ class ElemGridWidget(QWidget):
 
         return label
 
-    def _generate_grid(self, element_list: list[Element]) -> QWidget:
-        """Returns a QWidget containing a grid layout with labels.
+    def _generate_grid_labels(self, layout: QGridLayout, elem_list: list[Element]):
+        """
+        Populates the layout with labels representing the provided elements.
 
-        Each element in "element_list" is represented by a label in the grid,
-        arranged with a specified number of items per row. The labels display
-        the element's name and have connected mouse events for interaction.
+        Each element in "elem_list" is displayed as a label in the grid layout, arranged 
+        in rows with a predefined number of items per row. The labels show the name of each 
+        element and support mouse interactions for additional functionality.
 
         Args:
-            element_list (List[Element]): List of elements to display.
-
-        Returns:
-            QWidget: A QWidget containing the grid of clickable labels, each
-            label positioned according to its order in "element_list".
+            elem_list (list[Element]): List of elements to be represented as labels in the layout.
         """
-        grid = QGridLayout()
-        grid.setSpacing(30)
-
-        grid_widget = QWidget()
-        grid_widget.setLayout(grid)
-
         num_elems_row = 4
-        total_envs = len(element_list)
+        total_envs = len(elem_list)
         total_rows = math.ceil(total_envs/num_elems_row)
         current_env = 0
 
         for row in range(total_rows):
-            grid.setRowStretch(row, 1)
+            # layout.setRowStretch(row, 1)
             for column in range(num_elems_row):
-                label = ClickableLabel(f"{element_list[current_env].name}")
-                grid.addWidget(label, row, column)
-                label.set_pos(grid.indexOf(label))
+                label = ClickableLabel(f"{elem_list[current_env].name}")
+                layout.addWidget(label, row, column)
+                label.set_pos(layout.indexOf(label))
                 label.lbl_clicked_sig.connect(self._clicked_label_handler)
                 label.lbl_dbl_click_sig.connect(self._send_lbl_dbl_click_sig)
                 current_env += 1
-
                 if current_env == total_envs:
                     break
-
-        return grid_widget
 
     def _clicked_label_handler(self, lbl_pos: int):
         res = self._style_clicked_elem(lbl_pos)
@@ -155,15 +148,13 @@ class ElemGridWidget(QWidget):
         enables/disables associated buttons accordingly.
 
         Args:
-            lbl_pos (int): The position of the clicked label in the grid.
+            lbl_pos (int): The position of the clicked label in the layout.
         """
-        item = self.layout().itemAt(0)
-        if item is not None:
-            grid_widget = item.widget()
+        if self.layout().count():
             clicked_style = ElemLabelStyle.CLICKED.value
             default_style = ElemLabelStyle.DEFAULT.value
-            prev_lbl_pos: int | None = self.get_clicked_elem_pos(grid_widget)
-            clicked_label = grid_widget.layout().itemAt(lbl_pos).widget()
+            prev_lbl_pos: int | None = self.get_clicked_elem_pos(self.layout())
+            clicked_label = self.layout().itemAt(lbl_pos).widget()
 
             enable_btns = prev_lbl_pos != lbl_pos
             clicked_lbl_style = clicked_style if enable_btns else default_style
@@ -171,24 +162,24 @@ class ElemGridWidget(QWidget):
             clicked_label.setStyleSheet(clicked_lbl_style)
 
             if prev_lbl_pos is not None:
-                previous_label = grid_widget.layout().itemAt(prev_lbl_pos).widget()
+                previous_label = self.layout().itemAt(prev_lbl_pos).widget()
                 previous_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
 
             return enable_btns
 
-    def get_clicked_elem_pos(self, current_grid: QWidget) -> int | None:
+    def get_clicked_elem_pos(self, layout: QGridLayout) -> int | None:
         """
-        Gets the index of the currently clicked label.
+        Retrieve the index of the currently clicked label.
 
         Args:
-            current_grid (QWidget): The widget in the focused splitter's position.
+            layout (QGridLayout): The layout containing the labels.
 
         Returns:
-            int | None: Index of the clicked label, or None if no label is selected.
+            int | None: The index of the clicked label, or None if no label is clicked.
         """
-        total_elems = current_grid.layout().count()
+        total_elems = layout.count()
         for i in range(total_elems):
-            label = current_grid.layout().itemAt(i).widget()
+            label = layout.itemAt(i).widget()
             label_style = label.styleSheet()
 
             if ElemLabelStyle.CLICKED.value in label_style:
