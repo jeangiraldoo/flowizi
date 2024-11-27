@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, pyqtSignal, QEventLoop
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSplitter
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt, Signal, QEventLoop
 from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
@@ -13,11 +13,11 @@ from gui.views.components.dialogs import (InputDialog, FileDialog, AppDialog,
 
 
 class View(QMainWindow):
-    lbl_sig = pyqtSignal(int)
-    lbl_dbl_click_sig = pyqtSignal(int)
-    input_dialog_sig = pyqtSignal(str)
-    AppDialog_sig = pyqtSignal(bool)
-    tab_changed_sig = pyqtSignal(ElemType)
+    lbl_sig = Signal(int)
+    lbl_dbl_click_sig = Signal(int)
+    input_dialog_sig = Signal(str)
+    AppDialog_sig = Signal(bool)
+    tab_changed_sig = Signal(ElemType)
 
     def __init__(self):
         super().__init__()
@@ -36,7 +36,7 @@ class View(QMainWindow):
         root_layout = QVBoxLayout()
         root_widget.setLayout(root_layout)
         self.setCentralWidget(root_widget)
-        self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter = QSplitter(Qt.Orientation.Horizontal)
 
         self.grid_widget = ElemGridWidget()
         self.grid_widget.update(ElemType.ENV, flowizi.environment_list)

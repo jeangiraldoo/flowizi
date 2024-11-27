@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication
 from gui.views.view import View
 from core.elements.element import ElemType
 from core.text_res.feedback import Feedback

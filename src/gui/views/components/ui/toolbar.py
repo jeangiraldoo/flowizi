@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QHBoxLayout, QPushButton
+from PySide6.QtWidgets import QHBoxLayout, QPushButton
 from core.elements.element import ElemType
 
 

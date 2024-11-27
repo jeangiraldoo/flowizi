@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QSizePolicy, QVBoxLayout, QWidget, QLabel
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap
+from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QWidget, QLabel
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 from core.elements.element import Element, Environment, ElemType
 from core.elements.contained_element import ContainedElement
 

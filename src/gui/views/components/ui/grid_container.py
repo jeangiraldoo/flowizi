@@ -1,13 +1,13 @@
 import math
-from PyQt5.QtWidgets import QVBoxLayout, QWidget, QLabel, QGridLayout
-from PyQt5.QtCore import Qt, pyqtSignal
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QGridLayout
+from PySide6.QtCore import Qt, Signal
 from core.elements.element import Element, ElemType
 from gui.views.styles import ElemLabelStyle
 
 
 class ClickableLabel(QLabel):
-    lbl_clicked_sig =pyqtSignal(int)
-    lbl_dbl_click_sig = pyqtSignal(int)
+    lbl_clicked_sig =Signal(int)
+    lbl_dbl_click_sig = Signal(int)
 
     def __init__(self, txt):
         super().__init__()
@@ -27,8 +27,8 @@ class ClickableLabel(QLabel):
 
 
 class ElemGridWidget(QWidget):
-    lbl_sig = pyqtSignal(bool, int)
-    lbl_dbl_click_sig = pyqtSignal(int)
+    lbl_sig = Signal(bool, int)
+    lbl_dbl_click_sig = Signal(int)
 
     def __init__(self):
         super().__init__()

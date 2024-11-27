@@ -1,12 +1,12 @@
-from PyQt5.QtWidgets import QTabWidget
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtGui import QFont
+from PySide6.QtWidgets import QTabWidget
+from PySide6.QtCore import Signal
+from PySide6.QtGui import QFont
 from core.elements.element import ElemType
 from gui.views.components.ui.grid_container import ElemGridWidget
 
 
 class TabBar(QTabWidget):
-    lbl_sig = pyqtSignal(bool, int)
+    lbl_sig = Signal(bool, int)
 
     def __init__(self):
         super().__init__()

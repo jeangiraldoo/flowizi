@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import (QLabel, QDialog, QVBoxLayout, QMessageBox,
+from PySide6.QtWidgets import (QLabel, QDialog, QVBoxLayout, QMessageBox,
                              QListWidget)
-from PyQt5.QtCore import pyqtSignal
+from PySide6.QtCore import Signal
 from core.platform import sys_apps
 from core.database.validations import Validations, ResType
 from gui.views.components.dialogs.error import ErrorWindow
@@ -9,8 +9,8 @@ from flowizi import flowizi
 
 
 class AppDialog(QDialog):
-    result_signal = pyqtSignal(bool)
-    user_close_signal = pyqtSignal(bool)
+    result_signal = Signal(bool)
+    user_close_signal = Signal(bool)
 
     def __init__(self, env_name: str):
         super().__init__()
