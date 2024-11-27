@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QHBoxLayout, QPushButton
+from gui.views.components.styles import Styles
 from core.elements.element import ElemType
 
 
@@ -50,13 +51,7 @@ class Toolbar(QHBoxLayout):
         """
         btn = QPushButton(btn_txt)
         btn.setMaximumSize(100, 40)
-        btn.setStyleSheet("""QPushButton{
-                    background-color: #f19600;
-                    font-size: 20px;
-                    }
-                    QPushButton:hover{
-                    background-color: #ffbb4d;
-                    }""")
+        btn.setStyleSheet(Styles.TOOLBAR_BTN.value)
         return btn
 
     def set_btns_clickable(self, clickable: bool):

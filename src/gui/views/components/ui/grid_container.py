@@ -2,7 +2,7 @@ import math
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QGridLayout
 from PySide6.QtCore import Qt, Signal
 from core.elements.element import Element, ElemType
-from gui.views.styles import ElemLabelStyle
+from gui.views.components.styles import Styles
 
 
 class ClickableLabel(QLabel):
@@ -11,7 +11,7 @@ class ClickableLabel(QLabel):
 
     def __init__(self, txt):
         super().__init__()
-        self.setStyleSheet(ElemLabelStyle.DEFAULT.value)
+        self.setStyleSheet(Styles.LBL_DEFAULT.value)
         self.setAlignment(Qt.AlignCenter)
         self.setText(txt)
 
@@ -104,7 +104,7 @@ class ElemGridWidget(QWidget):
         label = QLabel(label_text)
         label.setWordWrap(True)
         label.setAlignment(Qt.AlignCenter)
-        label.setStyleSheet("color: white; font-size: 30px; padding: 10px;")
+        label.setStyleSheet(Styles.EMPTY_LBL.value)
 
         return label
 
@@ -151,8 +151,8 @@ class ElemGridWidget(QWidget):
             lbl_pos (int): The position of the clicked label in the layout.
         """
         if self.layout().count():
-            clicked_style = ElemLabelStyle.CLICKED.value
-            default_style = ElemLabelStyle.DEFAULT.value
+            clicked_style = Styles.LBL_CLICKED.value
+            default_style = Styles.LBL_DEFAULT.value
             prev_lbl_pos: int | None = self.get_clicked_elem_pos(self.layout())
             clicked_label = self.layout().itemAt(lbl_pos).widget()
 
@@ -163,7 +163,7 @@ class ElemGridWidget(QWidget):
 
             if prev_lbl_pos is not None:
                 previous_label = self.layout().itemAt(prev_lbl_pos).widget()
-                previous_label.setStyleSheet(ElemLabelStyle.DEFAULT.value)
+                previous_label.setStyleSheet(Styles.LBL_DEFAULT.value)
 
             return enable_btns
 
@@ -182,7 +182,7 @@ class ElemGridWidget(QWidget):
             label = layout.itemAt(i).widget()
             label_style = label.styleSheet()
 
-            if ElemLabelStyle.CLICKED.value in label_style:
+            if Styles.LBL_CLICKED.value in label_style:
                 return i
 
     def _send_lbl_dbl_click_sig(self, pos: int):

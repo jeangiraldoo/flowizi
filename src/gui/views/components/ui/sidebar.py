@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QWidget, QLabel
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
+from gui.views.components.styles import Styles
 from core.elements.element import Element, Environment, ElemType
 from core.elements.contained_element import ContainedElement
 
@@ -97,11 +98,8 @@ class Sidebar(QWidget):
         Returns:
             QLabel: QLabel instance with a set text.
         """
-        style = """background-color: #1c1c1b; padding-left: 3px;
-                   border-radius: 8px; font-size: 22px; color: white;
-                """
         label = QLabel(text)
-        label.setStyleSheet(style)
+        label.setStyleSheet(Styles.SIDEBAR_LBL.value)
         label.setWordWrap(True)
         label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 

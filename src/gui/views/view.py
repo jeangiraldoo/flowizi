@@ -5,7 +5,6 @@ from flowizi import flowizi
 from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
 from core.elements.element import ElemType
-from gui.views.styles import ElemLabelStyle
 from gui.views.states import GuiStateMachine
 from gui.views.components.ui import Sidebar, Toolbar, TabBar, ElemGridWidget
 from gui.views.components.dialogs import (InputDialog, FileDialog, AppDialog,
@@ -24,7 +23,7 @@ class View(QMainWindow):
         self.resize(1000, 600)
         self.setWindowTitle("Flowizi")
         self.setWindowIcon(QIcon("logo.svg"))
-        self.setStyleSheet("background-color: #30302f;")
+        self.setStyleSheet("background-color: hsl(60, 1%, 19%)")
         self._initUI()
         self.view_state = GuiStateMachine(self.grid_widget)
 

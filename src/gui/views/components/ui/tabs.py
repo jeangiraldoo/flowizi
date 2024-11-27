@@ -1,6 +1,7 @@
 from PySide6.QtWidgets import QTabWidget
 from PySide6.QtCore import Signal
 from PySide6.QtGui import QFont
+from gui.views.components.styles import Styles
 from core.elements.element import ElemType
 from gui.views.components.ui.grid_container import ElemGridWidget
 
@@ -13,7 +14,7 @@ class TabBar(QTabWidget):
         font = QFont()
         font.setPointSize(12)
         self.tabBar().setFont(font)
-        self.setStyleSheet("""QTabBar::tab::selected{background-color: #f19600;}""")
+        self.setStyleSheet(Styles.FOCUSED_TAB.value)
         self._setup_tabs()
 
     def update(self):
