@@ -289,6 +289,15 @@ class View(QMainWindow):
         current_grid = self.view_state.get_current_grid()
         return current_grid.get_clicked_elem_pos(current_grid.get_layout())
 
+    def get_current_env_pos(self) -> int | None:
+        """
+        Retrieves the position of the currently clicked environment.
+
+        Returns:
+            int | None: The position of the clicked environment, otherwise, None.
+        """
+        return self.view_state.get_current_env_pos()
+
 
     def _send_lbl_dbl_click_sig(self, pos: int):
         """Emits a signal with the position of a label that was double-clicked.

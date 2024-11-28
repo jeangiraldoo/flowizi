@@ -26,7 +26,7 @@ class Controller:
         """
         if self.view.get_current_view() == ElemType.ENV:
             self.view.view_state.update_current_env_pos(elem_pos)
-        current_env_pos = self.view.view_state.get_current_env_pos()
+        current_env_pos = self.view.get_current_env_pos()
         self.view.update_sidebar(self.view.get_current_view(), current_env_pos, elem_pos)
 
     def elem_double_clicked(self, pos: int):
@@ -63,7 +63,7 @@ class Controller:
         else:
             self.delete_elem(self.view.get_current_view(), elem_pos)
 
-        self.view.update_element_widget(self.view.view_state.get_current_env_pos())
+        self.view.update_element_widget(self.view.get_current_env_pos())
 
     def delete_env(self, env_pos: int):
         """
@@ -83,7 +83,7 @@ class Controller:
             elem_type (ElemType): The type of the element.
             elem_pos (int): The index or position of the element to delete.
         """
-        env = flowizi.environment_list[self.view.view_state.get_current_env_pos()]
+        env = flowizi.environment_list[self.view.get_current_env_pos()]
         env_elem_list = getattr(env, elem_type.value)
         elem_name = env_elem_list[elem_pos].name
 
@@ -130,7 +130,7 @@ class Controller:
         Args:
             input (str): User input.
         """
-        env_name = flowizi.environment_list[self.view.view_state.get_current_env_pos()].name
+        env_name = flowizi.environment_list[self.view.get_current_env_pos()].name
         inv_url_msg = Feedback.WEBSITE_INVALID_URL.value
         web_already_exist = Feedback.WEBSITE_ALREADY_EXISTS.value
         res = Validations.add_elem_validation(env_name, ElemType.WEB, input)
@@ -145,7 +145,7 @@ class Controller:
         if res != ResType.ENV_CREATED and res != ResType.SUCCESS:
             self.view.show_error_msg(msg)
         else:
-            self.view.update_element_widget(self.view.view_state.get_current_env_pos())
+            self.view.update_element_widget(self.view.get_current_env_pos())
 
     def connect_signals_to_slots(self):
         """
