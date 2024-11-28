@@ -3,7 +3,7 @@ from gui.views.components.styles import Styles
 from core.elements.element import ElemType
 
 
-class Toolbar(QHBoxLayout):
+class ToolbarWidget(QHBoxLayout):
     def __init__(self):
         super().__init__()
         self.setContentsMargins(0, 0, 0, 0)
