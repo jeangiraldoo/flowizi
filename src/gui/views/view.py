@@ -156,24 +156,19 @@ class View(QMainWindow):
             elem = getattr(env, current_view.value)[pos]
         self.sidebar_widget.update(current_view, elem)
 
-    def change_elem_view(self, current_env: int):
+    def change_elem_view(self):
         """
         Switches the displayed element view and updates the UI.
 
         Transitions the application from one element type to another, adjusting
         the grid, toolbar, and sidebar visibility based on the current view.
-
-        Args:
-            current_view (ElemType): The view being transitioned from.
-            current_env (int): The position of the active environment in the
-                               current view.
         """
         self.sidebar_widget.hide()
         self._change_sidebar_pos(self.view_state.state)
         self.toolbar.update(self.view_state.state)
 
         if self.view_state.state == ElemType.ENV:
-            self._change_view_to_elems(current_env)
+            self._change_view_to_elems(self.view_state.get_current_env_pos())
         else:
             self._change_view_to_env()
 
@@ -185,6 +180,7 @@ class View(QMainWindow):
         self.grid_widget.show()
         self.grid_widget.update(ElemType.ENV, flowizi.environment_list)
         self.view_state.transition_state(ElemType.ENV, self.grid_widget)
+        self.view_state.update_current_env_pos(None)
 
     def _change_view_to_elems(self, current_env: int):
         """

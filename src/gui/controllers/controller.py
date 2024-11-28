@@ -37,14 +37,13 @@ class Controller:
             pos (int): Position of the clicked environment.
         """
         if self.view.view_state.state == ElemType.ENV:
-            self.view.change_elem_view(self.view.view_state.get_current_env_pos())
+            self.view.change_elem_view()
 
     def back_btn_clicked(self):
         """
         Resets the current_view/grid attributes and displays environments.
         """
-        self.view.change_elem_view(self.view.view_state.get_current_env_pos())
-        self.view.view_state.update_current_env_pos(None)
+        self.view.change_elem_view()
 
     def start_btn_clicked(self):
         """
