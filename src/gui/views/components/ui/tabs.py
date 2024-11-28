@@ -6,7 +6,7 @@ from core.elements.element import ElemType
 from gui.views.components.ui.grid_container import ElemGridWidget
 
 
-class TabBar(QTabWidget):
+class TabWidget(QTabWidget):
     lbl_sig = Signal(bool, int)
 
     def __init__(self):
