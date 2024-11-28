@@ -24,10 +24,10 @@ class Controller:
         Args:
             elem_pos (int): Clicked label's position.
         """
-        if self.view.view_state.state == ElemType.ENV:
+        if self.view.get_current_view() == ElemType.ENV:
             self.view.view_state.update_current_env_pos(elem_pos)
         current_env_pos = self.view.view_state.get_current_env_pos()
-        self.view.update_sidebar(self.view.view_state.state, current_env_pos, elem_pos)
+        self.view.update_sidebar(self.view.get_current_view(), current_env_pos, elem_pos)
 
     def elem_double_clicked(self, pos: int):
         """
@@ -36,7 +36,7 @@ class Controller:
         Args:
             pos (int): Position of the clicked environment.
         """
-        if self.view.view_state.state == ElemType.ENV:
+        if self.view.get_current_view() == ElemType.ENV:
             self.view.change_elem_view()
 
     def back_btn_clicked(self):
@@ -59,10 +59,10 @@ class Controller:
         """
         current_grid = self.view.view_state.get_current_grid()
         elem_pos = current_grid.get_clicked_elem_pos(current_grid.get_layout())
-        if self.view.view_state.state == ElemType.ENV and elem_pos is not None:
+        if self.view.get_current_view() == ElemType.ENV and elem_pos is not None:
             self.delete_env(elem_pos)
         else:
-            self.delete_elem(self.view.view_state.state, elem_pos)
+            self.delete_elem(self.view.get_current_view(), elem_pos)
 
         self.view.update_element_widget(self.view.view_state.get_current_env_pos())
 
@@ -105,7 +105,7 @@ class Controller:
         """
         if input == "":
             res, msg = "", "The name must have at least one character"
-        elif self.view.view_state.state == ElemType.ENV:
+        elif self.view.get_current_view() == ElemType.ENV:
             res, msg = self.validate_env_input(input)
         else:
             res, msg = self.validate_web_input(input)

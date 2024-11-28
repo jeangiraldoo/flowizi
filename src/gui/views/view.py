@@ -267,6 +267,17 @@ class View(QMainWindow):
 
         self.view_state.transition_state(new_state, widget)
 
+    def get_current_view(self) -> ElemType:
+        """
+        Retrieves the type of element currently being displayed.
+
+        This method allows the controller to query the application's current state.
+
+        Returns:
+            ElemType: The type of element currently displayed in the view.
+        """
+        return self.view_state.state
+
     def _send_lbl_dbl_click_sig(self, pos: int):
         """Emits a signal with the position of a label that was double-clicked.
 
