@@ -3,7 +3,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtGui import QFont
 from gui.views.components.styles import Styles
 from core.elements.element import ElemType
-from gui.views.components.ui.grid_container import ElemGridWidget
+from gui.views.components.ui.grid_container import GridWidget
 
 
 class TabWidget(QTabWidget):
@@ -30,7 +30,7 @@ class TabWidget(QTabWidget):
         tab_titles = [ElemType.WEB, ElemType.APP, ElemType.FILE]
 
         for idx, title in enumerate(tab_titles):
-            widget = ElemGridWidget()
+            widget = GridWidget()
             widget.lbl_sig.connect(self._send_lbl_sig)
             self.addTab(widget, title.value)
 

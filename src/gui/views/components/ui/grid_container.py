@@ -26,7 +26,7 @@ class ClickableLabel(QLabel):
         self.lbl_dbl_click_sig.emit(self.pos)
 
 
-class ElemGridWidget(QWidget):
+class GridWidget(QWidget):
     lbl_sig = Signal(bool, int)
     lbl_dbl_click_sig = Signal(int)
 
@@ -83,7 +83,7 @@ class ElemGridWidget(QWidget):
 
         Provides access to the "QGridLayout" that manages the labels displayed in the widget. 
         This method helps decouple other parts of the program from the internal structure 
-        of the "ElemGridWidget" class.
+        of the "GridWidget" class.
 
         Returns:
             QGridLayout: The grid layout containing the labels for this widget.
