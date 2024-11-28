@@ -49,16 +49,15 @@ class Controller:
         """
         Opens the clicked environment's elements after using the start button.
         """
-        pos = self.get_clicked_elem_pos(self.view.view_state.get_current_grid())
-        if pos is not None:
-            flowizi.environment_list[pos].start()
+        elem_pos = self.view.get_clicked_elem_pos()
+        if elem_pos is not None:
+            flowizi.environment_list[elem_pos].start()
 
     def delete_btn_clicked(self):
         """
         Deletes the element associated with the clicked label.
         """
-        current_grid = self.view.view_state.get_current_grid()
-        elem_pos = current_grid.get_clicked_elem_pos(current_grid.get_layout())
+        elem_pos = self.view.get_clicked_elem_pos()
         if self.view.get_current_view() == ElemType.ENV and elem_pos is not None:
             self.delete_env(elem_pos)
         else:
