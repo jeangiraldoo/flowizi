@@ -93,12 +93,9 @@ class Controller:
 
     def create_btn_clicked(self):
         """
-        Calls a method to create an element based on the current view.
+        Instructs the view to display a dialog that allows the user to create a new element.
         """
-        if self.view.view_state.state == ElemType.WEB or self.view.view_state.state == ElemType.ENV:
-            self.view.create_elem_input(self.view.view_state.get_current_env_pos())
-        else:
-            self.view.create_elem_dialog(self.view.view_state.get_current_env_pos())
+        self.view.launch_create_elem_dialog()
 
     def validate_input(self, input: str):
         """

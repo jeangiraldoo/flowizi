@@ -52,6 +52,20 @@ class View(QMainWindow):
         root_layout.addWidget(self.splitter)
         self.toolbar.set_btns_clickable(False)
 
+    def launch_create_elem_dialog(self):
+        """
+        Launches a dialog to create an element, chosen based on the current view.
+
+        This method determines the appropriate dialog to display depending on the
+        current view.
+        """
+        env_pos = self.view_state.get_current_env_pos()
+        if self.view_state.state == ElemType.WEB or self.view_state.state == ElemType.ENV:
+            self.create_elem_input(env_pos)
+        else:
+            self.create_elem_dialog(env_pos)
+
+
     def create_elem_input(self, current_env: int):
         """
         Prompts the user for input through a dialog to create an element.
