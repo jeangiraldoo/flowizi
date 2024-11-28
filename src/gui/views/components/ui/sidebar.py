@@ -6,7 +6,7 @@ from core.elements.element import Element, Environment, ElemType
 from core.elements.contained_element import ContainedElement
 
 
-class Sidebar(QWidget):
+class SidebarWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.hide()

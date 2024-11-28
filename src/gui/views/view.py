@@ -6,7 +6,7 @@ from core.database.validations import Validations, ResType
 from core.text_res.feedback import Feedback
 from core.elements.element import ElemType
 from gui.views.states import GuiStateMachine
-from gui.views.components.ui import Sidebar, Toolbar, TabWidget, ElemGridWidget
+from gui.views.components.ui import SidebarWidget, Toolbar, TabWidget, ElemGridWidget
 from gui.views.components.dialogs import (InputDialog, FileDialog, AppDialog,
                                           ErrorWindow)
 
@@ -40,7 +40,7 @@ class View(QMainWindow):
         self.grid_widget = ElemGridWidget()
         self.grid_widget.update(ElemType.ENV, flowizi.environment_list)
         self.toolbar = Toolbar()
-        self.sidebar_widget = Sidebar()
+        self.sidebar_widget = SidebarWidget()
         self.tab_widget = TabWidget()
         self.splitter.addWidget(self.grid_widget)
         self.splitter.addWidget(self.sidebar_widget)
