@@ -3,7 +3,7 @@ from PySide6.QtCore import Signal
 from PySide6.QtGui import QFont
 from gui.views.components.styles import Styles
 from core.elements.element import ElemType
-from gui.views.components.ui.grid_container import GridWidget
+from gui.views.components.ui.grid import GridWidget
 
 
 class TabWidget(QTabWidget):
