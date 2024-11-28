@@ -61,12 +61,12 @@ class View(QMainWindow):
         """
         env_pos = self.view_state.get_current_env_pos()
         if self.view_state.state == ElemType.WEB or self.view_state.state == ElemType.ENV:
-            self.create_elem_input(env_pos)
+            self._launch_input_dialog(env_pos)
         else:
-            self.create_elem_dialog(env_pos)
+            self._launch_choice_dialog(env_pos)
 
 
-    def create_elem_input(self, current_env: int):
+    def _launch_input_dialog(self, current_env: int):
         """
         Prompts the user for input through a dialog to create an element.
 
@@ -85,7 +85,7 @@ class View(QMainWindow):
             self.update_element_widget(current_env)
             self.input_dialog_sig.emit(msg_box.get_text())
 
-    def create_elem_dialog(self, current_env: int):
+    def _launch_choice_dialog(self, current_env: int):
         """
         Creates an element without keyboard input, using a dialog window.
 
