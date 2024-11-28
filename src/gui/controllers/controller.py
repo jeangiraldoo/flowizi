@@ -12,7 +12,6 @@ class Controller:
         app = QApplication(sys.argv)
         self.view = View()
         self.view.show()
-        self.current_env = None
         self.connect_signals_to_slots()
 
         sys.exit(app.exec_())
@@ -26,8 +25,9 @@ class Controller:
             elem_pos (int): Clicked label's position.
         """
         if self.view.view_state.state == ElemType.ENV:
-            self.current_env = elem_pos
-        self.view.update_sidebar(self.view.view_state.state, self.current_env, elem_pos)
+            self.view.view_state.update_current_env_pos(elem_pos)
+        current_env_pos = self.view.view_state.get_current_env_pos()
+        self.view.update_sidebar(self.view.view_state.state, current_env_pos, elem_pos)
 
     def elem_double_clicked(self, pos: int):
         """
@@ -37,14 +37,14 @@ class Controller:
             pos (int): Position of the clicked environment.
         """
         if self.view.view_state.state == ElemType.ENV:
-            self.view.change_elem_view(self.current_env)
+            self.view.change_elem_view(self.view.view_state.get_current_env_pos())
 
     def back_btn_clicked(self):
         """
         Resets the current_view/grid attributes and displays environments.
         """
-        self.view.change_elem_view(self.current_env)
-        self.current_env = None
+        self.view.change_elem_view(self.view.view_state.get_current_env_pos())
+        self.view.view_state.update_current_env_pos(None)
 
     def start_btn_clicked(self):
         """
@@ -65,7 +65,7 @@ class Controller:
         else:
             self.delete_elem(self.view.view_state.state, elem_pos)
 
-        self.view.update_element_widget(self.current_env)
+        self.view.update_element_widget(self.view.view_state.get_current_env_pos())
 
     def delete_env(self, env_pos: int):
         """
@@ -85,7 +85,7 @@ class Controller:
             elem_type (ElemType): The type of the element.
             elem_pos (int): The index or position of the element to delete.
         """
-        env = flowizi.environment_list[self.current_env]
+        env = flowizi.environment_list[self.view.view_state.get_current_env_pos()]
         env_elem_list = getattr(env, elem_type.value)
         elem_name = env_elem_list[elem_pos].name
 
@@ -96,9 +96,9 @@ class Controller:
         Calls a method to create an element based on the current view.
         """
         if self.view.view_state.state == ElemType.WEB or self.view.view_state.state == ElemType.ENV:
-            self.view.create_elem_input(self.current_env)
+            self.view.create_elem_input(self.view.view_state.get_current_env_pos())
         else:
-            self.view.create_elem_dialog(self.current_env)
+            self.view.create_elem_dialog(self.view.view_state.get_current_env_pos())
 
     def validate_input(self, input: str):
         """
@@ -135,7 +135,7 @@ class Controller:
         Args:
             input (str): User input.
         """
-        env_name = flowizi.environment_list[self.current_env].name
+        env_name = flowizi.environment_list[self.view.view_state.get_current_env_pos()].name
         inv_url_msg = Feedback.WEBSITE_INVALID_URL.value
         web_already_exist = Feedback.WEBSITE_ALREADY_EXISTS.value
         res = Validations.add_elem_validation(env_name, ElemType.WEB, input)
@@ -150,7 +150,7 @@ class Controller:
         if res != ResType.ENV_CREATED and res != ResType.SUCCESS:
             self.view.show_error_msg(msg)
         else:
-            self.view.update_element_widget(self.current_env)
+            self.view.update_element_widget(self.view.view_state.get_current_env_pos())
 
     def connect_signals_to_slots(self):
         """
